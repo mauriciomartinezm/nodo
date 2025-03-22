@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'dart:math';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,13 +26,19 @@ class NewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final diagonal = sqrt(
+      pow(MediaQuery.of(context).size.width, 2) +
+          pow(MediaQuery.of(context).size.height, 2),
+    );
+
     return Scaffold(
       body: SingleChildScrollView(
           child: Column(children: [
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.3,
           child: Container(
-              padding: EdgeInsets.all(20.w),
+              padding: EdgeInsets.only(left: 20.w, right: 20.w),
+              //padding: EdgeInsets.all(20.w),
               alignment: Alignment.center,
               //constraints: BoxConstraints.expand(
               //  height:
@@ -44,26 +52,34 @@ class NewWidget extends StatelessWidget {
                 ),
               ),
               child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
+                //mainAxisSize: MainAxisSize.min,
+                //mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Image.asset(
                     'assets/icons/iconNodoWhite.png', //necesito el svg, la imagen no quiere cambiar de tama;o
-                    width: 50.sp,
+                    width: 55.w,
+                    height: 55.h,
                   ),
-                  SizedBox(
-                    // ????????????? espacio entre el logo y el texto
-                    height: 18.h,
-                  ),
-                  Text(
-                    'Inicia sesión y descubre nuevas oportunidades de trabajo y servicios en un solo lugar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.sp,
-                      fontFamily: 'GothamMedium',
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                  //SizedBox(
+                  //    // ????????????? espacio entre el logo y el texto
+                  //    height: 30.h,
+                  //    ),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.15),
+                    child: AutoSizeText(
+                        'Inicia sesión y descubre nuevas oportunidades de trabajo y servicios en un solo lugar',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.secondaryColor,
+                          fontSize: 14.sp,
+                          fontFamily: 'GothamMedium',
+                        ),
+                        maxLines: 3, // Máximo de líneas
+                        minFontSize: 5, // Tamaño mínimo de la fuente
+                        maxFontSize: 22),
+                  )
                 ],
               )),
         ),
@@ -71,7 +87,8 @@ class NewWidget extends StatelessWidget {
             height: MediaQuery.of(context).size.height * 0.7,
             child: Container(
               margin: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height * 0.12,
+                  top: MediaQuery.of(context).size.height * 0.15,
+                  //bottom: MediaQuery.of(context).size.height * 0.15,
                   left: MediaQuery.of(context).size.width * 0.085,
                   right: MediaQuery.of(context).size.width * 0.085),
               //decoration: BoxDecoration(
@@ -98,10 +115,12 @@ class NewWidget extends StatelessWidget {
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.02,
+                      top: MediaQuery.of(context).size.height * 0.015,
                     ),
                     height: MediaQuery.of(context).size.height * 0.05,
-                    child: TextFormField(
+                    child: TextField(
+                      obscureText: true,
+                      autocorrect: false,
                       decoration: InputDecoration(
                         labelText: "Contraseña",
                         border: OutlineInputBorder(
@@ -121,47 +140,53 @@ class NewWidget extends StatelessWidget {
                         style: TextStyle(
                             color: AppColors.accentColor,
                             fontFamily: "GothamBook",
-                            fontSize: 14.sp),
+                            fontSize: 11.r),
                       ),
                     ),
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height *
-                          0.01, // no se coloca margin en el bottom, el elevated button de por si ya tiene un margen por defecto
+                      top: MediaQuery.of(context).size.height * 0.025,
                     ),
                     child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
-                                  bottomRight: Radius.circular(10))),
-                        ),
-                        child: SizedBox(
-                            width: double.infinity,
-                            height: MediaQuery.of(context).size.height * 0.05,
-                            child: Center(
-                              child: Text(
-                                "Iniciar sesión",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: AppColors.secondaryColor,
-                                    fontFamily: "GothamMedium",
-                                    fontSize: 15.sp),
-                              ),
-                            ))),
+                            backgroundColor: AppColors.primaryColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    topRight: Radius.circular(10),
+                                    bottomRight: Radius.circular(10))),
+                            minimumSize: Size(
+                                double.infinity,
+                                MediaQuery.of(context).size.height *
+                                    0.06) //Debería ser 5% pero los textfield tienen un padding interno, lo que hace verlos mas grande
+                            ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                              maxHeight:
+                                  MediaQuery.of(context).size.height * 0.025),
+                          child: Center(
+                              child: AutoSizeText("Iniciar sesión",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: AppColors.secondaryColor,
+                                      fontFamily: "GothamMedium",
+                                      fontSize: 12.sp),
+                                  maxLines: 2, // Máximo de líneas
+                                  minFontSize: 5, // Tamaño mínimo de la fuente
+                                  maxFontSize: 28)),
+                        )),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text("¿No tienes una cuenta? ",
                           style: TextStyle(
-                              color: AppColors.primaryColor,
-                              fontFamily: "GothamBook",
-                              fontSize: 14.sp)),
+                            color: AppColors.primaryColor,
+                            fontFamily: "GothamBook",
+                            fontSize: 11.r
+                          )),
                       TextButton(
                         onPressed: () {
                           //print("Navegar a la pantalla de registro");
@@ -170,9 +195,10 @@ class NewWidget extends StatelessWidget {
                         child: Text(
                           "Regístrate",
                           style: TextStyle(
-                              color: AppColors.accentColor,
-                              fontFamily: "GothamMedium",
-                              fontSize: 14.sp),
+                            color: AppColors.accentColor,
+                            fontFamily: "GothamMedium",
+                            fontSize: 11.r
+                          ),
                         ),
                       ),
                     ],
@@ -184,9 +210,10 @@ class NewWidget extends StatelessWidget {
                     child: Text(
                       "O continua con: ",
                       style: TextStyle(
-                          color: AppColors.primaryColor,
-                          fontFamily: "GothamMedium",
-                          fontSize: 14.sp),
+                        color: AppColors.primaryColor,
+                        fontFamily: "GothamMedium",
+                        fontSize: 11.r
+                      ),
                     ),
                   ),
                   Row(
@@ -197,7 +224,7 @@ class NewWidget extends StatelessWidget {
                           child: Icon(
                             Icons.facebook,
                             size: MediaQuery.of(context).size.height *
-                                0.04, // Tamaño del ícono
+                                0.03, // Tamaño del ícono
 
                             color: AppColors.primaryColor,
                           )),
@@ -210,7 +237,7 @@ class NewWidget extends StatelessWidget {
                             child: Icon(
                               FontAwesomeIcons.google,
                               size: MediaQuery.of(context).size.height *
-                                  0.04, // Tamaño del ícono
+                                  0.03, // Tamaño del ícono
 
                               color: AppColors.primaryColor,
                             )),
@@ -220,7 +247,7 @@ class NewWidget extends StatelessWidget {
                         child: Icon(
                           FontAwesomeIcons.linkedin,
                           size: MediaQuery.of(context).size.height *
-                              0.04, // Tamaño del ícono
+                              0.03, // Tamaño del ícono
 
                           color: AppColors.primaryColor,
                         ),
