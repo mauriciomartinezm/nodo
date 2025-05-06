@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/app_colors.dart';
-import 'package:nodo/login_screen.dart';
+//import 'package:nodo/screens/login_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:nodo/screens/home_screen.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
             useMaterial3: true,
           ),
-          home: LoginScreen(),
+          home: HomeScreen(),
         );
       },
     );
