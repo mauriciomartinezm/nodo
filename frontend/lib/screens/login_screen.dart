@@ -26,10 +26,10 @@ class NewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final diagonal = sqrt(
-      pow(MediaQuery.of(context).size.width, 2) +
-          pow(MediaQuery.of(context).size.height, 2),
-    );
+    //final diagonal = sqrt(
+    //  pow(MediaQuery.of(context).size.width, 2) +
+    //      pow(MediaQuery.of(context).size.height, 2),
+    //);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -156,7 +156,8 @@ class NewWidget extends StatelessWidget {
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(10),
                                     topRight: Radius.circular(10),
-                                    bottomRight: Radius.circular(10))),
+                                    bottomRight: Radius.circular(10))
+                            ),
                             minimumSize: Size(
                                 double.infinity,
                                 MediaQuery.of(context).size.height *

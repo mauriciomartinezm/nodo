@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/widgets/barra_navegacion_widget.dart';
 import 'package:nodo/screens/crear_publicacion_screen.dart';
+import 'package:nodo/screens/notificaciones_screen.dart';
+import 'package:nodo/screens/publicaciones_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,11 +16,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Lista de pantallas/páginas
   final List<Widget> _screens = [
-    const CrearPublicacion(), // Publicar
-    const CrearPublicacion(), // Trabajos
-    const CrearPublicacion(), // Agregar algo
-    const CrearPublicacion(), // Notificaciones
-    const CrearPublicacion(), // Menú
+    const PublicacionesScreen(), // Publicaciones
+    const CrearPublicacionScreen(), // Trabajos
+    const CrearPublicacionScreen(), // Publicar
+    const NotificacionesScreen(), // Notificaciones
+    const CrearPublicacionScreen(), // Menú
   ];
 
   @override
