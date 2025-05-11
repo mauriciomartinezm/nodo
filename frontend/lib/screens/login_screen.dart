@@ -3,6 +3,7 @@ import '../app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:nodo/screens/home_screen.dart';
 import 'dart:math';
 
 class LoginScreen extends StatefulWidget {
@@ -149,15 +150,20 @@ class NewWidget extends StatelessWidget {
                       top: MediaQuery.of(context).size.height * 0.025,
                     ),
                     child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeScreen()),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryColor,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(10),
                                     topRight: Radius.circular(10),
-                                    bottomRight: Radius.circular(10))
-                            ),
+                                    bottomRight: Radius.circular(10))),
                             minimumSize: Size(
                                 double.infinity,
                                 MediaQuery.of(context).size.height *
@@ -184,10 +190,9 @@ class NewWidget extends StatelessWidget {
                     children: [
                       Text("¿No tienes una cuenta? ",
                           style: TextStyle(
-                            color: AppColors.primaryColor,
-                            fontFamily: "GothamBook",
-                            fontSize: 11.r
-                          )),
+                              color: AppColors.primaryColor,
+                              fontFamily: "GothamBook",
+                              fontSize: 11.r)),
                       TextButton(
                         onPressed: () {
                           //print("Navegar a la pantalla de registro");
@@ -196,10 +201,9 @@ class NewWidget extends StatelessWidget {
                         child: Text(
                           "Regístrate",
                           style: TextStyle(
-                            color: AppColors.accentColor,
-                            fontFamily: "GothamMedium",
-                            fontSize: 11.r
-                          ),
+                              color: AppColors.accentColor,
+                              fontFamily: "GothamMedium",
+                              fontSize: 11.r),
                         ),
                       ),
                     ],
@@ -211,10 +215,9 @@ class NewWidget extends StatelessWidget {
                     child: Text(
                       "O continua con: ",
                       style: TextStyle(
-                        color: AppColors.primaryColor,
-                        fontFamily: "GothamMedium",
-                        fontSize: 11.r
-                      ),
+                          color: AppColors.primaryColor,
+                          fontFamily: "GothamMedium",
+                          fontSize: 11.r),
                     ),
                   ),
                   Row(

@@ -187,7 +187,7 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
         padding: EdgeInsets.all(12.w),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 18.h),
+            padding: EdgeInsets.symmetric(vertical: 14.h),
             backgroundColor: AppColors.primaryColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
@@ -205,7 +205,7 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
             style: TextStyle(
               fontSize: 12.sp,
               color: AppColors.secondaryColor,
-              fontFamily: 'GothamBook',
+              fontFamily: 'GothamMedium',
             ),
           ),
         ),

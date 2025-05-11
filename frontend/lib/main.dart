@@ -3,6 +3,7 @@ import 'package:nodo/app_colors.dart';
 //import 'package:nodo/screens/login_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/screens/home_screen.dart';
+import 'package:nodo/screens/login_screen.dart';
 void main() {
   runApp(const MyApp());
 }
