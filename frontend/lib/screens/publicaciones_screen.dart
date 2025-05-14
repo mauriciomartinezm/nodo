@@ -84,6 +84,13 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
       return PublicacionListView(
         filter: tab,
         items: publicaciones[tab] ?? [],
+        onDelete: (item) {
+          _confirmarEliminar(context, item, tab);
+        },
+        confirmarEliminar: (item) {
+          // Añade este nuevo parámetro
+          _confirmarEliminar(context, item, tab);
+        },
       );
     }).toList();
 
@@ -180,26 +187,65 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
       ],
     );
   }
-}
 
-Widget _mensajeCentradoSpan(TextSpan mensaje) {
-  return Center(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: RichText(
-        textAlign: TextAlign.center,
-        text: mensaje,
+  void _confirmarEliminar(
+      BuildContext context, Map<String, String> item, String tab) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('¿Estás seguro?'),
+          content: const Text('Esta acción no se puede deshacer.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Cierra el diálogo de confirmación
+                Navigator.of(context).pop(); // Cierra el ModalBottomSheet
+                setState(() {
+                  publicaciones[tab]?.remove(item);
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Publicación eliminada')),
+                );
+              },
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _mensajeCentradoSpan(TextSpan mensaje) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: RichText(
+          textAlign: TextAlign.center,
+          text: mensaje,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class PublicacionListView extends StatelessWidget {
+  final Function(Map<String, String>) confirmarEliminar;
   final String filter;
   final List<Map<String, String>> items;
-
-  const PublicacionListView(
-      {super.key, required this.filter, required this.items});
+  final Function(Map<String, String>) onDelete;
+  const PublicacionListView({
+    super.key,
+    required this.filter,
+    required this.items,
+    required this.onDelete,
+    required this.confirmarEliminar,
+  });
 
   TextSpan obtenerMensajeVacio() {
     if (filter == 'Activas') {
@@ -357,180 +403,197 @@ class PublicacionListView extends StatelessWidget {
       ),
     );
   }
-}
 
-void mostrarDetallePublicacion(
-    BuildContext context, Map<String, String> publicacion) {
-  int _currentIndex = 0; // Guardamos la posición actual
-  final List<String> imageList = [
-    'assets/images/demo1.jpg',
-    'assets/images/demo2.jpg',
-    'assets/images/demo3.jpg',
-  ];
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: AppColors.secondaryColor,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  width: 40.w,
-                  height: 8.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(10),
+  void mostrarDetallePublicacion(
+      BuildContext context, Map<String, String> publicacion) {
+    int _currentIndex = 0; // Guardamos la posición actual
+    final List<String> imageList = [
+      'assets/images/demo1.jpg',
+      'assets/images/demo2.jpg',
+      'assets/images/demo3.jpg',
+    ];
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.secondaryColor,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    width: 40.w,
+                    height: 8.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                ),
-                CarouselSlider(
-                  items: imageList.map((imagePath) {
-                    return Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    );
-                  }).toList(),
-                  options: CarouselOptions(
-                    height: 150.h,
-                    enlargeCenterPage: true,
-                    enableInfiniteScroll: true,
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
+                  CarouselSlider(
+                    items: imageList.map((imagePath) {
+                      return Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      );
+                    }).toList(),
+                    options: CarouselOptions(
+                      height: 150.h,
+                      enlargeCenterPage: true,
+                      enableInfiniteScroll: true,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                    ),
                   ),
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: imageList.asMap().entries.map((entry) {
-                    return Container(
-                      width: 8.w,
-                      height: 8.w,
-                      margin: EdgeInsets.symmetric(horizontal: 4.w),
-                      decoration: BoxDecoration(
-                        //border: Border.all(
-                        //  color: AppColors.secondaryColor,
-                        //),
-                        shape: BoxShape.circle,
-                        color: _currentIndex == entry.key
-                            ? AppColors.accentColor
-                            : AppColors.primaryColor,
-                      ),
-                    );
-                  }).toList(),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(16.r),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        publicacion['title'] ?? '',
-                        style: TextStyle(
-                          color: AppColors.primaryColor,
-                          fontFamily: 'GothamMedium',
-                          fontSize: 14.sp,
+                  SizedBox(height: 8.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: imageList.asMap().entries.map((entry) {
+                      return Container(
+                        width: 8.w,
+                        height: 8.w,
+                        margin: EdgeInsets.symmetric(horizontal: 4.w),
+                        decoration: BoxDecoration(
+                          //border: Border.all(
+                          //  color: AppColors.secondaryColor,
+                          //),
+                          shape: BoxShape.circle,
+                          color: _currentIndex == entry.key
+                              ? AppColors.accentColor
+                              : AppColors.primaryColor,
                         ),
-                      ),
-                      SizedBox(height: 8.h),
-                      _detalleInfo(publicacion['description'] ?? ''),
-                      SizedBox(height: 8.h),
-                      _detalleInfo(publicacion['start_date'] ?? ''),
-                      _detalleInfo(publicacion['location'] ?? ''),
-                      _detalleInfo(publicacion['end_date'] ?? ''),
-                      _detalleInfo(publicacion['price'] ?? ''),
-                      Row(children: [
-                        _detalleInfo('Postulaciones: '),
-                        _detalleInfo(publicacion['participants'] ?? ''),
-                      ]),
-                      Row(children: [
-                        _detalleInfo('Estado: '),
-                        _detalleInfo(publicacion['status'] ?? ''),
-                      ]),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _botonAccion(
-                              Icons.edit,
-                              'Editar',
-                              AppColors.secondaryColor,
-                              AppColors.primaryColor, () {
-                            // Acción editar
-                          }),
-                          _botonAccion(
-                              Icons.check_circle_outline,
-                              'Completado',
-                              AppColors.primaryColor,
-                              AppColors.primaryColor.withOpacity(0.2), () {
-                            // Acción completado
-                          }),
-                          _botonAccion(
-                              Icons.delete_outline,
-                              'Eliminar',
-                              AppColors.primaryColor,
-                              AppColors.primaryColor.withOpacity(0.2), () {
-                            // Acción eliminar
-                          }),
-                        ],
-                      ),
-                    ],
+                      );
+                    }).toList(),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: EdgeInsets.all(16.r),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          publicacion['title'] ?? '',
+                          style: TextStyle(
+                            color: AppColors.primaryColor,
+                            fontFamily: 'GothamMedium',
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        _detalleInfo(publicacion['description'] ?? ''),
+                        SizedBox(height: 8.h),
+                        _detalleInfo(publicacion['start_date'] ?? ''),
+                        _detalleInfo(publicacion['location'] ?? ''),
+                        _detalleInfo(publicacion['end_date'] ?? ''),
+                        _detalleInfo(publicacion['price'] ?? ''),
+                        Row(children: [
+                          _detalleInfo('Postulaciones: '),
+                          _detalleInfo(publicacion['participants'] ?? ''),
+                        ]),
+                        Row(children: [
+                          _detalleInfo('Estado: '),
+                          _detalleInfo(publicacion['status'] ?? ''),
+                        ]),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _botonAccion(
+                                Icons.edit,
+                                'Editar',
+                                AppColors.secondaryColor,
+                                AppColors.primaryColor, () {
+                              // Acción editar
+                            }),
+                            _botonAccion(
+                                Icons.check_circle_outline,
+                                'Completado',
+                                AppColors.primaryColor,
+                                AppColors.primaryColor.withOpacity(0.2), () {
+                              // Acción completado
+                            }),
+                            ElevatedButton.icon(
+                              onPressed: () => confirmarEliminar(publicacion),
+                              icon: Icon(Icons.delete,
+                                  size: 16.sp, color: AppColors.primaryColor),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    AppColors.primaryColor.withOpacity(0.2),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 8.h, horizontal: 12.w),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(5),
+                                        topRight: Radius.circular(5),
+                                        bottomLeft: Radius.circular(5))),
+                              ),
+                              label: Text(
+                                'Eliminar publicación',
+                                style: TextStyle(
+                                  color: AppColors.primaryColor,
+                                  fontSize: 10.sp,
+                                  fontFamily: 'GothamMedium',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _detalleInfo(String texto) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.h),
+      child: Row(
+        children: [
+          Text(
+            '$texto ',
+            style: TextStyle(
+              color: AppColors.primaryColor,
+              fontFamily: 'GothamBook',
+              fontSize: 12.sp,
             ),
-          );
-        },
-      );
-    },
-  );
-}
-
-Widget _detalleInfo(String texto) {
-  return Padding(
-    padding: EdgeInsets.symmetric(vertical: 4.h),
-    child: Row(
-      children: [
-        Text(
-          '$texto ',
-          style: TextStyle(
-            color: AppColors.primaryColor,
-            fontFamily: 'GothamBook',
-            fontSize: 12.sp,
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _botonAccion(IconData icono, String texto, Color color_texto,
-    Color color_fondo, VoidCallback onTap) {
-  return ElevatedButton.icon(
-    onPressed: onTap,
-    icon: Icon(icono, size: 16.sp, color: color_texto),
-    label: Text(
-      texto,
-      style: TextStyle(
-        color: color_texto,
-        fontSize: 10.sp,
-        fontFamily: 'GothamMedium',
+        ],
       ),
-    ),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: color_fondo,
-      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(5),
-              topRight: Radius.circular(5),
-              bottomLeft: Radius.circular(5))),
-    ),
-  );
+    );
+  }
+
+  Widget _botonAccion(IconData icono, String texto, Color color_texto,
+      Color color_fondo, VoidCallback onTap) {
+    return ElevatedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icono, size: 16.sp, color: color_texto),
+      label: Text(
+        texto,
+        style: TextStyle(
+          color: color_texto,
+          fontSize: 10.sp,
+          fontFamily: 'GothamMedium',
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color_fondo,
+        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(5),
+                topRight: Radius.circular(5),
+                bottomLeft: Radius.circular(5))),
+      ),
+    );
+  }
 }
