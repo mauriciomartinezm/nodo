@@ -1,15 +1,8 @@
 import clienteRouter from "./routes/clienteRoute.js";
-import restaurantRouter from "./routes/restaurantRoute.js";
-import categoriaRouter from "./routes/categoriaRoute.js";
-import horarioRouter from "./routes/horarioRoute.js";
-//import { createPool } from "mysql2/promise";
+import trabajadorRouter from "./routes/trabajadorRoute.js";
+
 import express from "express";
 import cors from "cors";
-import resenaRouter from "./routes/resenaRoute.js";
-import reservaRouter from "./routes/reservaRoute.js";
-import productoRouter from "./routes/productoRoute.js";
-import socioRouter from "./routes/socioRoute.js";
-import pedidoRouter from "./routes/pedidoRoute.js";
 
 const app = express();
 app.use(cors());
@@ -21,14 +14,8 @@ const port = 3000;
 
 // Configuración del body parser para manejar las solicitudes JSON
 app.use(clienteRouter);
-app.use(restaurantRouter);
-app.use(categoriaRouter);
-app.use(horarioRouter);
-app.use(resenaRouter);
-app.use(reservaRouter);
-app.use(productoRouter);
-app.use(socioRouter);
-app.use(pedidoRouter);
+app.use(trabajadorRouter);
+
 /*// Configuración de la conexión a la base de datos MySQL
 export const pool = createPool({
   host: "b6737tipdo8cxkuodyo9-mysql.services.clever-cloud.com",
