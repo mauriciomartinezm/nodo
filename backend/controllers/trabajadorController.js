@@ -38,7 +38,6 @@ export const getTrabajador = async (req, res) => {
 export const createTrabajador = async (req, res) => {
   try {
     const {
-      id,
       id_usuario,
       habilidad,
       experiencia,
@@ -53,6 +52,7 @@ export const createTrabajador = async (req, res) => {
     if (userCheck.rowCount === 0) {
       return res.status(400).json({ message: "El cliente especificado no existe." });
     }
+    const id = uuidv4();
 
     const query = `
       INSERT INTO trabajador (
