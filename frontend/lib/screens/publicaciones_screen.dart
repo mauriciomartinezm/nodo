@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../providers/usuario_provider.dart';
+import '../constants/api_constants.dart';
 
 class PublicacionesScreen extends StatefulWidget {
   const PublicacionesScreen({super.key});
@@ -12,6 +17,67 @@ class PublicacionesScreen extends StatefulWidget {
 
 class _PublicacionesScreenState extends State<PublicacionesScreen> {
   int _selectedIndex = 0;
+  bool _isLoading = true;
+  List<dynamic> _publicaciones = [];
+  String _errorMessage = '';
+
+  late UsuarioProvider usuarioProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPublicaciones();
+  }
+
+  Future<void> _loadPublicaciones() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = '';
+      });
+
+      usuarioProvider = Provider.of<UsuarioProvider>(context, listen: false);
+      final clienteId = usuarioProvider.cliente!.id;
+
+      final response = await http.get(
+        Uri.parse(
+            '${ApiConstants.baseUrl}/getPublicacionesByUserId/$clienteId'),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        if (responseData is List) {
+          setState(() {
+            _publicaciones = responseData;
+            _isLoading = false;
+          });
+        } else if (responseData is Map &&
+            responseData['message'] == 'No existen registros') {
+          setState(() {
+            _publicaciones = [];
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _errorMessage = 'Formato de respuesta inesperado';
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage =
+              'Error al cargar las publicaciones (${response.statusCode})';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error de conexión: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   void _onTabTapped(int index) {
     setState(() {
@@ -19,76 +85,37 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
     });
   }
 
-  // Datos simulados para las publicaciones
-  final Map<String, List<Map<String, String>>> publicaciones = {
-    'Activas': [
-      {
-        'title': 'Arreglo de tubería',
-        'description': 'Necesito reparar una tubería rota lo antes posible.',
-        'start_date': 'Publicado hace 2 dias',
-        'location': 'Apartadó',
-        'price': 'Arreglo de tubería',
-        'date': '08/05/2025',
-        'end_date': 'Necesario para antes del viernes',
-        'participants': '2',
-        'status': 'Active',
-      },
-      {
-        'title': 'Arreglo de tubería',
-        'description': 'Necesito reparar una tubería rota lo antes posible.',
-        'start_date': 'Publicado hace 2 dias',
-        'location': 'Apartadó',
-        'price': 'Arreglo de tubería',
-        'date': '08/05/2025',
-        'end_date': 'Necesario para antes del viernes',
-        'participants': '2',
-        'status': 'Active',
-      },
-      {
-        'title': 'Arreglo de tubería',
-        'description': 'Necesito reparar una tubería rota lo antes posible.',
-        'start_date': 'Publicado hace 2 dias',
-        'location': 'Apartadó',
-        'price': 'Arreglo de tubería',
-        'date': '08/05/2025',
-        'end_date': 'Necesario para antes del viernes',
-        'participants': '2',
-        'status': 'Active',
-      },
-    ],
-    'En Proceso': [
-      {
-        'title': 'Arreglo de tubería',
-        'description': 'Necesito reparar una tubería rota lo antes posible.',
-        'start_date': 'Publicado hace 2 dias',
-        'ubication': 'Apartadó',
-        'price': 'Arreglo de tubería',
-        'date': '08/05/2025',
-        'end_date': 'Necesario para antes del viernes',
-        'participants': '2',
-        'status': 'Active',
-      },
-    ],
-    'Finalizadas': [],
-  };
+  // Filtra las publicaciones según su estado
+  List<dynamic> _filtrarPublicaciones(String estado) {
+    return _publicaciones
+        .where((pub) => pub['estado'] == estado.toLowerCase())
+        .toList();
+  }
 
   bool hayAlMenosUnaPublicacion() {
-    return publicaciones.values.any((lista) => lista.isNotEmpty);
+    return _publicaciones.isNotEmpty;
   }
 
   @override
   Widget build(BuildContext context) {
     final List<String> tabs = ['Activas', 'En Proceso', 'Finalizadas'];
 
+    // Mapeo de estados para el filtro
+    final estadoMap = {
+      'Activas': 'pendiente',
+      'En Proceso': 'en_proceso',
+      'Finalizadas': 'finalizada'
+    };
+
     final List<Widget> tabViews = tabs.map((tab) {
+      final estado = estadoMap[tab]!;
       return PublicacionListView(
         filter: tab,
-        items: publicaciones[tab] ?? [],
+        items: _filtrarPublicaciones(estado),
         onDelete: (item) {
           _confirmarEliminar(context, item, tab);
         },
         confirmarEliminar: (item) {
-          // Añade este nuevo parámetro
           _confirmarEliminar(context, item, tab);
         },
       );
@@ -107,60 +134,71 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
         actions: [
           IconButton(
             icon: Icon(
-              Icons.settings_outlined,
+              Icons.refresh,
               color: AppColors.primaryColor,
               size: 24.r,
             ),
-            onPressed: () {
-              // Acción de configuración
-            },
+            onPressed: _loadPublicaciones,
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Solo mostramos las tabs si hay al menos una publicación
-          if (hayAlMenosUnaPublicacion())
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: List.generate(tabs.length, (index) {
-                  final bool isSelected = _selectedIndex == index;
-                  return GestureDetector(
-                    onTap: () => _onTabTapped(index),
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 9.r, horizontal: 8.r),
-                      margin: EdgeInsets.only(right: 5.w),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.primaryColor
-                            : AppColors.primaryColor.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        tabs[index],
-                        style: TextStyle(
-                          color: isSelected
-                              ? Colors.white
-                              : AppColors.primaryColor,
-                          fontFamily: 'GothamMedium',
-                          fontSize: 10.sp,
-                        ),
-                      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty && _publicaciones.isNotEmpty
+              ? Center(child: Text(_errorMessage))
+              : _publicaciones.isEmpty
+                  ? _mensajeCentradoSpan(obtenerMensajeInicial())
+                  : Column(
+                      children: [
+                        // Solo mostramos las tabs si hay al menos una publicación
+                        if (hayAlMenosUnaPublicacion())
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: List.generate(tabs.length, (index) {
+                                final bool isSelected = _selectedIndex == index;
+                                return GestureDetector(
+                                  onTap: () => _onTabTapped(index),
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 9.r, horizontal: 8.r),
+                                    margin: EdgeInsets.only(right: 5.w),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.primaryColor
+                                          : AppColors.primaryColor
+                                              .withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      tabs[index],
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? Colors.white
+                                            : AppColors.primaryColor,
+                                        fontFamily: 'GothamMedium',
+                                        fontSize: 10.sp,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                        Expanded(
+                          child: PublicacionListView(
+                            filter: tabs[_selectedIndex],
+                            items: _filtrarPublicaciones(
+                                estadoMap[tabs[_selectedIndex]]!),
+                            onDelete: (item) => _confirmarEliminar(
+                                context, item, tabs[_selectedIndex]),
+                            confirmarEliminar: (item) => _confirmarEliminar(
+                                context, item, tabs[_selectedIndex]),
+                          ),
+                        )
+                      ],
                     ),
-                  );
-                }),
-              ),
-            ),
-          Expanded(
-            child: hayAlMenosUnaPublicacion()
-                ? tabViews[_selectedIndex]
-                : _mensajeCentradoSpan(obtenerMensajeInicial()),
-          )
-        ],
-      ),
     );
   }
 
@@ -189,8 +227,8 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
   }
 
   void _confirmarEliminar(
-      BuildContext context, Map<String, String> item, String tab) {
-    showDialog(
+      BuildContext context, dynamic item, String tab) async {
+    final result = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -198,20 +236,36 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
           content: const Text('Esta acción no se puede deshacer.'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(context).pop(false),
               child: const Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context)
-                    .pop(); // Cierra el diálogo de confirmación
-                Navigator.of(context).pop(); // Cierra el ModalBottomSheet
-                setState(() {
-                  publicaciones[tab]?.remove(item);
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Publicación eliminada')),
-                );
+              onPressed: () async {
+                try {
+                  final response = await http.delete(
+                    Uri.parse(
+                        '${ApiConstants.baseUrl}/deletePublicacion/${item['id']}'),
+                  );
+
+                  if (response.statusCode == 200) {
+                    Navigator.of(context).pop(true);
+                  } else {
+                    Navigator.of(context).pop(false);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Error al eliminar la publicación')),
+                      );
+                    }
+                  }
+                } catch (e) {
+                  Navigator.of(context).pop(false);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error de conexión: $e')),
+                    );
+                  }
+                }
               },
               child: const Text('Eliminar'),
             ),
@@ -219,6 +273,22 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
         );
       },
     );
+
+    if (result == true) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Publicación eliminada')),
+        );
+        // Forzar un rebuild inmediato mostrando mensaje inicial
+        setState(() {
+          _publicaciones = [];
+          _errorMessage = '';
+        });
+        // Luego cargar las publicaciones actualizadas
+        await _loadPublicaciones();
+        Navigator.of(context).pop(); // Cierra el modal
+      }
+    }
   }
 
   Widget _mensajeCentradoSpan(TextSpan mensaje) {
@@ -235,10 +305,10 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
 }
 
 class PublicacionListView extends StatelessWidget {
-  final Function(Map<String, String>) confirmarEliminar;
+  final Function(dynamic) confirmarEliminar;
   final String filter;
-  final List<Map<String, String>> items;
-  final Function(Map<String, String>) onDelete;
+  final List<dynamic> items;
+  final Function(dynamic) onDelete;
   const PublicacionListView({
     super.key,
     required this.filter,
@@ -342,7 +412,6 @@ class PublicacionListView extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 20.w,
         mainAxisSpacing: 10.h,
-        //childAspectRatio: 0.85,
         children: items.map((item) {
           return GestureDetector(
               onTap: () => mostrarDetallePublicacion(context, item),
@@ -351,7 +420,6 @@ class PublicacionListView extends StatelessWidget {
                 children: [
                   Container(
                     width: double.infinity,
-                    //padding: EdgeInsets.all( 16.r), // Espacio interno para que no quede pegado
                     decoration: BoxDecoration(
                       color: AppColors.primaryColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
@@ -364,7 +432,7 @@ class PublicacionListView extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    item['title']!,
+                    item['titulo'] ?? 'Sin título',
                     style: TextStyle(
                       color: AppColors.primaryColor,
                       fontFamily: 'GothamMedium',
@@ -375,20 +443,20 @@ class PublicacionListView extends StatelessWidget {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    item['date']!,
+                    _formatDate(item['fecha_publicacion']),
                     style: TextStyle(
                       color: AppColors.primaryColor,
                       fontFamily: 'GothamBook',
                       fontSize: 10.sp,
                     ),
                   ),
-                  Row(
+                  /*Row(
                     children: [
-                      Icon(Icons.person_outline,
+                      Icon(Icons.location_on_outlined,
                           size: 18.r, color: AppColors.primaryColor),
                       SizedBox(width: 4.w),
                       Text(
-                        item['participants']!,
+                        item['ubicacion'] ?? 'Sin ubicación',
                         style: TextStyle(
                           color: AppColors.primaryColor,
                           fontFamily: 'GothamBook',
@@ -396,7 +464,7 @@ class PublicacionListView extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
+                  ),*/
                 ],
               ));
         }).toList(),
@@ -404,18 +472,28 @@ class PublicacionListView extends StatelessWidget {
     );
   }
 
-  void mostrarDetallePublicacion(
-      BuildContext context, Map<String, String> publicacion) {
-    int _currentIndex = 0; // Guardamos la posición actual
+  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (e) {
+      return dateString;
+    }
+  }
+
+  void mostrarDetallePublicacion(BuildContext context, dynamic publicacion) {
+    int _currentIndex = 0;
     final List<String> imageList = [
-      'assets/images/demo1.jpg',
-      'assets/images/demo2.jpg',
-      'assets/images/demo3.jpg',
+      'assets/images/diomedes_joven.jpg',
+      'assets/images/diomedes_joven.jpg',
+      'assets/images/diomedes_joven.jpg',
     ];
+    print("Mostrar detalle publicacion");
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.secondaryColor,
+      useRootNavigator: true,
       builder: (context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -460,9 +538,6 @@ class PublicacionListView extends StatelessWidget {
                         height: 8.w,
                         margin: EdgeInsets.symmetric(horizontal: 4.w),
                         decoration: BoxDecoration(
-                          //border: Border.all(
-                          //  color: AppColors.secondaryColor,
-                          //),
                           shape: BoxShape.circle,
                           color: _currentIndex == entry.key
                               ? AppColors.accentColor
@@ -477,7 +552,7 @@ class PublicacionListView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          publicacion['title'] ?? '',
+                          publicacion['titulo'] ?? 'Sin título',
                           style: TextStyle(
                             color: AppColors.primaryColor,
                             fontFamily: 'GothamMedium',
@@ -485,19 +560,18 @@ class PublicacionListView extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 8.h),
-                        _detalleInfo(publicacion['description'] ?? ''),
+                        _detalleInfo(publicacion['descripcion_necesidad'] ??
+                            'Sin descripción'),
                         SizedBox(height: 8.h),
-                        _detalleInfo(publicacion['start_date'] ?? ''),
-                        _detalleInfo(publicacion['location'] ?? ''),
-                        _detalleInfo(publicacion['end_date'] ?? ''),
-                        _detalleInfo(publicacion['price'] ?? ''),
-                        Row(children: [
-                          _detalleInfo('Postulaciones: '),
-                          _detalleInfo(publicacion['participants'] ?? ''),
-                        ]),
+                        _detalleInfo(
+                            'Publicado: ${_formatDate(publicacion['fecha_publicacion'])}'),
+                        _detalleInfo(
+                            'Ubicación: ${publicacion['ubicacion'] ?? 'Sin ubicación'}'),
+                        _detalleInfo(
+                            'Presupuesto: \$${publicacion['presupuesto']?.toString() ?? '0'}'),
                         Row(children: [
                           _detalleInfo('Estado: '),
-                          _detalleInfo(publicacion['status'] ?? ''),
+                          _detalleInfo(_translateStatus(publicacion['estado'])),
                         ]),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -517,7 +591,14 @@ class PublicacionListView extends StatelessWidget {
                               // Acción completado
                             }),
                             ElevatedButton.icon(
-                              onPressed: () => confirmarEliminar(publicacion),
+                              onPressed: () async {
+                                final result =
+                                    await confirmarEliminar(publicacion);
+                                if (result == true && context.mounted) {
+                                  Navigator.of(context)
+                                      .pop(); // Cierra el modal
+                                }
+                              },
                               icon: Icon(Icons.delete,
                                   size: 16.sp, color: AppColors.primaryColor),
                               style: ElevatedButton.styleFrom(
@@ -554,13 +635,26 @@ class PublicacionListView extends StatelessWidget {
     );
   }
 
+  String _translateStatus(String status) {
+    switch (status) {
+      case 'pendiente':
+        return 'Activa';
+      case 'en_proceso':
+        return 'En Proceso';
+      case 'finalizada':
+        return 'Finalizada';
+      default:
+        return status;
+    }
+  }
+
   Widget _detalleInfo(String texto) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
         children: [
           Text(
-            '$texto ',
+            texto,
             style: TextStyle(
               color: AppColors.primaryColor,
               fontFamily: 'GothamBook',

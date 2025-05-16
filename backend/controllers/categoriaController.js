@@ -2,9 +2,10 @@ import { db } from "../database/db.js";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 
-export const getClientes = async (req, res) => {
+export const getCategorias = async (req, res) => {
+  console.log("Peticion en getCategorias");
   try {
-    const result = await db.query("SELECT * FROM Cliente");
+    const result = await db.query("SELECT * FROM categoria_trabajo");
     res.json(result.rows);
   } catch (error) {
     return res
@@ -12,7 +13,7 @@ export const getClientes = async (req, res) => {
       .json({ message: "Error interno del servidor", error: error.message });
   }
 };
-
+/*
 export const getCliente = async (req, res) => {
   try {
   console.log(req.params.id);
@@ -75,7 +76,7 @@ export const getCliente = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };*/
-
+/*
 export const createCliente = async (req, res) => {
   try {
     const { id, nombre } = req.body;
@@ -148,6 +149,7 @@ export const loginCliente = async (req, res) => {
     return res.status(401).json({ unknown: error });
   }
 };
+*/
 /* lo mismo que en la anterior, como el registro tiene varios pasos se debe de hacer un update para los demas campos
 export const updateCliente = async (req, res) => {
   try {
@@ -175,6 +177,7 @@ export const updateCliente = async (req, res) => {
   }
 };*/
 
+/*
 export const updateCliente = async (req, res) => {
   try {
     const { id } = req.params;
@@ -215,3 +218,5 @@ export const deleteCliente = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+ */

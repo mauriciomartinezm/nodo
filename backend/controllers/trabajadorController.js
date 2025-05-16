@@ -33,6 +33,26 @@ export const getTrabajador = async (req, res) => {
     }
   }
 };
+export const getTrabajadorByUserId = async (req, res) => {
+  try {
+  console.log(req.params.id);
+
+    const result = await db.query(
+      "SELECT * FROM Trabajador WHERE id_usuario = $1",
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No existen registros" });
+    }
+
+    res.json(result.rows);
+  } catch (error) {
+    if (!res.headersSent) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+};
 //
 
 export const createTrabajador = async (req, res) => {

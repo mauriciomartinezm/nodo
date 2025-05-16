@@ -33,10 +33,31 @@ export const getPublicacion = async (req, res) => {
     }
   }
 };
+export const getPublicacionesByUserId = async (req, res) => {
+  try {
+  console.log(req.params.id);
+
+    const result = await db.query(
+      "SELECT * FROM publicacion_necesidad WHERE id_cliente = $1",
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No existen registros" });
+    }
+
+    res.json(result.rows);
+  } catch (error) {
+    if (!res.headersSent) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+};
 //
 
 
 export const createPublicacion = async (req, res) => {
+  console.log(req.body);
   try {
     const {
       id_cliente,
@@ -62,10 +83,11 @@ export const createPublicacion = async (req, res) => {
 
     // Validar que la categoría exista
     const categoriaCheck = await db.query("SELECT id FROM categoria_trabajo WHERE id = $1", [id_categoria]);
+    console.log(categoriaCheck);
+
     if (categoriaCheck.rowCount === 0) {
       return res.status(404).json({ message: "La categoría no existe." });
     }
-
     // Generar ID con uuidv4
     const id = uuidv4();
 
@@ -87,7 +109,6 @@ export const createPublicacion = async (req, res) => {
       fecha_publicacion || new Date(),
       estado
     ]);
-
     res.status(201).json({
       id,
       id_cliente,
