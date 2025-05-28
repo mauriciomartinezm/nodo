@@ -57,6 +57,7 @@ export const getPublicacionesByUserId = async (req, res) => {
 
 
 export const createPublicacion = async (req, res) => {
+    
   console.log(req.body);
   try {
     const {

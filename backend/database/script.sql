@@ -13,152 +13,225 @@ CREATE DATABASE railway
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 
-
-CREATE TABLE Cliente (
-  id VARCHAR PRIMARY KEY,
-  nombre VARCHAR,
-  email VARCHAR,
-  contraseña VARCHAR,
-  fecha_registro TIMESTAMP,
-  foto_perfil VARCHAR,
-  telefono VARCHAR,
-  verificado BOOLEAN
-);
-
-CREATE TABLE Trabajador (
-  id VARCHAR PRIMARY KEY,
-  id_usuario VARCHAR REFERENCES Cliente(id),
-  habilidad VARCHAR,
-  experiencia VARCHAR,
-  calificacion_promedio FLOAT,
-  disponibilidad BOOLEAN,
-  ubicacion VARCHAR,
-  verificado BOOLEAN
+CREATE TABLE Usuario (
+    id VARCHAR(50) PRIMARY KEY,
+    nombres VARCHAR(100),
+    primer_apellido VARCHAR(100),
+    segundo_apellido VARCHAR(100),
+    email VARCHAR(255),
+    telefono VARCHAR(20),
+    fecha_nacimiento VARCHAR(20),
+    contrasena VARCHAR(255),
+    fecha_registro TIMESTAMP,
+    foto_perfil VARCHAR(255),
+    verificado BOOLEAN,
+    tipo_usuario VARCHAR(50),
+    categoria VARCHAR(100),
+    ubicacion VARCHAR(100),
+    descripcion TEXT,
+    calificacion_promedio FLOAT,
+    trabajos_completados INT
 );
 
 CREATE TABLE Categoria_trabajo (
-  id VARCHAR PRIMARY KEY,
-  nombre_cat VARCHAR,
-  descripcion TEXT
+    id VARCHAR(50) PRIMARY KEY,
+    nombre_cat VARCHAR(100),
+    descripcion TEXT
 );
 
 CREATE TABLE Servicio (
-  id VARCHAR PRIMARY KEY,
-  id_trabajador VARCHAR REFERENCES Trabajador(id),
-  id_categoria VARCHAR REFERENCES Categoria_trabajo(id),
-  titulo VARCHAR,
-  descripcion TEXT,
-  precio FLOAT,
-  estado VARCHAR,
-  fecha_creacion TIMESTAMP
+    id VARCHAR(50) PRIMARY KEY,
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id),
+    id_categoria VARCHAR(50) REFERENCES Categoria_trabajo(id),
+    titulo VARCHAR(255),
+    descripcion TEXT,
+    precio FLOAT,
+    estado VARCHAR(50),
+    fecha_creacion TIMESTAMP
 );
 
-CREATE TABLE Publicacion_necesidad (
-  id VARCHAR PRIMARY KEY,
-  id_cliente VARCHAR REFERENCES Cliente(id),
-  id_categoria VARCHAR REFERENCES Categoria_trabajo(id),
-  titulo VARCHAR,
-  descripcion_necesidad TEXT,
-  ubicacion VARCHAR,
-  presupuesto FLOAT,
-  fecha_publicacion TIMESTAMP,
-  estado VARCHAR
+CREATE TABLE Publicacion (
+    id VARCHAR(50) PRIMARY KEY,
+    id_cliente VARCHAR(50) REFERENCES Usuario(id),
+    id_categoria VARCHAR(50) REFERENCES Categoria_trabajo(id),
+    titulo VARCHAR(255),
+    descripcion_necesidad TEXT,
+    ubicacion VARCHAR(100),
+    presupuesto FLOAT,
+    fecha_publicacion TIMESTAMP,
+    fecha_limite TIMESTAMP,
+    estado VARCHAR(50),
+    fotos VARCHAR(255)
 );
 
 CREATE TABLE Transaccion (
-  id VARCHAR PRIMARY KEY,
-  id_usuario VARCHAR REFERENCES Cliente(id),
-  id_trabajador VARCHAR REFERENCES Trabajador(id),
-  monto FLOAT,
-  comision_pasarela FLOAT,
-  comision_app FLOAT,
-  fecha_transaccion TIMESTAMP,
-  estatus VARCHAR,
-  metodo_pago VARCHAR,
-  codigo_transaccion VARCHAR
+    id VARCHAR(50) PRIMARY KEY,
+    id_cliente VARCHAR(50) REFERENCES Usuario(id),
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id),
+    monto FLOAT,
+    comision_pasarela FLOAT,
+    comision_app FLOAT,
+    fecha_transaccion TIMESTAMP,
+    estatus VARCHAR(50),
+    metodo_pago VARCHAR(50),
+    codigo_transaccion VARCHAR(100)
 );
 
 CREATE TABLE Calificacion_resena (
-  id VARCHAR PRIMARY KEY,
-  id_trabajador VARCHAR REFERENCES Trabajador(id),
-  id_transaccion VARCHAR REFERENCES Transaccion(id),
-  calificacion INT,
-  comentario TEXT,
-  fecha_resena TIMESTAMP
+    id VARCHAR(50) PRIMARY KEY,
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id),
+    calificacion INT,
+    comentario TEXT,
+    fecha_resena TIMESTAMP
 );
 
 CREATE TABLE Disputa (
-  id VARCHAR PRIMARY KEY,
-  id_transaccion VARCHAR REFERENCES Transaccion(id),
-  descripcion_disputa TEXT,
-  estatus VARCHAR,
-  fecha_creacion TIMESTAMP,
-  fecha_resolucion TIMESTAMP,
-  evidencia VARCHAR
+    id VARCHAR(50) PRIMARY KEY,
+    descripcion_disputa TEXT,
+    estatus VARCHAR(50),
+    fecha_creacion TIMESTAMP,
+    fecha_resolucion TIMESTAMP,
+    evidencia VARCHAR(255),
+    id_publicacion VARCHAR(50) REFERENCES Publicacion(id),
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id)
 );
 
-CREATE TABLE Sala_chat (
-  id VARCHAR PRIMARY KEY,
-  id_usuario VARCHAR REFERENCES Cliente(id),
-  id_trabajador VARCHAR REFERENCES Trabajador(id)
+CREATE TABLE Reporte (
+    id VARCHAR(50) PRIMARY KEY,
+    id_publicacion VARCHAR(50) REFERENCES Publicacion(id),
+    razon VARCHAR(255)
+);
+
+CREATE TABLE Conversacion (
+    id VARCHAR(50) PRIMARY KEY,
+    id_cliente VARCHAR(50) REFERENCES Usuario(id),
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id)
 );
 
 CREATE TABLE Mensaje (
-  id VARCHAR PRIMARY KEY,
-  id_sala_chat VARCHAR REFERENCES Sala_chat(id),
-  id_usuario VARCHAR,
-  fecha_envio TIMESTAMP,
-  tipo_mensaje VARCHAR
+    id VARCHAR(50) PRIMARY KEY,
+    id_sala_chat VARCHAR(50) REFERENCES Conversacion(id),
+    id_remitente VARCHAR(50),
+    fecha_envio TIMESTAMP,
+    contenido VARCHAR(1000),
+    estado VARCHAR(50)
+);
+-- Database: railway
+
+-- DROP DATABASE IF EXISTS railway;
+
+CREATE DATABASE railway
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.utf8'
+    LC_CTYPE = 'en_US.utf8'
+    LOCALE_PROVIDER = 'libc'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+CREATE TABLE Usuario (
+    id VARCHAR(50) PRIMARY KEY,
+    primer_nombre VARCHAR(100),
+    segundo_nombre VARCHAR(100),
+    primer_apellido VARCHAR(100),
+    segundo_apellido VARCHAR(100),
+    email VARCHAR(255),
+    telefono VARCHAR(20),
+    fecha_nacimiento VARCHAR(20),
+    contraseña VARCHAR(255),
+    fecha_registro TIMESTAMP,
+    foto_perfil VARCHAR(255),
+    verificado BOOLEAN,
+    tipo_usuario VARCHAR(50),
+    categoria VARCHAR(100),
+    ubicacon VARCHAR(100),
+    descripcion TEXT,
+    calificacion_promedio FLOAT,
+    trabajos_completados INT
 );
 
-SELECT * FROM Cliente WHERE id = "cli1";
--- CLIENTES
-INSERT INTO Cliente (id, nombre, email, contraseña, fecha_registro, foto_perfil, telefono, verificado) VALUES
-('cli1', 'Ana Pérez', 'ana@example.com', '1234', NOW(), 'ana.jpg', '3001234567', TRUE),
-('cli2', 'Luis Gómez', 'luis@example.com', 'abcd', NOW(), 'luis.png', '3009876543', FALSE);
+CREATE TABLE Categoria_trabajo (
+    id VARCHAR(50) PRIMARY KEY,
+    nombre_cat VARCHAR(100),
+    descripcion TEXT
+);
 
--- TRABAJADORES
-INSERT INTO Trabajador (id, id_usuario, habilidad, experiencia, calificacion_promedio, disponibilidad, ubicacion, verificado) VALUES
-('trab1', 'cli1', 'Plomería', '5 años de experiencia', 4.7, TRUE, 'Bogotá', TRUE),
-('trab2', 'cli2', 'Electricidad', '3 años en instalaciones', 4.2, TRUE, 'Medellín', FALSE);
+CREATE TABLE Servicio (
+    id VARCHAR(50) PRIMARY KEY,
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id),
+    id_categoria VARCHAR(50) REFERENCES Categoria_trabajo(id),
+    titulo VARCHAR(255),
+    descripcion TEXT,
+    precio FLOAT,
+    estado VARCHAR(50),
+    fecha_creacion TIMESTAMP
+);
 
--- CATEGORÍAS DE TRABAJO
-INSERT INTO Categoria_trabajo (id, nombre_cat, descripcion) VALUES
-('cat1', 'Plomería', 'Reparación y mantenimiento de tuberías'),
-('cat2', 'Electricidad', 'Instalaciones eléctricas y mantenimiento');
+CREATE TABLE Publicacion (
+    id VARCHAR(50) PRIMARY KEY,
+    id_cliente VARCHAR(50) REFERENCES Usuario(id),
+    id_categoria VARCHAR(50) REFERENCES Categoria_trabajo(id),
+    titulo VARCHAR(255),
+    descripcion_necesidad TEXT,
+    ubicacion VARCHAR(100),
+    presupuesto FLOAT,
+    fecha_publicacion TIMESTAMP,
+    fecha_limite TIMESTAMP,
+    estado VARCHAR(50),
+    fotos VARCHAR(255)
+);
 
--- SERVICIOS
-INSERT INTO Servicio (id, id_trabajador, id_categoria, titulo, descripcion, precio, estado, fecha_creacion) VALUES
-('serv1', 'trab1', 'cat1', 'Reparación de fuga', 'Detecto y arreglo fugas de agua en casas', 80000, 'activo', NOW()),
-('serv2', 'trab2', 'cat2', 'Instalación de enchufes', 'Instalación profesional de enchufes eléctricos', 60000, 'activo', NOW());
+CREATE TABLE Transaccion (
+    id VARCHAR(50) PRIMARY KEY,
+    id_cliente VARCHAR(50) REFERENCES Usuario(id),
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id),
+    monto FLOAT,
+    comision_pasarela FLOAT,
+    comision_app FLOAT,
+    fecha_transaccion TIMESTAMP,
+    estatus VARCHAR(50),
+    metodo_pago VARCHAR(50),
+    codigo_transaccion VARCHAR(100)
+);
 
--- PUBLICACIONES DE NECESIDAD
-INSERT INTO Publicacion_necesidad (id, id_cliente, id_categoria, titulo, descripcion_necesidad, ubicacion, presupuesto, fecha_publicacion, estado) VALUES
-('pub1', 'cli2', 'cat1', 'Fuga en baño', 'Tengo una fuga que necesito reparar urgentemente', 'Medellín', 90000, NOW(), 'pendiente'),
-('pub2', 'cli1', 'cat2', 'Corto circuito', 'Se fue la luz en una parte de la casa', 'Bogotá', 100000, NOW(), 'pendiente');
+CREATE TABLE Calificacion_resena (
+    id VARCHAR(50) PRIMARY KEY,
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id),
+    calificacion INT,
+    comentario TEXT,
+    fecha_resena TIMESTAMP
+);
 
--- TRANSACCIONES
-INSERT INTO Transaccion (id, id_usuario, id_trabajador, monto, comision_pasarela, comision_app, fecha_transaccion, estatus, metodo_pago, codigo_transaccion) VALUES
-('tran1', 'cli2', 'trab1', 85000, 2500, 5000, NOW(), 'completado', 'tarjeta', 'TX123456'),
-('tran2', 'cli1', 'trab2', 95000, 3000, 6000, NOW(), 'pendiente', 'efectivo', 'TX654321');
+CREATE TABLE Disputa (
+    id VARCHAR(50) PRIMARY KEY,
+    descripcion_disputa TEXT,
+    estatus VARCHAR(50),
+    fecha_creacion TIMESTAMP,
+    fecha_resolucion TIMESTAMP,
+    evidencia VARCHAR(255),
+    id_publicacion VARCHAR(50) REFERENCES Publicacion(id),
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id)
+);
 
--- CALIFICACIONES Y RESEÑAS
-INSERT INTO Calificacion_resena (id, id_trabajador, id_transaccion, calificacion, comentario, fecha_resena) VALUES
-('cal1', 'trab1', 'tran1', 5, 'Excelente trabajo, muy puntual y eficiente.', NOW()),
-('cal2', 'trab2', 'tran2', 4, 'Buen trabajo, pero llegó tarde.', NOW());
+CREATE TABLE Reporte (
+    id VARCHAR(50) PRIMARY KEY,
+    id_publicacion VARCHAR(50) REFERENCES Publicacion(id),
+    razon VARCHAR(255)
+);
 
--- DISPUTAS
-INSERT INTO Disputa (id, id_transaccion, descripcion_disputa, estatus, fecha_creacion, fecha_resolucion, evidencia) VALUES
-('disp1', 'tran2', 'El trabajador no completó el trabajo acordado', 'abierta', NOW(), NULL, 'foto_incompleto.jpg');
+CREATE TABLE Conversacion (
+    id VARCHAR(50) PRIMARY KEY,
+    id_cliente VARCHAR(50) REFERENCES Usuario(id),
+    id_trabajador VARCHAR(50) REFERENCES Usuario(id)
+);
 
--- SALAS DE CHAT
-INSERT INTO Sala_chat (id, id_usuario, id_trabajador) VALUES
-('chat1', 'cli1', 'trab1'),
-('chat2', 'cli2', 'trab2');
-
--- MENSAJES
-INSERT INTO Mensaje (id, id_sala_chat, id_usuario, fecha_envio, tipo_mensaje) VALUES
-('msg1', 'chat1', 'cli1', NOW(), 'texto'),
-('msg2', 'chat1', 'trab1', NOW(), 'texto'),
-('msg3', 'chat2', 'cli2', NOW(), 'imagen');
-
+CREATE TABLE Mensaje (
+    id VARCHAR(50) PRIMARY KEY,
+    id_sala_chat VARCHAR(50) REFERENCES Conversacion(id),
+    id_remitente VARCHAR(50),
+    fecha_envio TIMESTAMP,
+    contenido VARCHAR(1000),
+    estado VARCHAR(50)
+);

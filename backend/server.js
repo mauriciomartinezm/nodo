@@ -1,5 +1,4 @@
-import clienteRouter from "./routes/clienteRoute.js";
-import trabajadorRouter from "./routes/trabajadorRoute.js";
+import usuarioRouter from "./routes/usuarioRoute.js";
 import publicacionRouter from "./routes/publicacionRoute.js";
 import categoriaRouter from "./routes/categoriaRoute.js";
 
@@ -15,8 +14,7 @@ const port = 3000;
 // Configuración de CORS
 
 // Configuración del body parser para manejar las solicitudes JSON
-app.use(clienteRouter);
-app.use(trabajadorRouter);
+app.use(usuarioRouter);
 app.use(publicacionRouter);
 app.use(categoriaRouter);
 

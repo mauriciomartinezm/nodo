@@ -1,27 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/app_colors.dart';
-import 'package:nodo/screens/login_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:provider/provider.dart';
-import 'providers/usuario_provider.dart';
-void main() {
+import 'package:nodo/core/theme/app_colors.dart';
+import 'package:nodo/features/login/screens/login_screen.dart';
+import 'package:nodo/features/welcome/widgets/welcome1.dart';
+import 'providers/userprovider.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final firstTime = await isFirstTime();
+
   runApp(
     ChangeNotifierProvider(
-      create: (_) => UsuarioProvider(),
-      child: MyApp(),
+      create: (_) => UserProvider(),
+      child: MyApp(firstTime: firstTime),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+Future<bool> isFirstTime() async {
+  final prefs = await SharedPreferences.getInstance();
+  final seen = prefs.getBool('seen_welcome') ?? false;
 
-  // This widget is the root of your application.
+  if (!seen) {
+    await prefs.setBool('seen_welcome', true);
+    return true;
+  }
+
+  return false;
+}
+
+class MyApp extends StatelessWidget {
+  final bool firstTime;
+  const MyApp({super.key, required this.firstTime});
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: Size(360, 690),
+      designSize: const Size(360, 690),
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -30,18 +48,9 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
             useMaterial3: true,
           ),
-          home: LoginScreen(),
+          home: firstTime ? const Welcome1Screen() : const LoginScreen(),
         );
       },
     );
-    //return MaterialApp(
-    //  debugShowCheckedModeBanner: false,
-    //  title: 'Flutter Demo',
-    //  theme: ThemeData(
-    //    colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-    //    useMaterial3: true,
-    //  ),
-    //  home: LoginScreen(),
-    //);
   }
 }
