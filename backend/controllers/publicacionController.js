@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export const getPublicaciones = async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM publicacion_necesidad");
+    const result = await db.query("SELECT * FROM publicacion");
     res.json(result.rows);
   } catch (error) {
     return res
@@ -18,7 +18,7 @@ export const getPublicacion = async (req, res) => {
   console.log(req.params.id);
 
     const result = await db.query(
-      "SELECT * FROM publicacion_necesidad WHERE id = $1",
+      "SELECT * FROM publicacion WHERE id = $1",
       [req.params.id]
     );
 
@@ -38,7 +38,7 @@ export const getPublicacionesByUserId = async (req, res) => {
   console.log(req.params.id);
 
     const result = await db.query(
-      "SELECT * FROM publicacion_necesidad WHERE id_cliente = $1",
+      "SELECT * FROM publicacion WHERE id_cliente = $1",
       [req.params.id]
     );
 
@@ -57,29 +57,30 @@ export const getPublicacionesByUserId = async (req, res) => {
 
 
 export const createPublicacion = async (req, res) => {
-    
   console.log(req.body);
   try {
     const {
       id_cliente,
-      id_categoria,
       titulo,
-      descripcion_necesidad,
+      id_categoria,
       ubicacion,
       presupuesto,
-      fecha_publicacion,
-      estado
+      //fecha_publicacion,
+      fecha_limite,
+      descripcion_necesidad,
+      //estado,
+      fotos
     } = req.body;
 
     // Validación de campos obligatorios
-    if (!id_cliente || !id_categoria || !titulo || !descripcion_necesidad || !ubicacion || !presupuesto || !estado) {
+    if (!id_cliente || !id_categoria || !titulo || !descripcion_necesidad || !ubicacion || !presupuesto || !fecha_limite || !fotos) {
       return res.status(400).json({ message: "Faltan campos obligatorios." });
     }
 
     // Validar que el cliente exista
-    const clienteCheck = await db.query("SELECT id FROM cliente WHERE id = $1", [id_cliente]);
+    const clienteCheck = await db.query("SELECT id FROM Usuario WHERE id = $1", [id_cliente]);
     if (clienteCheck.rowCount === 0) {
-      return res.status(404).json({ message: "El cliente no existe." });
+      return res.status(404).json({ message: "El Cliente no existe." });
     }
 
     // Validar que la categoría exista
@@ -94,9 +95,9 @@ export const createPublicacion = async (req, res) => {
 
     // Insertar la publicación
     const query = `
-      INSERT INTO publicacion_necesidad 
-      (id, id_cliente, id_categoria, titulo, descripcion_necesidad, ubicacion, presupuesto, fecha_publicacion, estado)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO publicacion 
+      (id, id_cliente, id_categoria, titulo, descripcion_necesidad, ubicacion, presupuesto, fecha_publicacion, fecha_limite, estado, fotos)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'Pendiente', $10)
     `;
 
     await db.query(query, [
@@ -107,8 +108,9 @@ export const createPublicacion = async (req, res) => {
       descripcion_necesidad,
       ubicacion,
       presupuesto,
-      fecha_publicacion || new Date(),
-      estado
+      new Date(), //fecha_publicacion
+      fecha_limite,
+      fotos
     ]);
     res.status(201).json({
       id,
@@ -118,8 +120,10 @@ export const createPublicacion = async (req, res) => {
       descripcion_necesidad,
       ubicacion,
       presupuesto,
-      fecha_publicacion: fecha_publicacion || new Date(),
-      estado,
+      //fecha_publicacion,
+      fecha_limite,
+      //estado,
+      fotos,
       mensaje: "Publicación creada exitosamente"
     });
 
@@ -142,7 +146,7 @@ export const updatePublicacion = async (req, res) => {
     // Añade el valor de ID al final para usarlo como último parámetro
     values.push(req.params.id);
 
-    const query = `UPDATE publicacion_necesidad SET ${setClause} WHERE id = $${values.length}`;
+    const query = `UPDATE publicacion SET ${setClause} WHERE id = $${values.length}`;
 
     const result = await db.query(query, values);
 
@@ -161,7 +165,7 @@ export const updatePublicacion = async (req, res) => {
 export const deletePublicacion = async (req, res) => {
   try {
     const result = await db.query(
-      "DELETE FROM publicacion_necesidad WHERE id = $1",
+      "DELETE FROM publicacion WHERE id = $1",
       [req.params.id]
     );
 

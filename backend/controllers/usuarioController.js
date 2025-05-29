@@ -32,7 +32,7 @@ export const getUsuario = async (req, res) => {
   }
 };
 
-//Este createUsuario es dinámico, así para no tener que crear 2 create para cliente y trabajador. Este subprograma recibe los datos que se envía desde
+//Este createUsuario es dinámico. Este subprograma recibe los datos que se envía desde
 //el frontend y va creando el query automáticamente
 //El id se crea desde el backend con uuidv4
 export const createUsuario = async (req, res) => {
@@ -96,7 +96,6 @@ export const updateUsuario = async (req, res) => {
   try {
     const keys = Object.keys(req.body);
     const values = Object.values(req.body);
-    console.log(req.body);
     // Construye dinámicamente el SET usando los índices $1, $2, ...
     const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ");
 
@@ -117,7 +116,6 @@ export const updateUsuario = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 export const deleteUsuario = async (req, res) => {
   try {
     const result = await db.query(
@@ -130,6 +128,7 @@ export const deleteUsuario = async (req, res) => {
 
     res.json({ message: "Registro eliminado exitosamente" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
