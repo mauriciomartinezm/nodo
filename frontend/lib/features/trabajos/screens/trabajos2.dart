@@ -3,9 +3,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:nodo/features/trabajos/screens/trabajos3.dart';
 import 'package:nodo/features/trabajos/screens/trabajos6.dart';
+import 'package:nodo/core/constants/api_constants.dart';
 
 class TrabajosScreen2 extends StatefulWidget {
-  const TrabajosScreen2({Key? key}) : super(key: key);
+  const TrabajosScreen2({super.key});
 
   @override
   _TrabajosScreen2State createState() => _TrabajosScreen2State();
@@ -13,7 +14,7 @@ class TrabajosScreen2 extends StatefulWidget {
 
 class _TrabajosScreen2State extends State<TrabajosScreen2> {
   List<dynamic> _publicaciones = [];
-  Map<String, String> _nombresClientes =
+  final Map<String, String> _nombresClientes =
       {}; // Mapa para almacenar nombres de clientes
   bool _isLoading = true;
   String _errorMessage = '';
@@ -27,7 +28,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   Future<void> _fetchPublicaciones() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/getPublicaciones/'),
+        Uri.parse(ApiConstants.getPublicacionesEndpoint),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -66,7 +67,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
       for (final clientId in clientIds) {
         
         final response = await http.get(
-          Uri.parse('http://10.0.2.2:3000/api/getCliente/$clientId'),
+         Uri.parse(ApiConstants.getClienteById(clientId)),
           headers: {'Content-Type': 'application/json'},
         );
 
@@ -94,7 +95,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
         }
       }
     } catch (e) {
-      print('Error al obtener nombres de clientes: $e');
+      //print('Error al obtener nombres de clientes: $e');
     }
   }
 
@@ -131,6 +132,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   }
 
   @override
+
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,

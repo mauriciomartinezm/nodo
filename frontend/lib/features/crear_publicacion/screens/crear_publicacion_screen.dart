@@ -6,8 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/features/register/widgets/subir_foto_widget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:provider/provider.dart';
-import '../../../providers/userprovider.dart';
+//import 'package:provider/provider.dart';
+//import '../../../providers/userprovider.dart';
 
 class CrearPublicacionScreen extends StatefulWidget {
   const CrearPublicacionScreen({super.key});
@@ -141,7 +141,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final usuarioProvider = Provider.of<UserProvider>(context);
+    //final usuarioProvider = Provider.of<UserProvider>(context);
     String nombre = '';
     String profesion = '';
     //nombre = usuarioProvider.cliente!.nombre;
