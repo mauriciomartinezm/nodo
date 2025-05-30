@@ -11,7 +11,10 @@ import '../../../models/trabajador.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../home/screens/home_screen.dart';
+<<<<<<< HEAD
 import 'package:nodo/features/register/widgets/registerclient1.dart';
+=======
+>>>>>>> origin/ramaAuxiliar
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -257,12 +260,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontFamily: "GothamBook",
                               fontSize: 11.r)),
                       TextButton(
+<<<<<<< HEAD
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const RegisterClient1()),
                           );
                         },
+=======
+                        onPressed: () {},
+>>>>>>> origin/ramaAuxiliar
                         child: Text(
                           "Regístrate",
                           style: TextStyle(
