@@ -1,0 +1,14 @@
+class ApiConstants {
+  static const String baseUrl = "http://10.0.2.2:3000/api";
+  static const String createPublicacionEndpoint = "$baseUrl/createPublicacion";
+  static const String loginEndpoint = "$baseUrl/loginCliente";
+  static const String getTrabajadorByUserId = "$baseUrl/getTrabajadorByUserId";
+  static const String getCategoriasEndpoint = "$baseUrl/getCategorias";
+  static const String getPublicacionesByUserId = "$baseUrl/getPublicacionesByUserId";
+  static const String createUsuarioEndpoint = "$baseUrl/createUsuario";
+
+  static String updateUsuarioEndpoint(String cedula) =>
+    "$baseUrl/updateUsuario/$cedula";
+
+
+}
