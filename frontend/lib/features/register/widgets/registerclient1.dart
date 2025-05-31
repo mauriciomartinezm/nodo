@@ -119,7 +119,10 @@ class _RegisterClient1State extends State<RegisterClient1> {
           final primerApellido = _primerApellidoController.text.trim();
           final segundoApellido = _segundoApellidoController.text.trim();
 
-          Provider.of<UserProvider>(context, listen: false).setCedula(cedula);
+          final userProvider = Provider.of<UserProvider>(context, listen: false);
+          userProvider.setCedula(cedula);
+
+          final tipoUsuario = userProvider.isWorker ? "trabajador" : "cliente";
 
           final url = Uri.parse(ApiConstants.createUsuarioEndpoint);
 
@@ -132,9 +135,11 @@ class _RegisterClient1State extends State<RegisterClient1> {
               "primer_apellido": primerApellido,
               "segundo_apellido": segundoApellido,
               "fecha_registro": DateTime.now().toUtc().toIso8601String(),
-              "verificado": false
+              "verificado": false,
+              "tipo_usuario": tipoUsuario,
             }),
           );
+
           if (response.statusCode == 200) {
             print("Agregado: ${response.body}");
             Navigator.push(
@@ -148,7 +153,8 @@ class _RegisterClient1State extends State<RegisterClient1> {
             );
           }
         }
-  }
+      }
+
     );
   }
 }

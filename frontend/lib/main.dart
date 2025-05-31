@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nodo/features/trabajos/screens/trabajos2.dart';
+//import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:nodo/core/theme/app_colors.dart';
 // import 'package:nodo/features/login/screens/login_screen.dart';
-//import 'package:nodo/features/welcome/widgets/welcome1.dart';
+import 'package:nodo/features/welcome/widgets/welcome1.dart';
 import 'providers/userprovider.dart';
 
 void main() {
@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
             useMaterial3: true,
           ),
-          home: const TrabajosScreen2(),
+          home: const Welcome1Screen(),
           // home: firstTime ? const Welcome1Screen() : const LoginScreen(),
         );
       },
