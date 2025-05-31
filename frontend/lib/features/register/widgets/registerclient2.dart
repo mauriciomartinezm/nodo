@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/core/constants/api_constants.dart';
 
 class RegisterClient2 extends StatefulWidget {
   const RegisterClient2({super.key});
@@ -16,6 +17,7 @@ class RegisterClient2 extends StatefulWidget {
 
 class _RegisterClient2State extends State<RegisterClient2> {
   late TextEditingController _telefonoController;
+  late TextEditingController _emailController;
   late TextEditingController _fechaNacimientoController;
   late TextEditingController _contrasenaController;
   late TextEditingController _confirmarController;
@@ -24,6 +26,7 @@ class _RegisterClient2State extends State<RegisterClient2> {
   void initState() {
     super.initState();
     _telefonoController = TextEditingController();
+    _emailController = TextEditingController();
     _fechaNacimientoController = TextEditingController();
     _contrasenaController = TextEditingController();
     _confirmarController = TextEditingController();
@@ -32,6 +35,7 @@ class _RegisterClient2State extends State<RegisterClient2> {
   @override
   void dispose() {
     _telefonoController.dispose();
+    _emailController.dispose();
     _fechaNacimientoController.dispose();
     _contrasenaController.dispose();
     _confirmarController.dispose();
@@ -59,6 +63,12 @@ class _RegisterClient2State extends State<RegisterClient2> {
               _CustomTextField(
                 label: 'Número de teléfono',
                 controller: _telefonoController,
+                widthPercentage: 0.85,
+              ),
+              SizedBox(height: fieldSpacing),
+              _CustomTextField(
+                label: 'Correo electrónico',
+                controller: _emailController,
                 widthPercentage: 0.85,
               ),
               SizedBox(height: fieldSpacing),
@@ -92,11 +102,12 @@ class _RegisterClient2State extends State<RegisterClient2> {
       formContent: formContent,
       onNext: () async {
         final telefono = _telefonoController.text.trim();
+        final email = _emailController.text.trim();
         final fechaNacimiento = _fechaNacimientoController.text.trim();
         final contrasena = _contrasenaController.text.trim();
         final confirmar = _confirmarController.text.trim();
 
-        if ([telefono, fechaNacimiento, contrasena, confirmar].any((field) => field.isEmpty)) {
+        if ([telefono, email, fechaNacimiento, contrasena, confirmar].any((field) => field.isEmpty)) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Por favor, completa todos los campos')),
           );
@@ -110,6 +121,13 @@ class _RegisterClient2State extends State<RegisterClient2> {
           return;
         }
 
+        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Por favor, ingresa un correo electrónico válido')),
+          );
+          return;
+        }
+
         if (contrasena != confirmar) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Las contraseñas no coinciden')),
@@ -117,15 +135,16 @@ class _RegisterClient2State extends State<RegisterClient2> {
           return;
         }
 
-        final url = Uri.parse("http://192.168.1.92:3000/api/updateCliente/$cedula");
+        final url = Uri.parse(ApiConstants.updateUsuarioEndpoint(cedula));
 
         final response = await http.put(
           url,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             "telefono": telefono,
+            "email": email,
             "fecha_nacimiento": fechaNacimiento,
-            "contraseña": contrasena
+            "contrasena": contrasena
           }),
         );
 
@@ -168,7 +187,9 @@ class _CustomTextField extends StatelessWidget {
         width: screenWidth * widthPercentage,
         child: TextField(
           controller: controller,
-          keyboardType: isPhoneField ? TextInputType.number : TextInputType.text,
+          keyboardType: isPhoneField
+              ? TextInputType.number
+              : (label.toLowerCase().contains('correo') ? TextInputType.emailAddress : TextInputType.text),
           inputFormatters: isPhoneField
               ? [
                   FilteringTextInputFormatter.digitsOnly,

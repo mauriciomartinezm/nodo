@@ -10,7 +10,8 @@ import 'providers/userprovider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final firstTime = await isFirstTime();
+  //final firstTime = await isFirstTime();
+  bool firstTime = false;
 
   runApp(
     ChangeNotifierProvider(

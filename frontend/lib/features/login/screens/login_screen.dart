@@ -20,18 +20,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _telefonoController = TextEditingController();
+  final TextEditingController _identificadorController = TextEditingController();
   final TextEditingController _contrasenaController = TextEditingController();
 
   bool _loading = false;
 
   Future<void> _login() async {
-      print("hola");
-
-    final telefono = _telefonoController.text.trim();
+    final identificador = _identificadorController.text.trim();
     final contrasena = _contrasenaController.text;
 
-    if (telefono.isEmpty || contrasena.isEmpty) {
+    if (identificador.isEmpty || contrasena.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Por favor completa todos los campos')),
       );
@@ -43,61 +41,22 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final clienteResponse = await http.post(
-        Uri.parse(ApiConstants.loginEndpoint),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'telefono': telefono, 'contrasena': contrasena}),
-      );
-      print(clienteResponse.statusCode);
-      if (clienteResponse.statusCode == 200) {
-        final clienteData = jsonDecode(clienteResponse.body);
-
-        if (clienteData['messageSuccess'] != null) {
-          final cliente = Cliente.fromJson(clienteData['cliente']);
-          final usuarioProvider =
-              Provider.of<UserProvider>(context, listen: false);
-          //usuarioProvider.loginComoCliente(cliente);
-          // Verificamos si también es trabajador
-          final trabajadorResponse = await http.get(
-            Uri.parse(
-                "${ApiConstants.baseUrl}/getTrabajadorByUserId/${cliente.id}"),
-          );
-          //print(jsonDecode(trabajadorResponse.body));
-          if (trabajadorResponse.statusCode == 200) {
-            final trabajadorData = jsonDecode(trabajadorResponse.body);
-            //print(trabajadorData[0]);
-
-            if (trabajadorData != null && trabajadorData.isNotEmpty) {
-              final trabajador = Trabajador.fromJson(trabajadorData[0]);
-
-              //final usuarioProvider =
-              //    Provider.of<UsuarioProvider>(context, listen: false);
-                  //print("trabajador: ");
-                  //print(trabajador);
-                  //print("Cliente: ");
-                  //print(cliente);
-              //usuarioProvider.loginComoTrabajador(trabajador, cliente);
-            }
-          }
-
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      String message = await userProvider.loginUsuario(identificador, contrasena);
+      if (message.startsWith("Login exitoso")) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
           );
-        } else {
+      }
+        else if (message.startsWith("Credenciales inválidas")){
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Inicio de sesión fallido')),
+            SnackBar(content: Text('Credenciales inválidas')),
           );
         }
-      } else if (clienteResponse.statusCode == 401) {
+      else if (message == "Error al conectar con el servidor") {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Credenciales inválidas')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Error del servidor: ${clienteResponse.statusCode}')),
+          SnackBar(content: Text('Error al conectar con el servidor')),
         );
       }
     } catch (e) {
@@ -168,9 +127,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
                     child: TextField(
-                      controller: _telefonoController,
+                      controller: _identificadorController,
                       decoration: InputDecoration(
-                        labelText: "Teléfono",
+                        labelText: "Correo electronico o teléfono",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),

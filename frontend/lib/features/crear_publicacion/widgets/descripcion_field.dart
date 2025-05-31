@@ -1,0 +1,42 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../core/theme/app_colors.dart';
+
+class DescripcionField extends StatelessWidget {
+  final TextEditingController controller;
+
+  const DescripcionField({
+    super.key,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      maxLines: 3,
+      style: TextStyle(
+        fontSize: 9.sp, 
+        color: Colors.black, 
+        fontFamily: "GothamBook"
+      ),
+      decoration: InputDecoration(
+        labelText: "Descripción",
+        alignLabelWithHint: true,
+        labelStyle: TextStyle(
+          fontSize: 12.r, 
+          color: AppColors.aux, 
+          fontFamily: "GothamBook"
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(width: 2.r, color: AppColors.aux),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(width: 2.r, color: AppColors.aux),
+        ),
+      ),
+    );
+  }
+}

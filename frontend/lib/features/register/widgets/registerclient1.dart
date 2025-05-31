@@ -3,6 +3,7 @@ import 'package:nodo/features/register/widgets/register_scaffold.dart';
 import 'package:nodo/features/register/widgets/registerclient2.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/core/constants/api_constants.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -17,7 +18,8 @@ class _RegisterClient1State extends State<RegisterClient1> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _apellidoController = TextEditingController();
+  final TextEditingController _primerApellidoController = TextEditingController();
+  final TextEditingController _segundoApellidoController = TextEditingController();
   final TextEditingController _cedulaController = TextEditingController();
 
   @override
@@ -55,8 +57,8 @@ class _RegisterClient1State extends State<RegisterClient1> {
               ),
               SizedBox(height: fieldSpacing),
               _ValidatedTextField(
-                label: 'Apellidos',
-                controller: _apellidoController,
+                label: 'Primer apellido',
+                controller: _primerApellidoController,
                 widthPercentage: 0.85,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -68,6 +70,22 @@ class _RegisterClient1State extends State<RegisterClient1> {
                   return null;
                 },
               ),
+              SizedBox(height: fieldSpacing),
+              _ValidatedTextField(
+                label: 'Segundo apellido',
+                controller: _segundoApellidoController, 
+                widthPercentage: 0.85,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Este campo es obligatorio';
+                  }
+                  if (!RegExp(r"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$").hasMatch(value)) {
+                    return 'Solo se permiten letras';
+                  }
+                  return null;
+                },
+              ),
+
               SizedBox(height: fieldSpacing),
               _ValidatedTextField(
                 label: 'Cédula',
@@ -96,18 +114,30 @@ class _RegisterClient1State extends State<RegisterClient1> {
       formContent: formContent,
       onNext: () async {
         if (_formKey.currentState!.validate()) {
-          final nombreCompleto =
-              "${_nombreController.text.trim()} ${_apellidoController.text.trim()}";
           final cedula = _cedulaController.text.trim();
+          final nombres = _nombreController.text.trim();
+          final primerApellido = _primerApellidoController.text.trim();
+          final segundoApellido = _segundoApellidoController.text.trim();
 
-          Provider.of<UserProvider>(context, listen: false).setCedula(cedula);
+          final userProvider = Provider.of<UserProvider>(context, listen: false);
+          userProvider.setCedula(cedula);
 
-          final url = Uri.parse("http://192.168.1.92:3000/api/createCliente");
+          final tipoUsuario = userProvider.isWorker ? "trabajador" : "cliente";
+
+          final url = Uri.parse(ApiConstants.createUsuarioEndpoint);
 
           final response = await http.post(
             url,
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({"id": cedula, "nombre": nombreCompleto}),
+            body: jsonEncode({
+              "id": cedula,
+              "nombres": nombres,
+              "primer_apellido": primerApellido,
+              "segundo_apellido": segundoApellido,
+              "fecha_registro": DateTime.now().toUtc().toIso8601String(),
+              "verificado": false,
+              "tipo_usuario": tipoUsuario,
+            }),
           );
 
           if (response.statusCode == 200) {
@@ -118,9 +148,13 @@ class _RegisterClient1State extends State<RegisterClient1> {
             );
           } else {
             print("Error al registrar: ${response.body}");
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Error al registrar usuario.')),
+            );
           }
         }
-      },
+      }
+
     );
   }
 }

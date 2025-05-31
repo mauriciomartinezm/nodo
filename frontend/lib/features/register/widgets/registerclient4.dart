@@ -6,10 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/features/register/widgets/register_scaffold.dart';
-import 'package:nodo/features/trabajos/screens/trabajos2.dart';
+//import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/core/constants/api_constants.dart';
 
 class RegisterClient4 extends StatefulWidget {
   const RegisterClient4({super.key});
@@ -47,7 +48,7 @@ class _RegisterClient4State extends State<RegisterClient4> {
   }
 
   Future<void> _enviarImagenAlBackend(String cedula) async {
-    final String apiUrl = "http://10.0.2.2:3000/api/updateCliente/$cedula";
+    final String apiUrl = ApiConstants.updateUsuarioEndpoint(cedula);
 
     try {
       final response = await http.put(

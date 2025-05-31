@@ -65,15 +65,16 @@ export const createPublicacion = async (req, res) => {
       id_categoria,
       ubicacion,
       presupuesto,
-      //fecha_publicacion,
       fecha_limite,
       descripcion_necesidad,
-      //estado,
-      fotos
+      fotos // Este parámetro puede ser undefined
     } = req.body;
 
-    // Validación de campos obligatorios
-    if (!id_cliente || !id_categoria || !titulo || !descripcion_necesidad || !ubicacion || !presupuesto || !fecha_limite || !fotos) {
+    // Asignar valor por defecto si no hay fotos
+    const fotosFinal = fotos || "sin fotos"; // Esto asigna "sin fotos" si fotos es falsy (undefined, null, etc.)
+
+    // Validación de campos obligatorios (quitamos fotos de la validación)
+    if (!id_cliente || !id_categoria || !titulo || !descripcion_necesidad || !ubicacion || !presupuesto || !fecha_limite) {
       return res.status(400).json({ message: "Faltan campos obligatorios." });
     }
 
@@ -90,6 +91,7 @@ export const createPublicacion = async (req, res) => {
     if (categoriaCheck.rowCount === 0) {
       return res.status(404).json({ message: "La categoría no existe." });
     }
+
     // Generar ID con uuidv4
     const id = uuidv4();
 
@@ -97,7 +99,7 @@ export const createPublicacion = async (req, res) => {
     const query = `
       INSERT INTO publicacion 
       (id, id_cliente, id_categoria, titulo, descripcion_necesidad, ubicacion, presupuesto, fecha_publicacion, fecha_limite, estado, fotos)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'Pendiente', $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pendiente', $10)
     `;
 
     await db.query(query, [
@@ -108,10 +110,11 @@ export const createPublicacion = async (req, res) => {
       descripcion_necesidad,
       ubicacion,
       presupuesto,
-      new Date(), //fecha_publicacion
+      new Date(), // fecha_publicacion
       fecha_limite,
-      fotos
+      fotosFinal // Usamos la variable con el valor por defecto
     ]);
+
     res.status(201).json({
       id,
       id_cliente,
@@ -120,10 +123,8 @@ export const createPublicacion = async (req, res) => {
       descripcion_necesidad,
       ubicacion,
       presupuesto,
-      //fecha_publicacion,
       fecha_limite,
-      //estado,
-      fotos,
+      fotos: fotosFinal, // Enviamos el valor que se guardó
       mensaje: "Publicación creada exitosamente"
     });
 

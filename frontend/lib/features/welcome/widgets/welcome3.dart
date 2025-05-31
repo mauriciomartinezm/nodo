@@ -80,7 +80,7 @@ class Welcome3Screen extends StatelessWidget {
               icon: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
-                  'assets/icons/img_buttom_one.png',
+                  'assets/icons/img_buttom_one1.webp',
                   height: 204,
                   width: 280,
                   fit: BoxFit.cover,
@@ -119,7 +119,7 @@ class Welcome3Screen extends StatelessWidget {
               icon: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
-                  'assets/icons/img_buttom_two.png',
+                  'assets/icons/img_buttom_two1.webp',
                   height: 204,
                   width: 280,
                   fit: BoxFit.cover,

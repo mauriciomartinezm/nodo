@@ -68,6 +68,7 @@ export const createUsuario = async (req, res) => {
 
 
 export const loginUsuario = async (req, res) => {
+  console.log("Peticion recibida en /loginUsuario")
   const { identificador, contrasena } = req.body; // puede ser teléfono o email
 
   try {

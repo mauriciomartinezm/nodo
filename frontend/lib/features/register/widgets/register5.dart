@@ -5,6 +5,7 @@ import 'package:nodo/features/register/widgets/registerclient4.dart';
 import 'package:nodo/features/register/widgets/register_scaffold.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/core/constants/api_constants.dart';
 
 class Register5 extends StatefulWidget {
   const Register5({super.key});
@@ -14,30 +15,30 @@ class Register5 extends StatefulWidget {
 }
 
 class _Register5State extends State<Register5> {
-  final _habilidadController = TextEditingController();
+  final _categoriaController = TextEditingController();
   final _ubicacionController = TextEditingController();
-  final _experienciaController = TextEditingController();
+  final _descripcionController = TextEditingController();
+  late String cedula; // Variable global de clase
 
   @override
   void dispose() {
-    _habilidadController.dispose();
+    _categoriaController.dispose();
     _ubicacionController.dispose();
-    _experienciaController.dispose();
+    _descripcionController.dispose();
     super.dispose();
   }
 
-  Future<void> _actualizarTrabajador(String idUsuario) async {
-    final url = Uri.parse('http://10.0.2.2:3000/api/createTrabajador');
+  Future<void> _actualizarTrabajador() async {
+    final url = Uri.parse(ApiConstants.updateUsuarioEndpoint(cedula)); 
 
     try {
-      final response = await http.post(
+      final response = await http.put(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "habilidad": _habilidadController.text.trim(),
+          "categoria": _categoriaController.text.trim(),
           "ubicacion": _ubicacionController.text.trim(),
-          "experiencia": _experienciaController.text.trim(),
-          "idUsuario": idUsuario,
+          "descripcion": _descripcionController.text.trim(),
         }),
       );
 
@@ -66,11 +67,13 @@ class _Register5State extends State<Register5> {
     final horizontalPadding = screenWidth * 0.1;
     final fieldSpacing = screenHeight * 0.02;
 
-    final isWorker = Provider.of<UserProvider>(context).isWorker;
-    final idUsuario = Provider.of<UserProvider>(context).cedula;
+    final userProvider = Provider.of<UserProvider>(context);
+    cedula = userProvider.cedula; // Se asigna una vez aquí, no localmente
+
+    final isWorker = userProvider.isWorker;
 
     return RegisterScaffold(
-      title: 'Datos adicionalessssss',
+      title: 'Datos adicionales',
       stepIndex: isWorker ? 3 : 4,
       formContent: Center(
         child: Container(
@@ -84,7 +87,7 @@ class _Register5State extends State<Register5> {
               SizedBox(height: fieldSpacing),
               _CustomTextField(
                 label: 'Categoría o especialidad',
-                controller: _habilidadController,
+                controller: _categoriaController,
                 widthPercentage: 0.85,
               ),
               SizedBox(height: fieldSpacing),
@@ -96,14 +99,14 @@ class _Register5State extends State<Register5> {
               SizedBox(height: fieldSpacing),
               _CustomTextField(
                 label: 'Descripción breve de los servicios que ofrece',
-                controller: _experienciaController,
+                controller: _descripcionController,
                 widthPercentage: 0.85,
               ),
             ],
           ),
         ),
       ),
-      onNext: () => _actualizarTrabajador(idUsuario),
+      onNext: _actualizarTrabajador, 
       showNextButton: true,
     );
   }
