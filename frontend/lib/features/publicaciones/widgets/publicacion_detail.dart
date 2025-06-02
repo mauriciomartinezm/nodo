@@ -57,11 +57,18 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
                   ),
                 ),
                 SizedBox(height: 8.h),
-                _buildDetailInfo(widget.publicacion['descripcion_necesidad'] ?? 'Sin descripción'),
-                _buildDetailInfo('Publicado: ${_formatDate(widget.publicacion['fecha_publicacion'])}'),
-                _buildDetailInfo('Ubicación: ${widget.publicacion['ubicacion'] ?? 'Sin ubicación'}'),
-                _buildDetailInfo('Fecha límite: ${_formatDate(widget.publicacion['fecha_limite'])}'),
-                _buildDetailInfo('Presupuesto: \$${widget.publicacion['presupuesto']?.toString() ?? '0'}'),
+                _buildDetailInfo(
+  widget.publicacion['descripcion_necesidad'] ?? 'Sin descripción', 
+  isDescription: true
+),
+                _buildDetailInfo(
+                    'Publicado: ${_formatDate(widget.publicacion['fecha_publicacion'])}'),
+                _buildDetailInfo(
+                    'Ubicación: ${widget.publicacion['ubicacion'] ?? 'Sin ubicación'}'),
+                _buildDetailInfo(
+                    'Fecha límite: ${_formatDate(widget.publicacion['fecha_limite'])}'),
+                _buildDetailInfo(
+                    'Presupuesto: \$${widget.publicacion['presupuesto']?.toString() ?? '0'}'),
                 _buildStatusInfo(widget.publicacion['estado']),
                 _buildActionButtons(),
               ],
@@ -113,23 +120,51 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
     );
   }
 
-  Widget _buildDetailInfo(String texto) {
+  /*Widget _buildDescriptionInfo(String texto) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
-      child: Row(
-        children: [
-          Text(
-            texto,
-            style: TextStyle(
-              color: AppColors.primaryColor,
-              fontFamily: 'GothamBook',
-              fontSize: 12.sp,
-            ),
-          ),
-        ],
+      child: Text(
+        texto,
+        style: TextStyle(
+          color: AppColors.primaryColor,
+          fontFamily: 'GothamBook',
+          fontSize: 12.sp,
+        ),
+        softWrap: true, // Esto permite el salto de línea
+        overflow: TextOverflow
+            .visible, // O usa TextOverflow.ellipsis si prefieres puntos suspensivos
       ),
     );
-  }
+  }*/
+
+  Widget _buildDetailInfo(String texto, {bool isDescription = false}) {
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 4.h),
+    child: isDescription 
+      ? Text(
+          texto,
+          style: TextStyle(
+            color: AppColors.primaryColor,
+            fontFamily: 'GothamBook',
+            fontSize: 12.sp,
+          ),
+          softWrap: true,
+          overflow: TextOverflow.visible,
+        )
+      : Row(
+          children: [
+            Text(
+              texto,
+              style: TextStyle(
+                color: AppColors.primaryColor,
+                fontFamily: 'GothamBook',
+                fontSize: 12.sp,
+              ),
+            ),
+          ],
+        ),
+  );
+}
 
   Widget _buildStatusInfo(String status) {
     return Padding(

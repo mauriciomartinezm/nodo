@@ -18,12 +18,14 @@ class PublicacionesService {
       final responseData = json.decode(response.body);
       if (responseData is List) {
         return responseData;
-      } else if (responseData is Map && responseData['message'] == 'No existen registros') {
+      } else if (responseData is Map &&
+          responseData['message'] == 'No existen registros') {
         return [];
       }
       throw Exception('Formato de respuesta inesperado');
     }
-    throw Exception('Error al cargar las publicaciones (${response.statusCode})');
+    throw Exception(
+        'Error al cargar las publicaciones (${response.statusCode})');
   }
 
   Future<bool> deletePublicacion(String publicacionId) async {

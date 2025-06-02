@@ -43,7 +43,7 @@ export const getPublicacionesByUserId = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: "No existen registros" });
+      return res.status(200).json({ message: "No existen registros" });
     }
 
     res.json(result.rows);
