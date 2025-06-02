@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/userprovider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../home/screens/home_screen.dart';
+import 'package:nodo/features/register/widgets/registerclient1.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -210,7 +211,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontFamily: "GothamBook",
                               fontSize: 11.r)),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const RegisterClient1()),
+                          );
+                        },
                         child: Text(
                           "Regístrate",
                           style: TextStyle(

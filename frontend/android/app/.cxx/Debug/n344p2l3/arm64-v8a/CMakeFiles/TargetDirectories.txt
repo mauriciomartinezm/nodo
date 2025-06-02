@@ -1,0 +1,2 @@
+D:/nodo/frontend/android/app/.cxx/Debug/n344p2l3/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/nodo/frontend/android/app/.cxx/Debug/n344p2l3/arm64-v8a/CMakeFiles/rebuild_cache.dir

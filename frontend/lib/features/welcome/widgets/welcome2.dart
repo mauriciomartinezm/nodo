@@ -22,7 +22,7 @@ class _Welcome2ScreenState extends State<Welcome2Screen> {
           // Imagen de fondo
           Positioned.fill(
             child: Image.asset(
-              'assets/icons/img_screen_two.png', // Ruta de la imagen
+              'assets/icons/img_screen_two1.webp', // Ruta de la imagen
               fit: BoxFit.cover, // Ajuste para que cubra toda la pantalla
             ),
           ),

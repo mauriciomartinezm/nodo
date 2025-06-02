@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/features/chat/screens/Chat1.dart';
 import 'package:nodo/features/trabajos/screens/trabajos4.dart';
+
 class DetalleTrabajoScreen extends StatefulWidget {
   final Map<String, dynamic> job;
   final ScrollController scrollController;
@@ -20,9 +21,24 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
   int currentPage = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // print("Detalles job");
+    // print(widget.job);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final images = widget.job["images"] as List<String>? ?? [];
-    final String clienteNombre = widget.job["user"].toString().split(' ').first;
+    final images = widget.job["images"] is List
+        ? List<String>.from(widget.job["images"])
+        : [widget.job["images"]?.toString() ?? ''];
+
+    final String clienteNombre = widget.job["user"] ?? "Cliente desconocido";
+    final String titulo = widget.job["title"] ?? "Sin título";
+    final String descripcion = widget.job["description"] ?? "Sin descripción";
+    final String ubicacion = widget.job["location"] ?? "Sin ubicación";
+    final String presupuesto = widget.job["price"] ?? "0";
+    final String fechaLimite = widget.job["time"] ?? "";
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -60,6 +76,8 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                               images[index],
                               fit: BoxFit.cover,
                               width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Center(child: Icon(Icons.broken_image)),
                             );
                           },
                         ),
@@ -67,8 +85,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                       Positioned(
                         top: 12,
                         right: 12,
-                        child: 
-                        ElevatedButton.icon(
+                        child: ElevatedButton.icon(
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -119,23 +136,23 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.job["title"],
+                          titulo,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          widget.job["description"],
+                          descripcion,
                           style: const TextStyle(fontSize: 15, height: 1.4),
                         ),
                         const SizedBox(height: 8),
-                        Text(widget.job["location"], style: TextStyle(color: Colors.grey[700])),
+                        Text(ubicacion, style: TextStyle(color: Colors.grey[700])),
                         Text(
-                          widget.job["time"],
+                          fechaLimite,
                           style: const TextStyle(color: Colors.redAccent, fontSize: 13),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          widget.job["price"],
+                          presupuesto,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const Divider(height: 32),
@@ -152,7 +169,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              widget.job["user"],
+                              clienteNombre,
                               style: const TextStyle(fontSize: 15),
                             ),
                           ],

@@ -75,6 +75,10 @@ flutter:
     - assets/icons/iconGoogle.png
     - assets/icons/iconLinkedin.png
     - assets/images/diomedes_joven.jpg
+    - assets/icons/img_screen_two1.webp
+    - assets/icons/img_buttom_one1.webp
+    - assets/icons/img_buttom_two1.webp
+    - assets/icons/img_screen_one1.webp
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
