@@ -9,6 +9,7 @@ import 'package:nodo/features/publicaciones/screens/publicaciones_screen.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_service.dart';
 import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: const PublicacionesScreen(),
       ),
-      const CrearPublicacionScreen(), // Trabajos
+      const TrabajosScreen2(), // Trabajos
       ChangeNotifierProvider(
         create: (context) => CrearPublicacionController(
           CrearPublicacionService(),
