@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+
 import 'package:nodo/features/trabajos/screens/trabajos3.dart';
 import 'package:nodo/features/trabajos/screens/trabajos6.dart';
-import 'package:nodo/core/constants/api_constants.dart';
+import 'package:nodo/features/trabajos/logic/TrabajoService .dart'; // Asegúrate de importar aquí
+import 'package:nodo/features/trabajos/widgets/joblist.dart';
 
 class TrabajosScreen2 extends StatefulWidget {
   const TrabajosScreen2({super.key});
@@ -14,125 +14,68 @@ class TrabajosScreen2 extends StatefulWidget {
 
 class _TrabajosScreen2State extends State<TrabajosScreen2> {
   List<dynamic> _publicaciones = [];
-  final Map<String, String> _nombresClientes =
-      {}; // Mapa para almacenar nombres de clientes
+  Map<String, String> _nombresClientes = {};
   bool _isLoading = true;
   String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _fetchPublicaciones();
+    _loadData();
   }
 
-  Future<void> _fetchPublicaciones() async {
+  Future<void> _loadData() async {
     try {
-      final response = await http.get(
-        Uri.parse(ApiConstants.getPublicacionesEndpoint),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final publicaciones = await TrabajoService.fetchPublicaciones();
+      final nombres = await TrabajoService.fetchNombresClientes(publicaciones);
 
-      if (response.statusCode == 200) {
-        final publicaciones = json.decode(response.body);
-
-        // Obtener nombres de clientes para todas las publicaciones
-        await _fetchNombresClientes(publicaciones);
-
-        setState(() {
-          _publicaciones = publicaciones;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-          _errorMessage =
-              'Error al cargar las publicaciones: ${response.statusCode}';
-        });
-      }
+      setState(() {
+        _publicaciones = publicaciones;
+        _nombresClientes = nombres;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Error de conexión: $e';
+        _errorMessage = 'Error: $e';
       });
     }
   }
 
-  Future<void> _fetchNombresClientes(List<dynamic> publicaciones) async {
-    try {
-      // Obtener todos los IDs de clientes únicos
-      final clientIds =
-          publicaciones.map((p) => p['id_cliente']).toSet().toList();
-
-      // Hacer peticiones para cada cliente
-      for (final clientId in clientIds) {
-        
-        final response = await http.get(
-         Uri.parse(ApiConstants.getClienteById(clientId)),
-          headers: {'Content-Type': 'application/json'},
-        );
-
-        if (response.statusCode == 200) {
-          final clienteData = json.decode(response.body);
-          
-          setState(() {
-              _nombresClientes[clientId] = clienteData[0]['nombre'];
-            });
-          ///_nombresClientes[clientId] = clienteData[clientId]['nombre']; // Valor por defecto
-
-          //if (clienteData is Map<String, dynamic>) {
-          //  setState(() {
-          //    _nombresClientes[clientId] = clienteData[clientId]['nombre'];
-          //  });
-          //} else {
-          //  setState(() {
-          //     _nombresClientes[clientId] = clienteData[clientId]['nombre'];
-          //  });
-          //}
-        } else {
-          setState(() {
-            _nombresClientes[clientId] = 'Cliente $clientId';
-          });
-        }
-      }
-    } catch (e) {
-      //print('Error al obtener nombres de clientes: $e');
-    }
-  }
-
-  IconData _getIconForCategory(String categoryId) {
-    // Mapeo de categorías a iconos
-    switch (categoryId) {
-      case 'cat1': // Plomería
-        return Icons.plumbing;
-      case 'cat2': // Control de plagas
-        return Icons.bug_report;
-      case 'cat3': // Electricidad
-        return Icons.electrical_services;
-      case 'cat4': // Computadores
-        return Icons.computer;
-      default:
-        return Icons.work;
-    }
-  }
-
-  String _formatTimeAgo(String dateString) {
-    final date = DateTime.parse(dateString);
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays > 0) {
-      return 'Hace ${difference.inDays} días';
-    } else if (difference.inHours > 0) {
-      return 'Hace ${difference.inHours} horas';
-    } else if (difference.inMinutes > 0) {
-      return 'Hace ${difference.inMinutes} minutos';
-    } else {
-      return 'Recién publicado';
-    }
+  void _mostrarDetalleTrabajo(dynamic publicacion, String nombreCliente) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, scrollController) => DetalleTrabajoScreen(
+          job: {
+            "title": publicacion['titulo'],
+            "description": publicacion['descripcion_necesidad'],
+            "price": "\$${publicacion['presupuesto']}",
+            "location": "${publicacion['ubicacion']}",
+            "user": "Nombre del cliente: $nombreCliente",
+            "time":
+                "${TrabajoService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
+            "image": TrabajoService.getIconForCategory(publicacion['id_categoria']),
+            "images": [
+              'assets/icons/img_buttom_one.png',
+              'assets/icons/img_buttom_two.png',
+              'assets/icons/img_screen_one.png',
+              'assets/icons/img_screen_two.png',
+            ],
+          },
+          scrollController: scrollController,
+        ),
+      ),
+    );
   }
 
   @override
-
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
@@ -198,133 +141,11 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
       return const Center(child: Text('No hay publicaciones disponibles'));
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(5),
-      itemCount: _publicaciones.length,
-      itemBuilder: (context, index) {
-        final publicacion = _publicaciones[index];
-        final nombreCliente = _nombresClientes[publicacion['id_cliente']] ?? 'Cargando nombre...';
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          color: Colors.white,
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  _getIconForCategory(publicacion['id_categoria']),
-                  size: 35,
-                  color: const Color(0xFF003366),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          text: "${publicacion['titulo']}: ",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: publicacion['descripcion_necesidad'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 11,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "\$${publicacion['presupuesto']}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        publicacion['ubicacion'],
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 11,
-                        ),
-                      ),
-                      Text(
-                        "${_formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 6),
-                ElevatedButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder:
-                          (context) => DraggableScrollableSheet(
-                            initialChildSize: 0.75,
-                            minChildSize: 0.4,
-                            maxChildSize: 0.95,
-                            expand: false,
-                            builder:
-                                (_, scrollController) => DetalleTrabajoScreen(
-                                  job: {
-                                    "title": publicacion['titulo'],
-                                    "description":
-                                        publicacion['descripcion_necesidad'],
-                                    "price": "\$${publicacion['presupuesto']}",
-                                    "location": "${publicacion['ubicacion']}",
-                                    "user":
-                                        "Nombre del cliente: $nombreCliente", //
-                                    "time":
-                                        "${_formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
-                                    "image": _getIconForCategory(
-                                      publicacion['id_categoria'],
-                                    ),
-                                    "images": [
-                                      'assets/icons/img_buttom_one.png',
-                                      'assets/icons/img_buttom_two.png',
-                                      'assets/icons/img_screen_one.png',
-                                      'assets/icons/img_screen_two.png',
-                                    ],
-                                  },
-                                  scrollController: scrollController,
-                                ),
-                          ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange.shade300,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    textStyle: const TextStyle(fontSize: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text("Ver detalles"),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+    return JobList(
+      publicaciones: _publicaciones,
+      nombresClientes: _nombresClientes,
+      onVerDetalles: _mostrarDetalleTrabajo,
     );
   }
+
 }

@@ -8,7 +8,7 @@ import '../widgets/header_info.dart';
 import '../widgets/text_field.dart';
 import '../widgets/categoria_dropdown.dart';
 import '../widgets/descripcion_field.dart';
-import '../widgets/foto_widget.dart';
+//import '../widgets/foto_widget.dart';
 
 class CrearPublicacionScreen extends StatefulWidget {
   const CrearPublicacionScreen({super.key});

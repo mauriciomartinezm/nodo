@@ -1,40 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:nodo/core/constants/api_constants.dart';
 
 class FiltroCategoriaDetalleScreen extends StatefulWidget {
-  const FiltroCategoriaDetalleScreen({Key? key}) : super(key: key);
+  const FiltroCategoriaDetalleScreen({super.key});
 
   @override
   State<FiltroCategoriaDetalleScreen> createState() => _FiltroCategoriaDetalleScreenState();
 }
 
 class _FiltroCategoriaDetalleScreenState extends State<FiltroCategoriaDetalleScreen> {
-  List<String> categorias = [
-    "Diseño Gráfico",
-    "Plomería",
-    "Electricidad",
-    "Reparaciones",
-  ];
+  List<Map<String, dynamic>> categorias = [];// Lista para almacenar las categorías obtenidas
+  // Usamos Map<String, dynamic> para manejar categorías con id y nombre_cat
+  Set<String> categoriasSeleccionadas = {};// Conjunto para almacenar las categorías seleccionadas por su id
+  bool _isLoading = true;
+  String _errorMessage = '';
 
-  Set<String> categoriasSeleccionadas = {};
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategorias();
+  }
+
+  Future<void> _fetchCategorias() async {
+    try {
+      final response = await http.get(
+        Uri.parse(ApiConstants.getCategoriasEndpoint),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          categorias = List<Map<String, dynamic>>.from(data);
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Error al cargar categorías: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Error de conexión: $e';
+      });
+    }
+  }
 
   bool get todoSeleccionado => categoriasSeleccionadas.length == categorias.length;
 
   void toggleTodo(bool? val) {
     setState(() {
       if (val == true) {
-        categoriasSeleccionadas = categorias.toSet();
+        categoriasSeleccionadas = Set.from(categorias.map((cat) => cat['id'] as String));
       } else {
         categoriasSeleccionadas.clear();
       }
     });
   }
 
-  void toggleCategoria(String categoria, bool? val) {
+  void toggleCategoria(String categoriaId, bool? val) {
     setState(() {
       if (val == true) {
-        categoriasSeleccionadas.add(categoria);
+        categoriasSeleccionadas.add(categoriaId);
       } else {
-        categoriasSeleccionadas.remove(categoria);
+        categoriasSeleccionadas.remove(categoriaId);
       }
     });
   }
@@ -56,7 +89,6 @@ class _FiltroCategoriaDetalleScreenState extends State<FiltroCategoriaDetalleScr
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Handler visual
               Center(
                 child: Container(
                   width: 40,
@@ -69,50 +101,57 @@ class _FiltroCategoriaDetalleScreenState extends State<FiltroCategoriaDetalleScr
                 ),
               ),
               const Text('Categoría', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF003366))),
-              CheckboxListTile(
-                controlAffinity: ListTileControlAffinity.leading,
-                title: const Text('Todo', style: TextStyle(color: Color(0xFF003366))),
-                value: todoSeleccionado,
-                onChanged: toggleTodo,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  itemCount: categorias.length,
-                  itemBuilder: (_, i) {
-                    final cat = categorias[i];
-                    return CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Text(cat, style: const TextStyle(color: Color(0xFF003366))),
-                      value: categoriasSeleccionadas.contains(cat),
-                      onChanged: (val) => toggleCategoria(cat, val),
-                    );
-                  },
+              
+              if (_isLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (_errorMessage.isNotEmpty)
+                Center(child: Text(_errorMessage))
+              else ...[
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: const Text('Todo', style: TextStyle(color: Color(0xFF003366))),
+                  value: todoSeleccionado,
+                  onChanged: toggleTodo,
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Recuerda que, si deseas filtrar por más categorías, primero debes actualizarlas.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, categoriasSeleccionadas.toList());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF003366),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: categorias.length,
+                    itemBuilder: (_, i) {
+                      final cat = categorias[i];
+                      return CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(cat['nombre_cat'], style: const TextStyle(color: Color(0xFF003366))),
+                        value: categoriasSeleccionadas.contains(cat['id']),
+                        onChanged: (val) => toggleCategoria(cat['id'], val),
+                      );
+                    },
                   ),
-                  child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
                 ),
-              ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Selecciona las categorías que deseas filtrar',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, categoriasSeleccionadas.toList());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF003366),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
             ],
           ),
         );

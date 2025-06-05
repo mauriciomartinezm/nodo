@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../../core/constants/api_constants.dart';
 
 class CrearPublicacionService {
+  
   Future<List<Map<String, String>>> obtenerCategorias() async {
     final response = await http.get(Uri.parse(ApiConstants.getCategoriasEndpoint));
     

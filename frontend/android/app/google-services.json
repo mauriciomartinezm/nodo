@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "942591259454",
+    "project_id": "nodo-b1ff4",
+    "storage_bucket": "nodo-b1ff4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:942591259454:android:557ad5a917863c6de9326f",
+        "android_client_info": {
+          "package_name": "com.example.nodo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4GJxqO1XKc6jbBqxKpz7KI5QqPEd5TxA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
