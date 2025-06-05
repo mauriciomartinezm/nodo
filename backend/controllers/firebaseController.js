@@ -40,6 +40,38 @@ export const saveToken = async (req, res) => {
     }
 };
 
+export const deleteToken = async (req, res) => {
+    console.log("Peticion recibida en /deleteToken")
+    const { id_usuario } = req.body;
+
+    if (!id_usuario) {
+        return res.status(400).json({ message: 'Se requiere el id_usuario.' });
+    }
+
+    try {
+        const result = await db.query(
+            'UPDATE Usuario SET fcm_token = NULL WHERE id = $1 AND fcm_token IS NOT NULL',
+            [id_usuario]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(200).json({ message: 'El usuario no tenía token registrado.' });
+        }
+
+        return res.status(200).json({ 
+            message: 'Token eliminado correctamente.',
+            details: `Se eliminó el token para el usuario ${id_usuario}`
+        });
+
+    } catch (error) {
+        console.error('Error al eliminar el token:', error);
+        return res.status(500).json({ 
+            message: 'Error interno del servidor.',
+            error: error.message 
+        });
+    }
+};
+
 async function enviarNotificacionAUsuario(fcmToken, titulo, cuerpo, data = {}) {
     console.log("Enviando notificacion al usuario...");
 

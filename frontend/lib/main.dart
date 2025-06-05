@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/features/crear_publicacion/logic/crear_publicacion_controller.dart';
 import 'package:nodo/features/crear_publicacion/logic/crear_publicacion_service.dart';
+import 'package:nodo/features/home/screens/home_screen.dart';
+import 'package:nodo/features/menu/about/about_screen.dart';
+import 'package:nodo/features/menu/about/credits_screen.dart';
+import 'package:nodo/features/menu/settings/Security/security_screen.dart';
+import 'package:nodo/features/menu/settings/account_profile_screen.dart';
+import 'package:nodo/features/menu/settings/notifications_settings_screen.dart';
+import 'package:nodo/features/menu/settings/payments%20and%20billings/commission_calculator_screen.dart';
+import 'package:nodo/features/menu/settings/payments%20and%20billings/commissions_fees_screen.dart';
+import 'package:nodo/features/menu/settings/payments%20and%20billings/payments_billings_screen.dart';
+import 'package:nodo/features/menu/settings/payments%20and%20billings/payments_methods_screen.dart';
+import 'package:nodo/features/menu/settings/payments%20and%20billings/your_income_screen.dart';
+import 'package:nodo/features/menu/settings/preferences_screen.dart';
+import 'package:nodo/features/menu/settings/profile/edit_profile_screen.dart';
+import 'package:nodo/features/menu/settings/profile/profile_screen.dart';
+import 'package:nodo/features/menu/settings/settings_screen.dart';
+import 'package:nodo/features/menu/work_wt_nodo_screen.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_service.dart';
 import 'package:nodo/services/notification_service.dart';
@@ -13,6 +29,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/userprovider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+
+// Configuración de rutas nombradas
+abstract class AppRoutes {
+  static const welcome = '/welcome';
+  static const login = '/login';
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,14 +95,40 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           navigatorKey: NotificationService.navigatorKey, // Usa la misma clave
           debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
+          title: 'Nodo App',
           theme: ThemeData(
             colorScheme:
                 ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
             useMaterial3: true,
           ),
           // home: const Welcome1Screen(),
-          home: firstTime ? const Welcome1Screen() : const LoginScreen(),
+          // Lógica firstTime mantenida
+          initialRoute: firstTime ? AppRoutes.welcome : AppRoutes.login,
+          //home: firstTime ? const Welcome1Screen() : const LoginScreen(),
+          // Sistema de rutas combinado
+          routes: {
+            AppRoutes.welcome: (context) => const Welcome1Screen(),
+            AppRoutes.login: (context) => const LoginScreen(),
+            '/home': (context) => const HomeScreen(),
+            '/workWNodo': (context) => const WorkWtNodo(),
+            '/SettingsScreen': (context) => const SettingsScreen(),
+            '/AccountProfileScreen': (context) => const AccountProfileScreen(),
+            '/PreferencesScreen': (context) => const PreferencesScreen(),
+            '/ProfileScreen': (context) => const ProfileScreen(),
+            '/editProfile': (context) => const EditProfileScreen(),
+            '/NotificationSettingsScreen': (context) =>
+                const NotificationSettingsScreen(),
+            '/SecuritysScreen': (context) => const SecuritysScreen(),
+            '/PaymentsBillings': (context) => const PaymentsBillings(),
+            '/YourIncome': (context) => const YourIncome(),
+            '/CommissionsFeesScreen': (context) =>
+                const CommissionsFeesScreen(),
+            '/PaymentsMethods': (context) => const PaymentsMethods(),
+            '/CommissionCalculatorScreen': (context) =>
+                const CommissionCalculatorScreen(),
+            '/About': (context) => const About(),
+            '/Credits': (context) => const Credits(),
+          },
         );
       },
     );

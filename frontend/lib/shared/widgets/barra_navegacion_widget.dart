@@ -1,6 +1,5 @@
-// En tu archivo barra_navegacion_widget.dart
 import 'package:flutter/material.dart';
-import 'package:nodo/core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class BarraNavegacionWidget extends StatelessWidget {
   final int currentIndex;
@@ -12,30 +11,48 @@ class BarraNavegacionWidget extends StatelessWidget {
     required this.onIndexChanged,
   });
 
+  void _openEndDrawer(BuildContext context) {
+    Scaffold.of(context).openEndDrawer();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      backgroundColor: AppColors.primaryColor,
-      indicatorColor: Color.fromARGB(51, 255, 255, 255),
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      destinations: const [
-        NavigationDestination(
-            icon: Icon(Icons.web, color: AppColors.secondaryColor),
-            label: ""),
-        NavigationDestination(
-            icon: Icon(Icons.work, color: AppColors.secondaryColor), label: ""),
-        NavigationDestination(
-            icon: Icon(Icons.add_circle, color: AppColors.secondaryColor),
-            label: ""),
-        NavigationDestination(
-            icon: Icon(Icons.notifications, color: AppColors.secondaryColor),
-            label: ""),
-        NavigationDestination(
-            icon: Icon(Icons.menu, color: AppColors.secondaryColor), label: ""),
-      ],
-      selectedIndex: currentIndex,
-      onDestinationSelected: onIndexChanged,
-      height: MediaQuery.of(context).size.height * 0.07, // Por defecto es 80
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.07,
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(color: Colors.black26, offset: Offset(0, -2), blurRadius: 4)
+        ],
+      ),
+      child: Stack(
+        children: [
+          NavigationBar(
+            backgroundColor: AppColors.blue,
+            indicatorColor: AppColors.blue,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+            destinations: [
+              const NavigationDestination(icon: Icon(Icons.web, color: AppColors.white), label: ""),
+              const NavigationDestination(icon: Icon(Icons.work, color: AppColors.white), label: ""),
+              const NavigationDestination(
+                  icon: Icon(Icons.add_box_rounded, color: AppColors.white), label: ""),
+              const NavigationDestination(
+                  icon: Icon(Icons.notifications, color: AppColors.white), label: ""),
+              NavigationDestination(
+                icon: GestureDetector(
+                  onTap: () => _openEndDrawer(context),
+                  child: const Icon(Icons.menu, color: AppColors.white),
+                ),
+                label: "",
+              ),
+            ],
+            selectedIndex: currentIndex,
+            onDestinationSelected: (index) {
+              if (index != 4) onIndexChanged(index);
+            },
+          ),
+        ],
+      ),
     );
   }
 }

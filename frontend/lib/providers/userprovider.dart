@@ -108,10 +108,12 @@ class UserProvider with ChangeNotifier {
 
   // Método para login
   Future<String> loginUsuario(String identificador, String contrasena) async {
+
     _isLoading = true;
     notifyListeners();
 
     try {
+
       final response = await http.post(
         Uri.parse(ApiConstants.loginEndpoint),
         headers: {'Content-Type': 'application/json'},
@@ -120,6 +122,7 @@ class UserProvider with ChangeNotifier {
           'contrasena': contrasena,
         }),
       );
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _usuario = Usuario.fromJson(data['usuario']);
@@ -152,11 +155,48 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void logout() {
-    _usuario = null;
-    _cedula = '';
-    _isWorker = false;
-    notifyListeners();
+  Future<void> logout() async {
+    try {
+      // 1. Limpiar el token de FCM (Firebase Cloud Messaging)
+      await _cleanFcmToken();
+
+      // 2. Limpiar datos locales
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('fcm_token');
+
+      // 3. Limpiar el estado del provider
+      _usuario = null;
+      _cedula = '';
+      _isWorker = false;
+      _message = '';
+
+      // 4. Notificar a los listeners
+      notifyListeners();
+
+      print('✅ Sesión cerrada correctamente');
+    } catch (e) {
+      print('❌ Error al cerrar sesión: $e');
+      throw Exception('Error al cerrar sesión');
+    }
+  }
+
+  Future<void> _cleanFcmToken() async {
+    try {
+      // Eliminar el token de FCM
+      await FirebaseMessaging.instance.deleteToken();
+
+      // Opcional: Si necesitas notificar al servidor
+      if (_usuario != null) {
+        await http.put(
+          Uri.parse(ApiConstants.deleteToken),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'id_usuario': _usuario!.id}),
+        );
+      }
+    } catch (e) {
+      print('⚠️ Error al limpiar token FCM: $e');
+      // No es crítico si falla, podemos continuar
+    }
   }
 
   void updateUsuario(Usuario updatedUsuario) {
@@ -167,43 +207,45 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> guardarTokenEnServidor() async {
-  try {
-    //para web se supone que es el fcmToken
-    //final fcmToken = await FirebaseMessaging.instance.getToken(vapidKey: "BDfyoXI6CD45PdaPWTJNV5cPAIqxgRwytMr0ZmS-P2sBTpv3EbN3fV_woTgnpEk7FAsFGSq4hUoz23o5W4u802I");
-    final prefs = await SharedPreferences.getInstance();
-    //final nuevoToken = await FirebaseMessaging.instance.getToken();
-    //final nuevoToken = await FirebaseMessaging.instance.getToken(vapidKey: "BDfyoXI6CD45PdaPWTJNV5cPAIqxgRwytMr0ZmS-P2sBTpv3EbN3fV_woTgnpEk7FAsFGSq4hUoz23o5W4u802I");
-    print("Token de firebase: ");
-    final nuevoToken = await FirebaseMessaging.instance.getToken();
-    print(nuevoToken);
-    //final notificationSettings = await FirebaseMessaging.instance.requestPermission(provisional: true); //no creo que vaya aqui
-    if (nuevoToken == null || _usuario == null) return;
+      print("Guardando token");
 
-    final tokenGuardado = prefs.getString('fcm_token');
+    try {
+      //para web se supone que es el fcmToken
+      //final fcmToken = await FirebaseMessaging.instance.getToken(vapidKey: "BDfyoXI6CD45PdaPWTJNV5cPAIqxgRwytMr0ZmS-P2sBTpv3EbN3fV_woTgnpEk7FAsFGSq4hUoz23o5W4u802I");
+      final prefs = await SharedPreferences.getInstance();
+      //final nuevoToken = await FirebaseMessaging.instance.getToken();
+      //final nuevoToken = await FirebaseMessaging.instance.getToken(vapidKey: "BDfyoXI6CD45PdaPWTJNV5cPAIqxgRwytMr0ZmS-P2sBTpv3EbN3fV_woTgnpEk7FAsFGSq4hUoz23o5W4u802I");
+      print("Token de firebase: ");
+      final nuevoToken = await FirebaseMessaging.instance.getToken();
+      print(nuevoToken);
+      //final notificationSettings = await FirebaseMessaging.instance.requestPermission(provisional: true); //no creo que vaya aqui
+      if (nuevoToken == null || _usuario == null) return;
 
-    // Si el token no ha cambiado, no se hace nada
-    if (tokenGuardado == nuevoToken) {
-      print('🔁 Token ya enviado previamente, no se envía de nuevo.');
-      return;
-    } 
+      final tokenGuardado = prefs.getString('fcm_token');
 
-    final response = await http.post(
-      Uri.parse(ApiConstants.guardarToken),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'id_usuario': _usuario!.id,
-        'token': nuevoToken,
-      }),
-    );
+      // Si el token no ha cambiado, no se hace nada
+      if (tokenGuardado == nuevoToken) {
+        print('🔁 Token ya enviado previamente, no se envía de nuevo.');
+        return;
+      }
 
-    if (response.statusCode == 200) {
-      await prefs.setString('fcm_token', nuevoToken);
-      print('✅ Token actualizado en servidor y guardado localmente.');
-    } else {
-      print('⚠️ Error al guardar token: ${response.body}');
+      final response = await http.post(
+        Uri.parse(ApiConstants.saveToken),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id_usuario': _usuario!.id,
+          'token': nuevoToken,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        await prefs.setString('fcm_token', nuevoToken);
+        print('✅ Token actualizado en servidor y guardado localmente.');
+      } else {
+        print('⚠️ Error al guardar token: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Excepción al guardar token: $e');
     }
-  } catch (e) {
-    print('❌ Excepción al guardar token: $e');
   }
-}
 }

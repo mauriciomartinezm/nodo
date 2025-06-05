@@ -5,7 +5,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/userprovider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../home/screens/home_screen.dart';
 import 'package:nodo/features/register/widgets/registerclient1.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,12 +15,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _identificadorController = TextEditingController();
+  final TextEditingController _identificadorController =
+      TextEditingController();
   final TextEditingController _contrasenaController = TextEditingController();
 
   bool _loading = false;
 
   Future<void> _login() async {
+    print("Entra al login");
     final identificador = _identificadorController.text.trim();
     final contrasena = _contrasenaController.text;
 
@@ -35,22 +36,24 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _loading = true;
     });
+    print("Entra al login 2");
 
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      String message = await userProvider.loginUsuario(identificador, contrasena);
+      String message =
+          await userProvider.loginUsuario(identificador, contrasena);
       if (message.startsWith("Login exitoso")) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-          );
-      }
-        else if (message.startsWith("Credenciales inválidas")){
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Credenciales inválidas')),
-          );
-        }
-      else if (message == "Error al conectar con el servidor") {
+        print("Login exitoso");
+        /*Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );*/
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (message.startsWith("Credenciales inválidas")) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Credenciales inválidas')),
+        );
+      } else if (message == "Error al conectar con el servidor") {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al conectar con el servidor')),
         );
@@ -214,7 +217,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const RegisterClient1()),
+                            MaterialPageRoute(
+                                builder: (context) => const RegisterClient1()),
                           );
                         },
                         child: Text(
