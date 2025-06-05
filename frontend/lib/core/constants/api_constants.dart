@@ -1,5 +1,7 @@
 class ApiConstants {
-  static const String baseUrl = "http://192.168.0.101:3000/api";
+  //static const String baseUrl = "http://192.168.0.101:3000/api"; //descomenta esto y cambia la ip por localhost si la api la abriste localmente
+  static const String baseUrl = "https://nodo-unv8.onrender.com/api"; //ruta para api en la nube en render
+
   static const String createPublicacionEndpoint = "$baseUrl/createPublicacion";
   static const String loginEndpoint = "$baseUrl/loginUsuario";
   static const String getTrabajadorByUserId = "$baseUrl/getTrabajadorByUserId";
