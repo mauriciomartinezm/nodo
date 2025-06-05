@@ -1,13 +1,13 @@
 import express from 'express';
 import {
-    agregarNotificacion,
+    createNotificacion,
     getNotificacionesByUserId,
     getNotificaciones
 } from '../controllers/notificacionController.js';
 
 const notificacionRouter = express.Router();
 
-notificacionRouter.post('/api/agregarNotificacion', agregarNotificacion);
+notificacionRouter.post('/api/createNotificacion', createNotificacion);
 notificacionRouter.get('/api/getNotificacionesByUserId/:usuarioId', getNotificacionesByUserId);
 notificacionRouter.get('/api/getNotificaciones', getNotificaciones);
 

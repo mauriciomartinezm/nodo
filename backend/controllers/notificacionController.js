@@ -2,7 +2,7 @@
 import redis from '../database/redisClient.js'; // tu cliente de Redis
 import { v4 as uuidv4 } from 'uuid';
 
-export async function agregarNotificacion(req, res) {
+export async function createNotificacion(req, res) {
   const { usuarioId, tipo, titulo, mensaje, data } = req.body;
 
   if (!usuarioId || !titulo || !mensaje || !tipo) {
