@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:nodo/features/trabajos/screens/trabajos6.dart';
-import 'package:nodo/features/trabajos/logic/TrabajoService .dart';
+import 'package:nodo/features/trabajos/logic/TrabajoService.dart';
 
 class JobList extends StatelessWidget {
   final List publicaciones;

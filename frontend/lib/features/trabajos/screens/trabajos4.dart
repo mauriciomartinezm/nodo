@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/constants/api_constants.dart';
 import 'package:nodo/features/trabajos/screens/trabajos5.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ReportarScreen extends StatefulWidget {
-  const ReportarScreen({Key? key}) : super(key: key);
+  final String jobId; // UUID como String
+
+  const ReportarScreen({Key? key, required this.jobId}) : super(key: key);
 
   @override
   State<ReportarScreen> createState() => _ReportarScreenState();
@@ -48,24 +53,52 @@ class _ReportarScreenState extends State<ReportarScreen> {
     },
   ];
 
+  Future<void> enviarReporte() async {
+    if (selectedOption == null || selectedOption!.isEmpty) return;
+
+    final url = Uri.parse(ApiConstants.createReporte);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id_publicacion': widget.jobId,
+          'razon': selectedOption,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const GraciasScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al reportar: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error de conexión: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Reportar',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20, 
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: const Color(0xFF003366),
+        foregroundColor: Color(0xFF003366),
       ),
-
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
@@ -99,16 +132,16 @@ class _ReportarScreenState extends State<ReportarScreen> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Color(0xFF003366), // Azul oscuro
+                        color: Color(0xFF003366),
                       ),
                     ),
-                  subtitle: Text(
-                    descripcion,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: Colors.grey.shade600, // Gris claro
+                    subtitle: Text(
+                      descripcion,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
-                  ),
                     value: selectedOption == titulo,
                     onChanged: (_) {
                       setState(() {
@@ -121,18 +154,9 @@ class _ReportarScreenState extends State<ReportarScreen> {
             ),
             const SizedBox(height: 8),
             ElevatedButton(
-              onPressed: selectedOption != null
-              ? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const GraciasScreen()),
-                  );
-                }
-              : null,
-
+              onPressed: selectedOption != null ? enviarReporte : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    selectedOption != null ? Colors.orange[300] : Colors.grey[300],
+                backgroundColor: selectedOption != null ? Colors.orange[300] : Colors.grey[300],
                 foregroundColor: Colors.white,
                 elevation: 0,
                 minimumSize: const Size(double.infinity, 48),
@@ -145,7 +169,7 @@ class _ReportarScreenState extends State<ReportarScreen> {
             const SizedBox(height: 6),
             const Center(
               child: Text(
-                'Boton solo se habilita cuando se selecciona una opción',
+                'Botón solo se habilita cuando se selecciona una opción',
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ),

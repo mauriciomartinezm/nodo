@@ -29,7 +29,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final response = await http.get(
       Uri.parse(
-          '${ApiConstants.baseUrl}/getNotificacionesByUserId/${userProvider.cedula}'),
+          '${ApiConstants.baseUrl}/getNotificacionesByUserId/${userProvider.usuario?.id}'),
     );
 
     if (response.statusCode == 200) {

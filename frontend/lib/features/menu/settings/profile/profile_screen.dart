@@ -19,7 +19,7 @@ class ProfileScreen extends StatelessWidget {
         ],
         backgroundColor: AppColors.white,
         surfaceTintColor: Colors.transparent,
-        elevation: 0, 
+        elevation: 0,
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -28,7 +28,8 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 // Portada y Avatar
                 Stack(
-                  clipBehavior: Clip.none, //Permite que el puto avatar se sobreponga en la portada
+                  clipBehavior: Clip
+                      .none, //Permite que el puto avatar se sobreponga en la portada
                   children: [
                     Column(
                       children: [
@@ -46,24 +47,24 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     Positioned(
-                     top: 80,
-                     left: 16,
-                     child: Container(
-                      padding: EdgeInsets.all(4), //Grosor del borde
+                      top: 80,
+                      left: 16,
+                      child: Container(
+                        padding: EdgeInsets.all(4), //Grosor del borde
                         decoration: BoxDecoration(
-                         color: AppColors.white, //Color del borde
-                         shape: BoxShape.circle,
-                       ),
-                       child: CircleAvatar(
-                         radius: 60, 
-                         backgroundColor: AppColors.orange,
-                         child: Icon(
-                           Icons.personal_injury_rounded,
-                              size: 90,
-                            color: AppColors.white,
-                         ),
+                          color: AppColors.white, //Color del borde
+                          shape: BoxShape.circle,
                         ),
-                     ),
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundColor: AppColors.orange,
+                          child: Icon(
+                            Icons.personal_injury_rounded,
+                            size: 90,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
                     ),
                     Align(
                       alignment: Alignment.bottomRight,
@@ -86,7 +87,8 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 //Contenido
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 16), //iz arr derecha abj 
+                  padding: const EdgeInsets.fromLTRB(
+                      16, 20, 16, 16), //iz arr derecha abj
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -135,8 +137,8 @@ class ProfileScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: Text("User@mail.com",
-                            style:
-                                AppTypography.h3.copyWith(color: AppColors.blue)),
+                            style: AppTypography.h3
+                                .copyWith(color: AppColors.blue)),
                       ),
                       const SizedBox(height: 12),
                       Text("Número de contacto",
@@ -145,8 +147,8 @@ class ProfileScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: Text("0000000000",
-                            style:
-                                AppTypography.h3.copyWith(color: AppColors.blue)),
+                            style: AppTypography.h3
+                                .copyWith(color: AppColors.blue)),
                       ),
                       const SizedBox(height: 12),
                       Text("Ubicación o ciudad",
@@ -155,8 +157,8 @@ class ProfileScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: Text("Apartadó - Antioquia",
-                            style:
-                                AppTypography.h3.copyWith(color: AppColors.blue)),
+                            style: AppTypography.h3
+                                .copyWith(color: AppColors.blue)),
                       ),
 
                       const SizedBox(height: 30),
@@ -186,19 +188,24 @@ class ProfileScreen extends StatelessWidget {
                           spacing: 5,
                           runSpacing: -4,
                           children: [
-                            "Homofóbico",
-                            "Nazi",
-                            "Antisocial",
-                            "Racista",
-                            "Evasor de impuestos",
-                            "Gordofóbico",
-                            "Amante a las Culonas",
+                            "Creativo",
+                            "Carismático",
+                            "Sociable",
+                            "Responsable",
+                            "Honesto",
+                            "Aventurero",
+                            "Optimista",
+                            "Amable",
+                            "Inteligente",
+                            "Divertido",
+                            "Curioso",
+                            "Paciente",
+                            "Apasionado",
                             "Guapo",
-                            "poderoso",
-                            "asombroso",
+                            "Poderoso",
+                            "Asombroso",
                             "Muy hermoso",
-                            "soy precioso",
-                            "armonioso",
+                            "Armonioso",
                           ]
                               .map((tag) => Chip(
                                     label: Text(
@@ -283,16 +290,18 @@ class ProfileScreen extends StatelessWidget {
 
   void goToMisPostulaciones(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ir a "Trabajos > Mis postulaciones"',
+      SnackBar(
+        content: Text('Ir a "Trabajos > Mis postulaciones"',
             style: AppTypography.h3.copyWith(color: AppColors.white)),
-            backgroundColor: AppColors.orange,
+        backgroundColor: AppColors.orange,
       ),
     );
   }
 
   void goToMisTrabajos(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ir a "Trabajos > Mis trabajos"',
+      SnackBar(
+        content: Text('Ir a "Trabajos > Mis trabajos"',
             style: AppTypography.h3.copyWith(color: AppColors.white)),
         backgroundColor: AppColors.orange,
       ),

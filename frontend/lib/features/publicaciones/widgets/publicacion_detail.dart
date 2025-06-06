@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -19,11 +21,58 @@ class PublicacionDetail extends StatefulWidget {
 
 class _PublicacionDetailState extends State<PublicacionDetail> {
   int _currentIndex = 0;
-  final List<String> imageList = [
-    'assets/images/diomedes_joven.jpg',
-    'assets/images/diomedes_joven.jpg',
-    'assets/images/diomedes_joven.jpg',
-  ];
+  late List<String> imageList;
+
+  @override
+  void initState() {
+    super.initState();
+    // Parsear las imágenes de la publicación
+    imageList = _parseImages(widget.publicacion['fotos']);
+    if (imageList.isEmpty) {
+      print("awdadwawd");
+      // Si no hay imágenes, puedes mostrar una imagen por defecto
+      imageList = ['assets/images/diomedes_joven.jpg'];
+    }
+  }
+
+  List<String> _parseImages(String fotosString) {
+    // Caso cuando no hay fotos
+    if (fotosString.isEmpty || fotosString == 'sin fotos') {
+      print("NO HAY FOTOS");
+      return [];
+    }
+
+    try {
+      // Limpieza inicial del string
+      String cleanedString = fotosString.trim();
+
+      // Caso 1: Si es un JSON válido con escapes (menos común)
+      if (cleanedString.startsWith(r'{\"') || cleanedString.startsWith('{\"')) {
+        cleanedString =
+            cleanedString.replaceAll(r'\"', '"').replaceAll('\\"', '"');
+      }
+
+      // Caso 2: Si tiene comillas dobles externas (como en tu ejemplo)
+      if (cleanedString.startsWith('{"') && cleanedString.endsWith('"}')) {
+        cleanedString = cleanedString.substring(1, cleanedString.length - 1);
+      }
+
+      // Reemplazar comillas dobles restantes si las hay
+      cleanedString = cleanedString.replaceAll('"', '');
+
+      // Dividir por comas y limpiar cada URL
+      List<String> urls = cleanedString
+          .split(',')
+          .map((url) => url.trim())
+          .where((url) => url.startsWith('http'))
+          .toList();
+
+      return urls;
+    } catch (e) {
+      print('Error parsing images: $e');
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +107,9 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
                 ),
                 SizedBox(height: 8.h),
                 _buildDetailInfo(
-  widget.publicacion['descripcion_necesidad'] ?? 'Sin descripción', 
-  isDescription: true
-),
+                    widget.publicacion['descripcion_necesidad'] ??
+                        'Sin descripción',
+                    isDescription: true),
                 _buildDetailInfo(
                     'Publicado: ${_formatDate(widget.publicacion['fecha_publicacion'])}'),
                 _buildDetailInfo(
@@ -81,11 +130,30 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
 
   Widget _buildImageCarousel() {
     return CarouselSlider(
-      items: imageList.map((imagePath) {
-        return Image.asset(
-          imagePath,
-          fit: BoxFit.cover,
-          width: double.infinity,
+      items: imageList.map((imageUrl) {
+        return Image.network(
+          imageUrl,
+          //fit: BoxFit.cover,
+          //width: double.infinity,
+          errorBuilder: (context, error, stackTrace) {
+            return Image.asset(
+              'assets/images/diomedes_joven.jpg',
+              //fit: BoxFit.cover,
+              //width: double.infinity,
+            );
+          },
+          loadingBuilder: (BuildContext context, Widget child,
+              ImageChunkEvent? loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
         );
       }).toList(),
       options: CarouselOptions(
@@ -138,33 +206,33 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
   }*/
 
   Widget _buildDetailInfo(String texto, {bool isDescription = false}) {
-  return Padding(
-    padding: EdgeInsets.symmetric(vertical: 4.h),
-    child: isDescription 
-      ? Text(
-          texto,
-          style: TextStyle(
-            color: AppColors.primaryColor,
-            fontFamily: 'GothamBook',
-            fontSize: 12.sp,
-          ),
-          softWrap: true,
-          overflow: TextOverflow.visible,
-        )
-      : Row(
-          children: [
-            Text(
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.h),
+      child: isDescription
+          ? Text(
               texto,
               style: TextStyle(
                 color: AppColors.primaryColor,
                 fontFamily: 'GothamBook',
                 fontSize: 12.sp,
               ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            )
+          : Row(
+              children: [
+                Text(
+                  texto,
+                  style: TextStyle(
+                    color: AppColors.primaryColor,
+                    fontFamily: 'GothamBook',
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-  );
-}
+    );
+  }
 
   Widget _buildStatusInfo(String status) {
     return Padding(

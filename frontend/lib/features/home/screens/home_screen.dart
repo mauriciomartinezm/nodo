@@ -45,24 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
 */
   /*void _initializeScreens() {
     _screens = [
-      // Publicaciones Screen con su provider
-      ChangeNotifierProvider(
-        create: (context) => PublicacionesController(
-          PublicacionesService(
-            Provider.of<UserProvider>(context, listen: false),
-          ),
-        ),
-        child: const PublicacionesScreen(),
-      ),
-      const TrabajosScreen2(), // Trabajos
-      ChangeNotifierProvider(
-        create: (context) => CrearPublicacionController(
-          CrearPublicacionService(),
-        ),
-        child: const CrearPublicacionScreen(),
-      ),
-      const NotificacionesScreen(), // Notificaciones
-      const CrearPublicacionScreen(), // Menú
+      const PublicacionesScreen(),
+      trabajosScreen,
+      const CrearPublicacionScreen(),
+      const NotificacionesScreen(),
+      const ChatScreen(),
     ];
   }*/
 

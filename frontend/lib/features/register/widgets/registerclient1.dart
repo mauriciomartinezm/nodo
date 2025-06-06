@@ -31,7 +31,9 @@ class _RegisterClient1State extends State<RegisterClient1> {
 
     // Contenido del formulario, sin ProgressDots
     final formContent = Center(
-      child: Container(
+      child: 
+      SingleChildScrollView(
+        child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: screenWidth > 600 ? horizontalPadding : 16,
         ),
@@ -106,6 +108,8 @@ class _RegisterClient1State extends State<RegisterClient1> {
           ),
         ),
       ),
+      )
+      
     );
 
     return RegisterScaffold(

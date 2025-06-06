@@ -19,6 +19,9 @@ import 'package:nodo/features/menu/settings/settings_screen.dart';
 import 'package:nodo/features/menu/work_wt_nodo_screen.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_service.dart';
+import 'package:nodo/features/trabajos/screens/trabajos2.dart';
+import 'package:nodo/features/trabajos/screens/trabajos5.dart';
+
 import 'package:nodo/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -110,6 +113,9 @@ class MyApp extends StatelessWidget {
             AppRoutes.welcome: (context) => const Welcome1Screen(),
             AppRoutes.login: (context) => const LoginScreen(),
             '/home': (context) => const HomeScreen(),
+            '/trabajos2': (context) => const TrabajosScreen2(),
+            '/trabajos5': (context) => const GraciasScreen(),
+            '/gracias': (context) => GraciasScreen(),
             '/workWNodo': (context) => const WorkWtNodo(),
             '/SettingsScreen': (context) => const SettingsScreen(),
             '/AccountProfileScreen': (context) => const AccountProfileScreen(),

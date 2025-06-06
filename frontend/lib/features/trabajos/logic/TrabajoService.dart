@@ -6,6 +6,34 @@ import 'package:nodo/core/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 
 class TrabajoService {
+  static Future<void> postularse(
+      String publicacionId, String trabajadorId) async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConstants.postularse),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'publicacionId': publicacionId,
+          'trabajadorId': trabajadorId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Postulación exitosa
+        final responseData = jsonDecode(response.body);
+        print('Postulación exitosa: $responseData');
+      } else {
+        // Error en la postulación
+        throw Exception('Error al postularse: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error en postularse: $e');
+      throw e; // Re-lanzamos la excepción para manejarla en el UI
+    }
+  }
+
   static Future<List<dynamic>> fetchPublicaciones() async {
     final response = await http.get(
       Uri.parse(ApiConstants.getPublicacionesEndpoint),
@@ -19,10 +47,11 @@ class TrabajoService {
     }
   }
 
-  static Future<Map<String, String>> fetchNombresClientes(List publicaciones) async {
+  static Future<Map<String, String>> fetchNombresClientes(
+      List publicaciones) async {
     final Map<String, String> nombres = {};
-    final clientIds = publicaciones.map((p) => p['id_cliente']).toSet().toList();
-
+    final clientIds =
+        publicaciones.map((p) => p['id_cliente']).toSet().toList();
     for (final clientId in clientIds) {
       final response = await http.get(
         Uri.parse(ApiConstants.getClienteById(clientId)),
@@ -31,7 +60,7 @@ class TrabajoService {
 
       if (response.statusCode == 200) {
         final clienteData = json.decode(response.body);
-        nombres[clientId] = clienteData[0]['nombre'];
+        nombres[clientId] = clienteData[0]['nombres'];
       } else {
         nombres[clientId] = 'Cliente $clientId';
       }
