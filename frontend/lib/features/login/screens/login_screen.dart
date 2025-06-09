@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:nodo/features/home/screens/home_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/userprovider.dart';
 import '../../../core/theme/app_colors.dart';
 import 'package:nodo/features/register/widgets/registerclient1.dart';
@@ -22,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
 
   Future<void> _login() async {
-    print("Entra al login");
+    print("Entrando a la función _login");
     final identificador = _identificadorController.text.trim();
     final contrasena = _contrasenaController.text;
 
@@ -36,19 +38,30 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _loading = true;
     });
-    print("Entra al login 2");
-
     try {
+      print("Entrado al try dentro del _login");
       final userProvider = Provider.of<UserProvider>(context, listen: false);
+      print(
+          "Esperando al login exitoso de la API en la funcion dentro de userProvider");
       String message =
           await userProvider.loginUsuario(identificador, contrasena);
+      print("Mensaje devuelto por userProvider: ");
+      print(message);
       if (message.startsWith("Login exitoso")) {
-        print("Login exitoso");
+        final prefs = await SharedPreferences.getInstance();
+        final seenWelcome = prefs.getBool('seen_welcome') ?? false;
+        print('seen_welcome en navegación: $seenWelcome');
+
+        print("Login exitoso, ejecutando pushReplacement /home");
         /*Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );*/
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+          (route) => false,
+        );
       } else if (message.startsWith("Credenciales inválidas")) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Credenciales inválidas')),

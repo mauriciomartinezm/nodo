@@ -75,15 +75,9 @@ void main() async {
 
 Future<bool> isFirstTime() async {
   final prefs = await SharedPreferences.getInstance();
-  final seen = prefs.getBool('seen_welcome') ?? false;
-
-  if (!seen) {
-    await prefs.setBool('seen_welcome', true);
-    return true;
-  }
-
-  return false;
+  return !(prefs.getBool('seen_welcome') ?? false);
 }
+
 
 class MyApp extends StatelessWidget {
   final bool firstTime;
