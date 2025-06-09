@@ -1,31 +1,22 @@
 // controllers/notificacionesController.js
 import redis from '../database/redisClient.js'; // tu cliente de Redis
 import { v4 as uuidv4 } from 'uuid';
+import { db } from '../database/db.js';
+import { enviarNotificacionAUsuario } from '../utils/firebase.js';
+import { guardarNotificacion } from '../services/notificacionService.js';
 
 export async function createNotificacion(req, res) {
   const { usuarioId, tipo, titulo, mensaje, data } = req.body;
 
-  if (!usuarioId || !titulo || !mensaje || !tipo) {
-    return res.status(400).json({ error: 'Faltan campos obligatorios.' });
-  }
-
-  const notificacion = {
-    id: uuidv4(),
-    tipo,
-    titulo,
-    mensaje,
-    data: data || {},
-    fecha: new Date().toISOString()
-  };
-
   try {
-    await redis.lPush(`notificaciones:${usuarioId}`, JSON.stringify(notificacion));
+    await guardarNotificacion(usuarioId, tipo, titulo, mensaje, data);
     res.json({ mensaje: 'Notificación agregada correctamente' });
   } catch (error) {
-    console.error('Error al agregar notificación a Redis:', error);
+    console.error('Error al crear notificación:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 }
+
 
 
 export async function getNotificacionesByUserId(req, res) {

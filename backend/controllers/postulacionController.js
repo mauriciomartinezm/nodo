@@ -1,5 +1,7 @@
 import { db } from '../database/db.js';
 import { enviarNotificacionAUsuario } from '../utils/firebase.js';
+import { createNotificacion } from './notificacionController.js';
+import { guardarNotificacion } from '../services/notificacionService.js';
 
 export const postularse = async (req, res) => {
     console.log("Petición recibida en /postularse. Cuerpo de la petición: ");
@@ -17,7 +19,7 @@ export const postularse = async (req, res) => {
         }
 
         const idCliente = publicacion.rows[0].id_cliente;
-        
+
         const resultUsuario = await db.query(
             'SELECT * FROM Usuario WHERE id = $1',
             [idCliente]
@@ -33,7 +35,18 @@ export const postularse = async (req, res) => {
         if (!fcmToken) {
             return res.status(400).json({ message: 'El usuario no tiene token FCM' });
         }
+        await guardarNotificacion(
+            idCliente,
+            'solicitud',
+            'Nueva postulación',
+            'Un trabajador se ha postulado a tu publicación',
+            {
+                publicacionId: publicacionId.toString(),
+                trabajadorId: trabajadorId.toString()
+            }
+        );
 
+        /*
         await enviarNotificacionAUsuario(
             fcmToken,
             'Nueva postulación',
@@ -45,6 +58,7 @@ export const postularse = async (req, res) => {
             },
             idCliente
         );
+        */
 
         res.status(200).json({ message: 'Notificación enviada correctamente' });
     } catch (error) {

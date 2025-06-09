@@ -73,115 +73,132 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
     ];
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Notificaciones',
-            style: TextStyle(
-                color: AppColors.primaryColor,
-                fontFamily: 'GothamMedium',
-                fontSize: 14.sp),
+      appBar: AppBar(
+        title: Text(
+          'Notificaciones',
+          style: TextStyle(
+              color: AppColors.primaryColor,
+              fontFamily: 'GothamMedium',
+              fontSize: 14.sp),
+        ),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.settings_outlined,
+              color: AppColors.primaryColor,
+              size: 24.r,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificacionesSettings()),
+              );
+            },
           ),
-          elevation: 0,
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.settings_outlined,
-                color: AppColors.primaryColor,
-                size: 24.r,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const NotificacionesSettings()),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: List.generate(tabs.length, (index) {
+                final bool isSelected = _selectedIndex == index;
+                return GestureDetector(
+                  onTap: () => _onTabTapped(index),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        vertical: 9.r, horizontal: 8.r),
+                    margin: EdgeInsets.only(right: 5.w),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.primaryColor
+                          : AppColors.primaryColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      tabs[index],
+                      style: TextStyle(
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.primaryColor,
+                          fontFamily: 'GothamMedium',
+                          fontSize: 10.sp),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<dynamic>>(
+              future: _notificationsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return RefreshIndicator(
+                    color: AppColors.primaryColor,
+                    onRefresh: () async {
+                      setState(() {
+                        _notificationsFuture = _fetchNotifications();
+                      });
+                      await _notificationsFuture;
+                    },
+                    child: CustomScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        SliverFillRemaining(
+                          child: Center(
+                            child: Text(
+                              'No hay notificaciones',
+                              style: TextStyle(
+                                color: AppColors.primaryColor,
+                                fontFamily: 'GothamMedium',
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final filteredNotifications = _filterNotifications(
+                  snapshot.data!,
+                  tabs[_selectedIndex],
+                );
+
+                return RefreshIndicator(
+                  color: AppColors.primaryColor,
+                  onRefresh: () async {
+                    setState(() {
+                      _notificationsFuture = _fetchNotifications();
+                    });
+                    await _notificationsFuture;
+                  },
+                  child: ListView.builder(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredNotifications.length,
+                    itemBuilder: (context, index) {
+                      final notification = filteredNotifications[index];
+                      return _NotificationItem(notification: notification);
+                    },
+                  ),
                 );
               },
             ),
-          ],
-        ),
-        body: RefreshIndicator(
-          color:
-              AppColors.primaryColor, // Color personalizado para el indicador
-          displacement: 40, // Posición del indicador
-          onRefresh: () async {
-            setState(() {
-              _notificationsFuture = _fetchNotifications();
-            });
-            // Esperar a que se complete la carga
-            await _notificationsFuture;
-            // Opcional: Mostrar mensaje de actualización
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Notificaciones actualizadas'),
-                duration: Duration(seconds: 1),
-              ),
-            );
-          },
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: List.generate(tabs.length, (index) {
-                    final bool isSelected = _selectedIndex == index;
-                    return GestureDetector(
-                      onTap: () => _onTabTapped(index),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 9.r, horizontal: 8.r),
-                        margin: EdgeInsets.only(right: 5.w),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.primaryColor
-                              : AppColors.primaryColor.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          tabs[index],
-                          style: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : AppColors.primaryColor,
-                              fontFamily: 'GothamMedium',
-                              fontSize: 10.sp),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              Expanded(
-                child: FutureBuilder<List<dynamic>>(
-                  future: _notificationsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text('No hay notificaciones'));
-                    }
-
-                    final filteredNotifications = _filterNotifications(
-                      snapshot.data!,
-                      tabs[_selectedIndex],
-                    );
-
-                    return ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: filteredNotifications.length,
-                      itemBuilder: (context, index) {
-                        final notification = filteredNotifications[index];
-                        return _NotificationItem(notification: notification);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
           ),
-        ));
+        ],
+      ),
+    );
   }
 }
 

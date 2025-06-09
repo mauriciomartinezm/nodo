@@ -28,9 +28,9 @@ export async function enviarNotificacionAUsuario(fcmToken, titulo, cuerpo, data 
         console.log('Notificación enviada:', response);
 
         // Guarda la notificación en Redis si hay usuarioId
-        if (usuarioId) {
+        /*if (usuarioId) {
             await guardarNotificacion(usuarioId, data.tipo || 'otro', titulo, cuerpo, data);
-        }
+        }*/
     } catch (error) {
         console.error('Error enviando notificación:', error);
     }
