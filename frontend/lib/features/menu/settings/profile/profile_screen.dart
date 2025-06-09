@@ -1,32 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
+import 'package:nodo/providers/userprovider.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final user = userProvider.usuario;
+
+    if (user == null) {
+      return Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: AppBar(
+          backgroundColor: AppColors.white,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: AppColors.blue),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
+        backgroundColor: AppColors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.settings_outlined, color: AppColors.blue),
+            icon: const Icon(Icons.settings_outlined, color: AppColors.blue),
             onPressed: () {
               Navigator.pushNamed(context, '/SettingsScreen');
             },
           )
         ],
-        backgroundColor: AppColors.white,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0, 
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: Column(
               children: [
-                // Portada y Avatar
+                //Portada y Avatar
                 Stack(
                   clipBehavior: Clip.none, //Permite que el puto avatar se sobreponga en la portada
                   children: [
@@ -46,37 +66,37 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     Positioned(
-                     top: 80,
-                     left: 16,
-                     child: Container(
-                      padding: EdgeInsets.all(4), //Grosor del borde
+                      top: 80,
+                      left: 16,
+                      child: Container(
+                        padding: const EdgeInsets.all(4), //Grosor del contorno
                         decoration: BoxDecoration(
-                         color: AppColors.white, //Color del borde
-                         shape: BoxShape.circle,
-                       ),
-                       child: CircleAvatar(
-                         radius: 60, 
-                         backgroundColor: AppColors.orange,
-                         child: Icon(
-                           Icons.personal_injury_rounded,
-                              size: 90,
-                            color: AppColors.white,
-                         ),
+                          color: AppColors.white, //Color del contorno
+                          shape: BoxShape.circle,
                         ),
-                     ),
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundColor: AppColors.orange,
+                          child: Icon(
+                            Icons.person,
+                            size: 90,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
                     ),
+                    //Boton editar
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 155, right: 0),
                         child: TextButton.icon(
-                          icon:
-                              Icon(Icons.edit_outlined, color: AppColors.blue),
+                          icon: const Icon(Icons.edit_outlined,
+                              color: AppColors.blue),
                           label: Text('Editar',
                               style: AppTypography.h3
                                   .copyWith(color: AppColors.blue)),
                           onPressed: () {
-                            debugPrint("Dddd");
                             Navigator.pushNamed(context, '/editProfile');
                           },
                         ),
@@ -84,21 +104,23 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                //Contenido
+                // Contenido
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 16), //iz arr derecha abj 
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Kehiber Leandro Morelo Ricardo',
-                          style:
-                              AppTypography.h2.copyWith(color: AppColors.blue)),
+                      //Nombre y tipo
+                      Text(user.nombres,
+                          style:AppTypography.h2
+                              .copyWith(color: AppColors.blue)),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Text('Trabajador',
+                        child: Text(user.tipoUsuario,
                             style: AppTypography.h3
                                 .copyWith(color: AppColors.blue)),
                       ),
+
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: Row(
@@ -106,20 +128,24 @@ class ProfileScreen extends StatelessWidget {
                             Text('Calificación promedio: ',
                                 style: AppTypography.body
                                     .copyWith(color: AppColors.blue)),
-                            Text('4.5',
+                            const SizedBox(width: 4),
+                            Text('${user.calificacionPromedio}',
                                 style: AppTypography.h3
                                     .copyWith(color: AppColors.blue)),
                           ],
                         ),
                       ),
+
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: Row(
                           children: [
-                            Text('Trabajos completados: ',
+                            Text('Trabajos completados ',
                                 style: AppTypography.body
                                     .copyWith(color: AppColors.blue)),
-                            Text('3',
+                            const SizedBox(width: 4),
+                            Text(
+                                '${user.trabajosCompletados}',
                                 style: AppTypography.h3
                                     .copyWith(color: AppColors.blue)),
                           ],
@@ -128,103 +154,85 @@ class ProfileScreen extends StatelessWidget {
 
                       const SizedBox(height: 30),
 
-                      //Datos personales
-                      Text("Correo",
-                          style: AppTypography.body
-                              .copyWith(color: AppColors.blue)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Text("User@mail.com",
-                            style:
-                                AppTypography.h3.copyWith(color: AppColors.blue)),
+                      //Información de contacto
+                      _buildInfoSection(
+                        title: "Correo",
+                        content: user.email,
                       ),
-                      const SizedBox(height: 12),
-                      Text("Número de contacto",
-                          style: AppTypography.body
-                              .copyWith(color: AppColors.blue)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Text("0000000000",
-                            style:
-                                AppTypography.h3.copyWith(color: AppColors.blue)),
+                      _buildInfoSection(
+                        title: "Número de contacto",
+                        content: user.telefono,
                       ),
-                      const SizedBox(height: 12),
-                      Text("Ubicación o ciudad",
-                          style: AppTypography.body
-                              .copyWith(color: AppColors.blue)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Text("Apartadó - Antioquia",
-                            style:
-                                AppTypography.h3.copyWith(color: AppColors.blue)),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      // Descripción
-                      Text("Descripción",
-                          style: AppTypography.body
-                              .copyWith(color: AppColors.blue)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Text(
-                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...",
-                          style:
-                              AppTypography.h3.copyWith(color: AppColors.blue),
-                          textAlign: TextAlign.justify,
-                        ),
+                      _buildInfoSection(
+                        title: "Ubicación o ciudad",
+                        content: user.ubicacion ?? 'No especificada',
                       ),
                       const SizedBox(height: 30),
+
+                      //Descripción
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Descripción",
+                              style: AppTypography.body
+                                  .copyWith(color: AppColors.blue)),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                            child: Text(
+                              user.descripcion?.isNotEmpty == true
+                                  ? user.descripcion!
+                                  : "No hay descripción disponible",
+                              style: AppTypography.h3
+                                  .copyWith(color: AppColors.blue),
+                              textAlign: TextAlign.justify,
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                        ],
+                      ),
 
                       // Categorías
-                      Text("Categorías",
-                          style: AppTypography.body
-                              .copyWith(color: AppColors.blue)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Wrap(
-                          spacing: 5,
-                          runSpacing: -4,
+                      if (user.categoria != null && user.categoria!.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            "Homofóbico",
-                            "Nazi",
-                            "Antisocial",
-                            "Racista",
-                            "Evasor de impuestos",
-                            "Gordofóbico",
-                            "Amante a las Culonas",
-                            "Guapo",
-                            "poderoso",
-                            "asombroso",
-                            "Muy hermoso",
-                            "soy precioso",
-                            "armonioso",
-                          ]
-                              .map((tag) => Chip(
-                                    label: Text(
-                                      tag,
-                                      style: AppTypography.body
-                                          .copyWith(color: AppColors.blue),
-                                    ),
-                                    backgroundColor: AppColors.white,
-                                    side: BorderSide(
-                                        color: AppColors.blue, width: 1.2),
-                                  ))
-                              .toList(),
+                            Text("Categorías",
+                                style: AppTypography.body
+                                    .copyWith(color: AppColors.blue)),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                              child: Wrap(
+                                spacing: 5,
+                                runSpacing: -4,
+                                children: user.categoria!
+                                    .map((tag) => Chip(
+                                          label: Text(
+                                            tag,
+                                            style: AppTypography.body
+                                                .copyWith(
+                                                    color: AppColors.blue),
+                                          ),
+                                          backgroundColor: AppColors.white,
+                                          side: BorderSide(
+                                              color: AppColors.blue,
+                                              width: 1.2),
+                                        ))
+                                    .toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                          ],
                         ),
-                      ),
-
-                      const SizedBox(height: 30),
 
                       // Estadísticas
                       Text("Estadísticas",
-                          style:
-                              AppTypography.h2.copyWith(color: AppColors.blue)),
+                          style: AppTypography.h2
+                              .copyWith(color: AppColors.blue)),
                       ListTile(
                         title: Text(
                           "Publicaciones en las que te has postulado",
-                          style:
-                              AppTypography.h3.copyWith(color: AppColors.blue),
+                          style: AppTypography.h3
+                              .copyWith(color: AppColors.blue),
                         ),
                         onTap: () => goToMisPostulaciones(context),
                       ),
@@ -232,6 +240,12 @@ class ProfileScreen extends StatelessWidget {
                         title: Text("Trabajos completados",
                             style: AppTypography.h3
                                 .copyWith(color: AppColors.blue)),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                          child: Text(user.trabajosCompletados.toString(),
+                              style: AppTypography.body
+                                  .copyWith(color: AppColors.blue)),
+                        ),
                         onTap: () => goToMisTrabajos(context),
                       ),
                       ListTile(
@@ -240,7 +254,7 @@ class ProfileScreen extends StatelessWidget {
                                 .copyWith(color: AppColors.blue)),
                         subtitle: Padding(
                           padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: Text("\$9999",
+                          child: Text("\$${user.tipoUsuario}",
                               style: AppTypography.body
                                   .copyWith(color: AppColors.blue)),
                         ),
@@ -251,18 +265,17 @@ class ProfileScreen extends StatelessWidget {
                                 .copyWith(color: AppColors.blue)),
                         subtitle: Padding(
                           padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: Text("enero 2025",
+                          child: Text(_formatDate(user.fechaRegistro),
                               style: AppTypography.body
                                   .copyWith(color: AppColors.blue)),
                         ),
                       ),
-
                       const SizedBox(height: 15),
 
                       // Insignias
                       Text("Insignias",
-                          style:
-                              AppTypography.h2.copyWith(color: AppColors.blue)),
+                          style: AppTypography.h2
+                              .copyWith(color: AppColors.blue)),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: Text(
@@ -281,21 +294,52 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildInfoSection({required String title, required String content}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: AppTypography.body.copyWith(color: AppColors.blue)),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+          child: Text(content,
+              style: AppTypography.h3.copyWith(color: AppColors.blue)),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
   void goToMisPostulaciones(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ir a "Trabajos > Mis postulaciones"',
+      SnackBar(
+        content: Text('Ir a "Trabajos > Mis postulaciones"',
             style: AppTypography.h3.copyWith(color: AppColors.white)),
-            backgroundColor: AppColors.orange,
+        backgroundColor: AppColors.orange,
       ),
     );
   }
 
   void goToMisTrabajos(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ir a "Trabajos > Mis trabajos"',
+      SnackBar(
+        content: Text('Ir a "Trabajos > Mis trabajos"',
             style: AppTypography.h3.copyWith(color: AppColors.white)),
         backgroundColor: AppColors.orange,
       ),
     );
+  }
+
+  //Formato de fecha
+  String _formatDate(String dateString) {
+    try {
+      //Parseo de la fecha
+      final date = DateTime.parse(dateString);
+      //Formateo fecha español (día mes año)
+      return DateFormat('d MMMM y', 'es').format(date);
+    } catch (e) {
+      //Si hay error al parsear, devuelve la fecha original
+      return dateString;
+    }
   }
 }

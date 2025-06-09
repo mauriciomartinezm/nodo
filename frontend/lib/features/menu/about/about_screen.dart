@@ -45,9 +45,7 @@ class About extends StatelessWidget {
             ListTile(
               title: Text('No pierdas el hilo, sigue el NODO',
                   style: AppTypography.h2.copyWith(color: AppColors.orange)),
-              onTap: () {
-                Navigator.pushNamed(context, '/YourIncome');
-              },
+              onTap: () {},
             ),
           ],
         ),

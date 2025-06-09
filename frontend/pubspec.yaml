@@ -75,6 +75,7 @@ flutter:
   assets:
     - assets/icons/iconNodoWhite.png
     - assets/icons/iconNodoBlue.png
+    - assets/icons/iconNodoApp.png
     - assets/icons/iconFacebook.png
     - assets/icons/iconGoogle.png
     - assets/icons/iconLinkedin.png
@@ -104,3 +105,9 @@ flutter:
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  adaptive_icon_background: "#063666"
+  adaptive_icon_foreground: "assets/icons/iconNodoApp.png"
