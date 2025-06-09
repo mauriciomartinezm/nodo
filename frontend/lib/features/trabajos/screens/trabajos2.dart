@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:nodo/features/trabajos/screens/trabajos3.dart';
 import 'package:nodo/features/trabajos/screens/trabajos6.dart';
-import 'package:nodo/features/trabajos/logic/TrabajoService .dart'; // Asegúrate de importar aquí
+import 'package:nodo/features/trabajos/logic/TrabajoService.dart'; // Asegúrate de importar aquí
 import 'package:nodo/features/trabajos/widgets/joblist.dart';
 
 class TrabajosScreen2 extends StatefulWidget {
@@ -54,6 +54,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
         expand: false,
         builder: (_, scrollController) => DetalleTrabajoScreen(
           job: {
+            "id": publicacion['id'],
             "title": publicacion['titulo'],
             "description": publicacion['descripcion_necesidad'],
             "price": "\$${publicacion['presupuesto']}",
@@ -61,18 +62,54 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
             "user": "Nombre del cliente: $nombreCliente",
             "time":
                 "${TrabajoService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
-            "image": TrabajoService.getIconForCategory(publicacion['id_categoria']),
-            "images": [
-              'assets/icons/img_buttom_one.png',
-              'assets/icons/img_buttom_two.png',
-              'assets/icons/img_screen_one.png',
-              'assets/icons/img_screen_two.png',
-            ],
+            "image":
+                TrabajoService.getIconForCategory(publicacion['id_categoria']),
+            "images":
+                _parseImages(publicacion['fotos']), // Usa las imágenes reales
           },
           scrollController: scrollController,
         ),
       ),
     );
+  }
+
+  List<String> _parseImages(String fotosString) {
+    print("fotos string");
+    print(fotosString);
+     if (fotosString.isEmpty || fotosString.toLowerCase() == 'sin fotos') {
+    return ['assets/images/diomedes_joven.jpg']; // Imagen por defecto
+  }
+
+    try {
+      // Limpieza inicial del string
+      String cleanedString = fotosString.trim();
+
+      // Caso 1: Si es un JSON válido con escapes (menos común)
+      if (cleanedString.startsWith(r'{\"') || cleanedString.startsWith('{\"')) {
+        cleanedString =
+            cleanedString.replaceAll(r'\"', '"').replaceAll('\\"', '"');
+      }
+
+      // Caso 2: Si tiene comillas dobles externas (como en tu ejemplo)
+      if (cleanedString.startsWith('{"') && cleanedString.endsWith('"}')) {
+        cleanedString = cleanedString.substring(1, cleanedString.length - 1);
+      }
+
+      // Reemplazar comillas dobles restantes si las hay
+      cleanedString = cleanedString.replaceAll('"', '');
+
+      // Dividir por comas y limpiar cada URL
+      List<String> urls = cleanedString
+          .split(',')
+          .map((url) => url.trim())
+          .where((url) => url.startsWith('http'))
+          .toList();
+
+      return urls;
+    } catch (e) {
+      print('Error parsing images: $e');
+      return [];
+    }
   }
 
   @override
@@ -129,23 +166,21 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   }
 
   Widget _buildJobList(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_errorMessage.isNotEmpty) {
-      return Center(child: Text(_errorMessage));
-    }
-
-    if (_publicaciones.isEmpty) {
-      return const Center(child: Text('No hay publicaciones disponibles'));
-    }
-
-    return JobList(
-      publicaciones: _publicaciones,
-      nombresClientes: _nombresClientes,
-      onVerDetalles: _mostrarDetalleTrabajo,
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      color: Colors.orange,
+      child: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+              ? Center(child: Text(_errorMessage))
+              : _publicaciones.isEmpty
+                  ? const Center(
+                      child: Text('No hay publicaciones disponibles'))
+                  : JobList(
+                      publicaciones: _publicaciones,
+                      nombresClientes: _nombresClientes,
+                      onVerDetalles: _mostrarDetalleTrabajo,
+                    ),
     );
   }
-
 }

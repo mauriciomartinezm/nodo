@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:nodo/providers/userprovider.dart';
 import 'package:nodo/core/constants/api_constants.dart';
+import 'package:path/path.dart' as path;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterClient4 extends StatefulWidget {
   const RegisterClient4({super.key});
@@ -25,29 +28,34 @@ class _RegisterClient4State extends State<RegisterClient4> {
   String? foto_perfil;
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final imageTemp = File(pickedFile.path);
-      final bytes = await imageTemp.readAsBytes();
-      final base64Image = base64Encode(bytes);
 
       setState(() {
         _imageFile = imageTemp;
-        foto_perfil = base64Image;
       });
 
-      print("Imagen en base64: $foto_perfil");
     }
   }
 
-  Future<void> _cargarImagenPorDefecto() async {
-    final byteData = await rootBundle.load('assets/icons/iconNodoBlue.png');
-    final base64Image = base64Encode(byteData.buffer.asUint8List());
-    foto_perfil = base64Image;
-    print("Imagen por defecto en base64 cargada.");
-  }
+Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
+  try {
+    final nombreArchivo = '${cedula}_${path.basename(imagen.path)}';
+    final ref = FirebaseStorage.instance.ref().child('perfiles/$nombreArchivo');
 
-  Future<void> _enviarImagenAlBackend(String cedula) async {
+    final uploadTask = ref.putFile(imagen);
+    final snapshot = await uploadTask;
+    final url = await snapshot.ref.getDownloadURL();
+    return url;
+  } catch (e) {
+    print("Error al subir imagen a Firebase: $e");
+    rethrow;
+  }
+}
+
+  Future<void> _enviarImagenAlBackend(String cedula, String urlFoto) async {
     final String apiUrl = ApiConstants.updateUsuarioEndpoint(cedula);
 
     try {
@@ -55,7 +63,7 @@ class _RegisterClient4State extends State<RegisterClient4> {
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'foto_perfil': foto_perfil,
+          'foto_perfil': urlFoto,
         }),
       );
 
@@ -70,16 +78,22 @@ class _RegisterClient4State extends State<RegisterClient4> {
   }
 
   void _onConfirmar() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final cedula = userProvider.cedula;
+  final userProvider = Provider.of<UserProvider>(context, listen: false);
+  final cedula = userProvider.cedula;
+  String urlImagen;
 
-    if (foto_perfil == null) {
-      await _cargarImagenPorDefecto();
+  try {
+    if (_imageFile != null) {
+      urlImagen = await _subirImagenAFirebase(_imageFile!, cedula);
+    } else {
+      // Si no se seleccionó imagen, usamos una por defecto que ya tengas en Storage
+      urlImagen = "https://firebasestorage.googleapis.com/v0/b/nodo-b1ff4.firebasestorage.app/o/perfiles%2FiconNodoBlue.png?alt=media&token=22b11580-c0ac-403e-89e3-5f09cc5cd25c"; // Puedes tenerla subida fija en Storage
     }
 
-    print("Cédula enviada: $cedula");
+    await _enviarImagenAlBackend(cedula, urlImagen);
 
-    await _enviarImagenAlBackend(cedula);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('seen_welcome', true); // Marcar que ya vio el welcome
 
     Navigator.push(
       context,
@@ -87,7 +101,13 @@ class _RegisterClient4State extends State<RegisterClient4> {
         builder: (context) => const LoginScreen(),
       ),
     );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Hubo un problema al subir la imagen.')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +126,6 @@ class _RegisterClient4State extends State<RegisterClient4> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  
                   const Text(
                     'Personaliza tu cuenta con una imagen. Esto ayudará a otros usuarios a reconocerte, '
                     'pero puedes omitir este paso si lo deseas.',
@@ -122,8 +141,11 @@ class _RegisterClient4State extends State<RegisterClient4> {
                           radius: 60,
                           backgroundImage: _imageFile != null
                               ? FileImage(_imageFile!)
-                              : const AssetImage('assets/icons/iconNodoBlue.png') as ImageProvider,
-                          backgroundColor: Colors.grey.shade400.withOpacity(0.4),
+                              : const AssetImage(
+                                      'assets/icons/iconNodoBlue.png')
+                                  as ImageProvider,
+                          backgroundColor:
+                              Colors.grey.shade400.withOpacity(0.4),
                         ),
                         Positioned(
                           bottom: 4,
@@ -131,7 +153,8 @@ class _RegisterClient4State extends State<RegisterClient4> {
                           child: CircleAvatar(
                             radius: 16,
                             backgroundColor: Colors.white,
-                            child: Icon(Icons.edit, size: 18, color: Colors.orange.shade700),
+                            child: Icon(Icons.edit,
+                                size: 18, color: Colors.orange.shade700),
                           ),
                         ),
                       ],
@@ -152,27 +175,38 @@ class _RegisterClient4State extends State<RegisterClient4> {
                       Expanded(
                         child: RichText(
                           text: TextSpan(
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontSize: 14),
                             children: [
                               const TextSpan(text: 'Acepto los '),
                               TextSpan(
                                 text: 'Términos y Condiciones',
-                                style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    color: Colors.orange,
+                                    fontWeight: FontWeight.bold),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Términos y Condiciones')),
+                                      const SnackBar(
+                                          content:
+                                              Text('Términos y Condiciones')),
                                     );
                                   },
                               ),
                               const TextSpan(text: ' y la '),
                               TextSpan(
                                 text: 'Política de Privacidad',
-                                style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    color: Colors.orange,
+                                    fontWeight: FontWeight.bold),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Política de Privacidad')),
+                                      const SnackBar(
+                                          content:
+                                              Text('Política de Privacidad')),
                                     );
                                   },
                               ),
@@ -194,7 +228,8 @@ class _RegisterClient4State extends State<RegisterClient4> {
                     ),
                     child: const Text(
                       'Aceptar y confirmar',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(height: 24),

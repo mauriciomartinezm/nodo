@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 
 class GraciasScreen extends StatelessWidget {
   const GraciasScreen({Key? key}) : super(key: key);
@@ -34,7 +33,9 @@ class GraciasScreen extends StatelessWidget {
                         color: Colors.black54,
                       ),
                       children: [
-                        const TextSpan(text: 'Gracias por tomarte el tiempo de reportar esta publicación. El equipo de moderación revisará tu reporte en las próximas horas y tomará las '),
+                        const TextSpan(
+                            text:
+                                'Gracias por tomarte el tiempo de reportar esta publicación. El equipo de moderación revisará tu reporte en las próximas horas y tomará las '),
                         TextSpan(
                           text: 'medidas necesarias',
                           style: const TextStyle(
@@ -42,7 +43,9 @@ class GraciasScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const TextSpan(text: ' si la publicación no cumple con nuestras políticas de contenido.'),
+                        const TextSpan(
+                            text:
+                                ' si la publicación no cumple con nuestras políticas de contenido.'),
                       ],
                     ),
                   ),
@@ -60,13 +63,11 @@ class GraciasScreen extends StatelessWidget {
                     elevation: 0,
                   ),
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const TrabajosScreen2()),
-                    );
+                    int count = 0;
+                    Navigator.popUntil(context, (_) => count++ >= 3);
                   },
-
-                  child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
+                  child: const Text('Aceptar',
+                      style: TextStyle(color: Colors.white)),
                 ),
               )
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/features/crear_publicacion/widgets/foto_widget.dart';
 import 'package:nodo/providers/userprovider.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
@@ -8,7 +9,6 @@ import '../widgets/header_info.dart';
 import '../widgets/text_field.dart';
 import '../widgets/categoria_dropdown.dart';
 import '../widgets/descripcion_field.dart';
-//import '../widgets/foto_widget.dart';
 
 class CrearPublicacionScreen extends StatefulWidget {
   const CrearPublicacionScreen({super.key});
@@ -18,6 +18,7 @@ class CrearPublicacionScreen extends StatefulWidget {
 }
 
 class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
+  List<String> _urlsImagenes = [];
   final _formKey = GlobalKey<FormState>();
   final _tituloController = TextEditingController();
   final _ubicacionController = TextEditingController();
@@ -30,7 +31,8 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = Provider.of<CrearPublicacionController>(context, listen: false);
+      final controller =
+          Provider.of<CrearPublicacionController>(context, listen: false);
       controller.cargarCategorias();
     });
   }
@@ -46,9 +48,10 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
   }
 
   Future<void> _enviarPublicacion() async {
-    final controller = Provider.of<CrearPublicacionController>(context, listen: false);
+    final controller =
+        Provider.of<CrearPublicacionController>(context, listen: false);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    
+
     if (!_validarCampos()) return;
 
     final datos = {
@@ -59,11 +62,11 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
       "presupuesto": int.tryParse(_presupuestoController.text) ?? 0,
       "fecha_limite": _fechaLimiteController.text,
       "descripcion_necesidad": _descripcionController.text,
-
+      "fotos": _urlsImagenes,
     };
 
     final success = await controller.crearPublicacion(datos);
-    
+
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("¡Publicación creada con éxito!")),
@@ -73,8 +76,9 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
   }
 
   bool _validarCampos() {
-    final controller = Provider.of<CrearPublicacionController>(context, listen: false);
-    
+    final controller =
+        Provider.of<CrearPublicacionController>(context, listen: false);
+
     if (_tituloController.text.isEmpty ||
         _categoriaSeleccionada == null ||
         _ubicacionController.text.isEmpty ||
@@ -82,14 +86,14 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
         _fechaLimiteController.text.isEmpty ||
         _descripcionController.text.isEmpty) {
       controller.setErrorMessage("Todos los campos son obligatorios");
-      //controller.notifyListeners();
       return false;
     }
     return true;
   }
 
   String _getIdCategoriaSeleccionada() {
-    final controller = Provider.of<CrearPublicacionController>(context, listen: false);
+    final controller =
+        Provider.of<CrearPublicacionController>(context, listen: false);
     return controller.categorias.firstWhere(
       (cat) => cat['nombre'] == _categoriaSeleccionada,
       orElse: () => {'id': ''},
@@ -129,18 +133,51 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       CategoriaDropdown(
                         categorias: controller.categorias,
                         value: _categoriaSeleccionada,
-                        onChanged: (value) => setState(() => _categoriaSeleccionada = value),
+                        onChanged: (value) =>
+                            setState(() => _categoriaSeleccionada = value),
                       ),
                       SizedBox(height: 10.h),
                       CustomTextField("Ubicación", _ubicacionController),
                       SizedBox(height: 10.h),
-                      CustomTextField("Presupuesto", _presupuestoController, isNumber: true),
+                      CustomTextField("Presupuesto", _presupuestoController,
+                          isNumber: true),
                       SizedBox(height: 10.h),
-                      CustomTextField("Fecha límite", _fechaLimiteController),
+
+                      /// CAMPO DE FECHA CON DATEPICKER
+                      GestureDetector(
+                        onTap: () async {
+                          FocusScope.of(context).unfocus();
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+                          if (pickedDate != null) {
+                            final formattedDate =
+                                "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                            setState(() {
+                              _fechaLimiteController.text = formattedDate;
+                            });
+                          }
+                        },
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _fechaLimiteController,
+                            decoration: const InputDecoration(
+                              labelText: "Fecha límite",
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ),
+
                       SizedBox(height: 10.h),
                       DescripcionField(controller: _descripcionController),
                       SizedBox(height: 10.h),
-                      //const SubirFotoWidget(),
+                      SubirFotoWidget(
+                        onUploadComplete: (urls) => _urlsImagenes = urls,
+                      ),
                       if (controller.errorMessage != null) ...[
                         SizedBox(height: 10.h),
                         Text(
@@ -155,7 +192,8 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       FractionallySizedBox(
                         widthFactor: 0.3,
                         child: ElevatedButton(
-                          onPressed: controller.isLoading ? null : _enviarPublicacion,
+                          onPressed:
+                              controller.isLoading ? null : _enviarPublicacion,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryColor,
                             shape: RoundedRectangleBorder(
@@ -163,7 +201,8 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                             ),
                           ),
                           child: controller.isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
                               : Text(
                                   "Publicar",
                                   style: TextStyle(

@@ -24,20 +24,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       TextEditingController(text: 'Lorem ipsum dolor sit amet...');
 
   List<String> allTags = [
-    "Homofóbico",
-    "Nazi",
-    "Antisocial",
-    "Racista",
-    "Evasor de impuestos",
-    "Gordofóbico",
-    "Amante a las Culonas",
-    "Guapo",
-    "poderoso",
-    "asombroso",
-    "Muy hermoso",
-    "soy precioso",
-    "armonioso",
-  ];
+  "Creativo",
+  "Carismático",
+  "Sociable",
+  "Responsable",
+  "Honesto",
+  "Aventurero",
+  "Optimista",
+  "Amable",
+  "Inteligente",
+  "Divertido",
+  "Curioso",
+  "Paciente",
+  "Apasionado",
+  "Guapo",
+  "Poderoso",
+  "Asombroso",
+  "Muy hermoso",
+  "Armonioso",
+];
+
 
   List<String> selectedTags = [];
 

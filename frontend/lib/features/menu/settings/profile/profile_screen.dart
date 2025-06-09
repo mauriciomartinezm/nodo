@@ -48,7 +48,8 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 //Portada y Avatar
                 Stack(
-                  clipBehavior: Clip.none, //Permite que el puto avatar se sobreponga en la portada
+                  clipBehavior: Clip
+                      .none, //Permite que el puto avatar se sobreponga en la portada
                   children: [
                     Column(
                       children: [

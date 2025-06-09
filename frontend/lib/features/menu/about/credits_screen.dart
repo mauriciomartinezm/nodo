@@ -67,11 +67,11 @@ class Credits extends StatelessWidget {
 
   
 final List<MiembroEquipo> equipo = [
-  MiembroEquipo(
-    nombre: 'Lusho Moreno',
-    rol: 'Creador de la idea, dirección general del proyecto',
-    imagen: 'assets/icons/iconNodoBlue.png',
-  ),
+  //MiembroEquipo(
+  //  nombre: 'Lusho Moreno',
+  //  rol: 'Creador de la idea, dirección general del proyecto',
+  //  imagen: 'assets/icons/iconNodoBlue.png',
+  //),
   MiembroEquipo(
     nombre: 'Kehiber Leandro Morelo Ricardo',
     rol: 'Estudiante de Ingeniería Informática',
