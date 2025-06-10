@@ -14,8 +14,47 @@ class PublicacionCard extends StatelessWidget {
     required this.onDelete,
   });
 
+  // Método para parsear las imágenes (similar al que ya tienes)
+  List<String> _parseImages(String fotosString) {
+    if (fotosString.isEmpty || fotosString == 'sin fotos') {
+      return [];
+    }
+
+    try {
+      String cleanedString = fotosString.trim();
+
+      // Caso 1: Si es un JSON válido con escapes
+      if (cleanedString.startsWith(r'{\"') || cleanedString.startsWith('{\"')) {
+        cleanedString =
+            cleanedString.replaceAll(r'\"', '"').replaceAll('\\"', '"');
+      }
+
+      // Caso 2: Si tiene comillas dobles externas
+      if (cleanedString.startsWith('{"') && cleanedString.endsWith('"}')) {
+        cleanedString = cleanedString.substring(1, cleanedString.length - 1);
+      }
+
+      // Limpieza final
+      cleanedString = cleanedString.replaceAll('"', '');
+
+      return cleanedString
+          .split(',')
+          .map((url) => url.trim())
+          .where((url) => url.startsWith('http'))
+          .toList();
+    } catch (e) {
+      print('Error parsing images: $e');
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Parseamos las imágenes
+    final List<String> imagenes = _parseImages(item['fotos'] ?? '');
+    final bool tieneImagenes = imagenes.isNotEmpty;
+    final String? primeraImagen = tieneImagenes ? imagenes.first : null;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -23,15 +62,36 @@ class PublicacionCard extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
+            height: 100.sp, // Altura fija para mantener consistencia
             decoration: BoxDecoration(
-              color: AppColors.primaryColor.withOpacity(0.2),
+              color: tieneImagenes 
+                  ? Colors.transparent 
+                  : AppColors.primaryColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              Icons.work_outline,
-              color: AppColors.primaryColor,
-              size: 100.sp,
-            ),
+            child: tieneImagenes
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      primeraImagen!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : _buildDefaultIcon(),
           ),
           SizedBox(height: 8.h),
           Text(
@@ -54,6 +114,17 @@ class PublicacionCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Widget para el icono por defecto
+  Widget _buildDefaultIcon() {
+    return Center(
+      child: Icon(
+        Icons.work_outline,
+        color: AppColors.primaryColor,
+        size: 50.sp, // Tamaño más pequeño para que no domine
       ),
     );
   }

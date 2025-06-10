@@ -19,7 +19,7 @@ class Usuario {
   final String fotoPerfil;
   final bool verificado;
   final String tipoUsuario;
-  final dynamic categoria;
+  final dynamic idCategoria;
   final dynamic ubicacion;
   final dynamic descripcion;
   final dynamic calificacionPromedio;
@@ -38,7 +38,7 @@ class Usuario {
     required this.fotoPerfil,
     required this.verificado,
     required this.tipoUsuario,
-    required this.categoria,
+    required this.idCategoria,
     required this.ubicacion,
     required this.descripcion,
     this.calificacionPromedio,
@@ -59,7 +59,7 @@ class Usuario {
       fotoPerfil: json['foto_perfil'],
       verificado: json['verificado'],
       tipoUsuario: json['tipo_usuario'],
-      categoria: json['categoria'],
+      idCategoria: json['id_categoria'],
       ubicacion: json['ubicacion'],
       descripcion: json['descripcion'],
       calificacionPromedio: json['calificacion_promedio'],
@@ -81,7 +81,7 @@ class Usuario {
       'foto_perfil': fotoPerfil,
       'verificado': verificado,
       'tipo_usuario': tipoUsuario,
-      'categoria': categoria,
+      'id_categoria': idCategoria,
       'ubicacion': ubicacion,
       'descripcion': descripcion,
       'calificacion_promedio': calificacionPromedio,

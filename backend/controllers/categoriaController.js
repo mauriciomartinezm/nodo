@@ -2,6 +2,21 @@ import { db } from "../database/db.js";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 
+export const getCategoria = async (req, res) => {
+  console.log("Peticion en getCategoria");
+  try {
+    const result = await db.query(
+      "SELECT * FROM Categoria WHERE id = $1",
+      [req.params.id]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error interno del servidor", error: error.message });
+  }
+};
+
 export const getCategorias = async (req, res) => {
   console.log("Peticion en getCategorias");
   try {

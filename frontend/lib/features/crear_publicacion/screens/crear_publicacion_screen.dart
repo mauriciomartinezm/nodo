@@ -101,16 +101,16 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
   }
 
   void _limpiarFormulario() {
-  _tituloController.clear();
-  _ubicacionController.clear();
-  _presupuestoController.clear();
-  _fechaLimiteController.clear();
-  _descripcionController.clear();
-  setState(() {
-    _categoriaSeleccionada = null;
-    _urlsImagenes = []; // Añade esta línea
-  });
-}
+    _tituloController.clear();
+    _ubicacionController.clear();
+    _presupuestoController.clear();
+    _fechaLimiteController.clear();
+    _descripcionController.clear();
+    setState(() {
+      _categoriaSeleccionada = null;
+      _urlsImagenes = []; // Añade esta línea
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,10 +179,10 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       DescripcionField(controller: _descripcionController),
                       SizedBox(height: 10.h),
                       SubirFotoWidget(
-  key: ValueKey(_urlsImagenes), // Añade una clave única
-  onUploadComplete: (urls) => _urlsImagenes = urls,
-  initialUrls: _urlsImagenes, // Pasa las URLs iniciales
-),
+                        key: ValueKey(_urlsImagenes), // Añade una clave única
+                        onUploadComplete: (urls) => _urlsImagenes = urls,
+                        initialUrls: _urlsImagenes, // Pasa las URLs iniciales
+                      ),
 
                       if (controller.errorMessage != null) ...[
                         SizedBox(height: 10.h),

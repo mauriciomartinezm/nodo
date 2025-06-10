@@ -7,6 +7,7 @@ class ApiConstants {
   static const String createPublicacionEndpoint = "$baseUrl/createPublicacion";
   static const String loginEndpoint = "$baseUrl/loginUsuario";
   static const String getTrabajadorByUserId = "$baseUrl/getTrabajadorByUserId";
+  static String getCategoriaEndpoint(String id) => "$baseUrl/getCategoria/$id";       // ← NUEVO
   static const String getCategoriasEndpoint = "$baseUrl/getCategorias";
   static const String getPublicacionesByUserId = "$baseUrl/getPublicacionesByUserId";
   static const String createUsuarioEndpoint = "$baseUrl/createUsuario";
