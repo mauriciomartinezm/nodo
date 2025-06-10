@@ -131,7 +131,10 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
           ),
         ),
         const SizedBox(height: 10),
-        if (_subiendo) const CircularProgressIndicator(),
+        if (_subiendo)
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
       ],
     );
   }

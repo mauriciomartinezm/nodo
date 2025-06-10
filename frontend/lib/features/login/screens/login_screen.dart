@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/userprovider.dart';
 import '../../../core/theme/app_colors.dart';
-import 'package:nodo/features/register/widgets/registerclient1.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

@@ -1,6 +1,7 @@
 import { db } from "../database/db.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
+import { guardarNotificacion } from '../services/notificacionService.js';
 
 export const getPublicaciones = async (req, res) => {
   try {
@@ -15,7 +16,7 @@ export const getPublicaciones = async (req, res) => {
 
 export const getPublicacion = async (req, res) => {
   try {
-  console.log(req.params.id);
+    console.log(req.params.id);
 
     const result = await db.query(
       "SELECT * FROM publicacion WHERE id = $1",
@@ -35,7 +36,7 @@ export const getPublicacion = async (req, res) => {
 };
 export const getPublicacionesByUserId = async (req, res) => {
   try {
-  console.log(req.params.id);
+    console.log(req.params.id);
 
     const result = await db.query(
       "SELECT * FROM publicacion WHERE id_cliente = $1",
@@ -57,6 +58,7 @@ export const getPublicacionesByUserId = async (req, res) => {
 
 
 export const createPublicacion = async (req, res) => {
+  console.log("Petición en /createPublicacion. Cuerpo de la petición: ");
   console.log(req.body);
   try {
     const {
@@ -69,7 +71,6 @@ export const createPublicacion = async (req, res) => {
       descripcion_necesidad,
       fotos // Este parámetro puede ser undefined
     } = req.body;
-
     // Asignar valor por defecto si no hay fotos
     const fotosFinal = fotos || "sin fotos"; // Esto asigna "sin fotos" si fotos es falsy (undefined, null, etc.)
 
@@ -85,12 +86,16 @@ export const createPublicacion = async (req, res) => {
     }
 
     // Validar que la categoría exista
-    const categoriaCheck = await db.query("SELECT id FROM Categoria WHERE id = $1", [id_categoria]);
+    const categoriaCheck = await db.query("SELECT * FROM Categoria WHERE id = $1", [id_categoria]);
+    console.log("Categoria: ");
     console.log(categoriaCheck);
 
     if (categoriaCheck.rowCount === 0) {
       return res.status(404).json({ message: "La categoría no existe." });
     }
+
+     // Guardar el nombre de la categoría
+    const nombreCategoria = categoriaCheck.rows[0].nombre_cat;
 
     // Generar ID con uuidv4
     const id = uuidv4();
@@ -127,6 +132,41 @@ export const createPublicacion = async (req, res) => {
       fotos: fotosFinal, // Enviamos el valor que se guardó
       mensaje: "Publicación creada exitosamente"
     });
+
+    // --- ENVIAR NOTIFICACIONES A TRABAJADORES ---
+    // 1. Buscar trabajadores con la misma id_categoria
+    const trabajadoresQuery = `
+      SELECT id FROM Usuario WHERE id_categoria = $1
+    `;
+    const trabajadoresResult = await db.query(trabajadoresQuery, [id_categoria]);
+    let  trabajadoresIds = trabajadoresResult.rows.map(row => row.id);
+    console.log("Trabajadores IDs antes de filtrar: ", trabajadoresIds);
+
+    // 2. Filtrar el id_cliente (dueño de la publicación) de la lista de trabajadores
+    console.log(id_cliente);
+    trabajadoresIds = trabajadoresIds.filter(trabajadorId => trabajadorId !== id_cliente);
+    
+    console.log("Trabajadores IDs después de filtrar (excluyendo al dueño): ", trabajadoresIds);
+    // 2. Enviar notificación a cada trabajador
+    for (const trabajadorId of trabajadoresIds) {
+      try {
+        await guardarNotificacion(
+          trabajadorId,
+          'oferta',
+          'Nueva oportunidad laboral',
+          `¡Se encuentra disponible una nueva oportunidad laboral en la categoría ${nombreCategoria}!`, // Customize the message
+          {
+            publicacionId: id.toString(),
+            trabajadorId: trabajadorId.toString()
+          }
+        );
+        console.log(`Notificación enviada al trabajador con ID: ${trabajadorId} para la publicación: ${id}`);
+      } catch (notificationError) {
+        console.error(`Error enviando notificación al trabajador ${trabajadorId}:`, notificationError);
+        // Decide how to handle individual notification failures (e.g., log, but continue to next worker)
+      }
+    }
+    // --- FIN DE NOTIFICACIONES ---
 
   } catch (error) {
     console.error(error);
