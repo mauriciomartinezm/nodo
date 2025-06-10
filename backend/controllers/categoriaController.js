@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 export const getCategorias = async (req, res) => {
   console.log("Peticion en getCategorias");
   try {
-    const result = await db.query("SELECT * FROM categoria_trabajo");
+    const result = await db.query("SELECT * FROM Categoria");
     res.json(result.rows);
   } catch (error) {
     return res
@@ -83,7 +83,7 @@ export const createCategoria = async (req, res) => {
     const { nombre_cat, descripcion } = req.body;
     const id = uuidv4();
     const query = `
-      INSERT INTO Categoria_trabajo (id, nombre_cat, descripcion)
+      INSERT INTO Categoria (id, nombre_cat, descripcion)
       VALUES ($1, $2, $3)
     `;
 

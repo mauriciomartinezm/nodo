@@ -38,6 +38,7 @@ dependencies:
   http: ^0.13.6
   provider: ^6.1.1
   intl: ^0.18.1
+  flutter_launcher_icons: ^0.13.1
   shared_preferences: ^2.2.2  # O la última versión
 
 
@@ -105,3 +106,10 @@ flutter:
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/iconNodoApp.png"
+  adaptive_icon_background: "#063666"
+  adaptive_icon_foreground: "assets/icons/IconNodoApp.png"
