@@ -11,7 +11,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores
+  // Controladores necesarios
   final TextEditingController _nameController =
       TextEditingController(text: 'Kehiber Leandro Morelo Ricardo');
   final TextEditingController _emailController =
@@ -24,26 +24,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       TextEditingController(text: 'Lorem ipsum dolor sit amet...');
 
   List<String> allTags = [
-  "Creativo",
-  "Carismático",
-  "Sociable",
-  "Responsable",
-  "Honesto",
-  "Aventurero",
-  "Optimista",
-  "Amable",
-  "Inteligente",
-  "Divertido",
-  "Curioso",
-  "Paciente",
-  "Apasionado",
-  "Guapo",
-  "Poderoso",
-  "Asombroso",
-  "Muy hermoso",
-  "Armonioso",
-];
-
+    "Creativo",
+    "Carismático",
+    "Sociable",
+    "Responsable",
+    "Honesto",
+    "Aventurero",
+    "Optimista",
+    "Amable",
+    "Inteligente",
+    "Divertido",
+    "Curioso",
+    "Paciente",
+    "Apasionado",
+    "Guapo",
+    "Poderoso",
+    "Asombroso",
+    "Muy hermoso",
+    "Armonioso",
+  ];
 
   List<String> selectedTags = [];
 
@@ -71,7 +70,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   keyboardType: TextInputType.emailAddress),
               _buildTextField('Número de contacto', _phoneController,
                   keyboardType: TextInputType.phone),
-              _buildTextField('Ubicación o ciudads', _cityController),
+              _buildTextField('Ubicación o ciudad', _cityController),
               _buildTextField('Descripción', _descriptionController,
                   maxLines: 4),
               const SizedBox(height: 10),
@@ -110,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  // icon: Icon(Icons.save, color: AppColors.white,),
+                  icon: const Icon(Icons.save, color: Colors.white),
                   label: Text('Guardar',
                       style: AppTypography.h2.copyWith(color: AppColors.white)),
                   style: ElevatedButton.styleFrom(
@@ -119,7 +118,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      //Proceso de datos actualizados
                       Navigator.pop(context);
                     }
                   },
@@ -135,12 +133,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildTextField(String label, TextEditingController controller,
       {TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15), //Espacio entre TextFields
+      padding: const EdgeInsets.only(bottom: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: AppTypography.body.copyWith(color: AppColors.blue)),
+          Text(label, style: AppTypography.h3.copyWith(color: AppColors.blue)),
           TextFormField(
             controller: controller,
             keyboardType: keyboardType,
@@ -149,28 +146,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 value == null || value.isEmpty ? 'Campo requerido' : null,
             decoration: InputDecoration(
               hintText: 'Ingresa tu $label',
-              hintStyle: TextStyle(color: const Color.fromARGB(94, 6, 54, 102)), //Color del hintText
-              errorStyle:
-                  TextStyle(color: AppColors.orange), //Color del mensaje de error
+              hintStyle: TextStyle(color: const Color.fromARGB(94, 6, 54, 102)),
+              errorStyle: TextStyle(color: AppColors.orange),
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10), //Tamaño de los inputs
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.blue)),
-
+                borderSide: BorderSide(color: AppColors.blue, width: 2),
+              ),
               focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: AppColors.blue,
-                    width: 1.3)
+                borderSide: BorderSide(color: AppColors.blue, width: 1.3),
               ),
-
               errorBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: AppColors.orange), //Borde naranja al error
+                borderSide: BorderSide(color: AppColors.orange),
               ),
-              
               focusedErrorBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                    color: AppColors.orange),
+                borderSide: BorderSide(color: AppColors.orange),
               ),
             ),
           ),

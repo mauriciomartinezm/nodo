@@ -20,7 +20,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
   bool _subiendo = false;
 
   Future<void> _seleccionarImagenes() async {
-    final List<XFile>? seleccionadas = await _picker.pickMultiImage();
+    final List<XFile> seleccionadas = await _picker.pickMultiImage();
 
     if (seleccionadas != null && seleccionadas.isNotEmpty) {
       setState(() => _imagenes = seleccionadas);

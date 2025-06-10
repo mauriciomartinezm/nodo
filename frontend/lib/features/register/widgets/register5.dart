@@ -15,47 +15,88 @@ class Register5 extends StatefulWidget {
 }
 
 class _Register5State extends State<Register5> {
-  final _categoriaController = TextEditingController();
   final _ubicacionController = TextEditingController();
   final _descripcionController = TextEditingController();
-  late String cedula; // Variable global de clase
+  late String cedula;
+  String? _selectedCategoryId; // Almacenará el ID de la categoría seleccionada
+  List<Map<String, dynamic>> _categories = []; // Lista de categorías
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories(); // Cargar categorías al iniciar
+  }
 
   @override
   void dispose() {
-    _categoriaController.dispose();
     _ubicacionController.dispose();
     _descripcionController.dispose();
     super.dispose();
   }
 
+  Future<void> _loadCategories() async {
+    final url = Uri.parse(ApiConstants.getCategoriasEndpoint);
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _categories = data
+              .map((cat) => {'id': cat['id'], 'nombre': cat['nombre_cat']})
+              .toList();
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error al cargar categorías: $e")),
+        );
+      }
+    }
+  }
+
   Future<void> _actualizarTrabajador() async {
-    final url = Uri.parse(ApiConstants.updateUsuarioEndpoint(cedula)); 
+    if (_selectedCategoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Por favor selecciona una categoría")),
+      );
+      return;
+    }
+
+    final url = Uri.parse(ApiConstants.updateUsuarioEndpoint(cedula));
 
     try {
       final response = await http.put(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "categoria": _categoriaController.text.trim(),
+          "id_categoria": _selectedCategoryId, // Enviamos el ID
           "ubicacion": _ubicacionController.text.trim(),
           "descripcion": _descripcionController.text.trim(),
         }),
       );
 
       if (response.statusCode == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const RegisterClient4()),
-        );
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const RegisterClient4()),
+          );
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error al actualizar: ${response.body}")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error al actualizar: ${response.body}")),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error de red: $e")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error de red: $e")),
+        );
+      }
     }
   }
 
@@ -68,8 +109,7 @@ class _Register5State extends State<Register5> {
     final fieldSpacing = screenHeight * 0.02;
 
     final userProvider = Provider.of<UserProvider>(context);
-    cedula = userProvider.cedula; // Se asigna una vez aquí, no localmente
-
+    cedula = userProvider.cedula;
     final isWorker = userProvider.isWorker;
 
     return RegisterScaffold(
@@ -85,9 +125,14 @@ class _Register5State extends State<Register5> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(height: fieldSpacing),
-              _CustomTextField(
-                label: 'Categoría o especialidad',
-                controller: _categoriaController,
+              _CategoryDropdown(
+                categories: _categories,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedCategoryId = newValue;
+                  });
+                },
+                selectedCategoryId: _selectedCategoryId,
                 widthPercentage: 0.85,
               ),
               SizedBox(height: fieldSpacing),
@@ -106,8 +151,62 @@ class _Register5State extends State<Register5> {
           ),
         ),
       ),
-      onNext: _actualizarTrabajador, 
+      onNext: _actualizarTrabajador,
       showNextButton: true,
+    );
+  }
+}
+
+class _CategoryDropdown extends StatelessWidget {
+  final List<Map<String, dynamic>> categories;
+  final Function(String?) onChanged;
+  final String? selectedCategoryId;
+  final double widthPercentage;
+
+  const _CategoryDropdown({
+    required this.categories,
+    required this.onChanged,
+    required this.selectedCategoryId,
+    this.widthPercentage = 1.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Align(
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: screenWidth * widthPercentage,
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: 'Categoría o especialidad',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.blueGrey),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 8,
+              horizontal: 16,
+            ),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: selectedCategoryId,
+              hint: const Text('Selecciona una categoría'),
+              items: categories.map((category) {
+                return DropdownMenuItem<String>(
+                  value: category['id'],
+                  child: Text(category['nombre']),
+                );
+              }).toList(),
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

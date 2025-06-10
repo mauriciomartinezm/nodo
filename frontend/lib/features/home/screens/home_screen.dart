@@ -22,6 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<Widget> _screens;
   bool _initialized = false;
 
+  
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -71,6 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+     final userProvider = Provider.of<UserProvider>(context);
+    final user = userProvider.usuario;
+
     return Scaffold(
       body: IndexedStack(
         index: currentPageIndex,
@@ -95,27 +100,58 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 child: Row(
+
+                  //Avatar
                   children: [
-                    const CircleAvatar(
-                      radius: 35,
-                      // backgroundImage: AssetImage("assets/images/peter.jpg"),
+                    Consumer<UserProvider>(
+                      builder: (context, userProvider, child) {
+                        final fotoPerfil = userProvider.usuario?.fotoPerfil;
+
+                        return CircleAvatar(
+                          radius: 30,
+                          backgroundColor: AppColors.white,
+                          backgroundImage:
+                              (fotoPerfil != null && fotoPerfil.isNotEmpty)
+                                  ? NetworkImage(fotoPerfil)
+                                  : null,
+                          child: (fotoPerfil == null || fotoPerfil.isEmpty)
+                              ? Icon(
+                                  Icons.person,
+                                  size: 90,
+                                  color: AppColors.white,
+                                )
+                              : null,
+                        );
+                      },
                     ),
                     const SizedBox(width: 15),
+
+                    //Datos
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Peter Parker",
-                              style: AppTypography.h1.copyWith(
-                                  color: AppColors
-                                      .white)), // <-- puedes obtener el nombre del UserProvider aquí
-                          Text("Fotógrafo",
-                              style: AppTypography.body
+                          Row( 
+                            children: [
+                              Text("${user?.nombres.split(' ').first}",
+                                  style: AppTypography.h2
+                                      .copyWith(color: AppColors.white)),
+                              
+                              Text(
+                                  ' ${user?.primerApellido}' ,
+                                  style: AppTypography.h2
+                                      .copyWith(color: AppColors.white)),
+                            ],
+                          ),
+                          Text(user?.tipoUsuario ?? "Sin tipo",
+                              style: AppTypography.h3
                                   .copyWith(color: AppColors.white)),
                           const SizedBox(height: 4),
-                          Text("3 Trabajos completados",
-                              style: AppTypography.body
-                                  .copyWith(color: AppColors.white)),
+                          if (user?.tipoUsuario == 'trabajador')
+                            Text(
+                                "${user?.trabajosCompletados ?? 0} trabajos completados",
+                                style: AppTypography.h3
+                                    .copyWith(color: AppColors.white)),
                         ],
                       ),
                     ),
@@ -125,6 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             drawerTile(Icons.settings, "Ajustes", '/SettingsScreen'),
+
+            if (user?.tipoUsuario != 'trabajador') 
             drawerTile(Icons.work_rounded, "Trabajar con NODO", '/workWNodo'),
             drawerTile(Icons.info_rounded, "Acerca de", '/About'),
             const Spacer(),

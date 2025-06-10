@@ -30,7 +30,7 @@ class TrabajoService {
       }
     } catch (e) {
       print('Error en postularse: $e');
-      throw e; // Re-lanzamos la excepción para manejarla en el UI
+      rethrow; // Re-lanzamos la excepción para manejarla en el UI
     }
   }
 

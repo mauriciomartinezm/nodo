@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/features/register/widgets/register_scaffold.dart';
@@ -218,7 +217,25 @@ Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: _acceptedTerms ? _onConfirmar : null,
+                    onPressed: _acceptedTerms
+                        ? () {
+                            final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false);
+
+                            if (!userProvider.isWorker) {
+                              userProvider
+                                  .setIsWorker(true); //Cambia a trabajador
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Ahora eres trabajador")),
+                              );
+                            }
+
+                            _onConfirmar(); //Continúa con la lógica normal
+                          }
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1A3557),
                       minimumSize: const Size(double.infinity, 48),
@@ -229,9 +246,12 @@ Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
                     child: const Text(
                       'Aceptar y confirmar',
                       style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+
                   const SizedBox(height: 24),
                 ],
               ),
@@ -243,4 +263,5 @@ Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
       showNextButton: false, // ocultamos botón siguiente
     );
   }
+  
 }

@@ -7,7 +7,7 @@ import 'dart:convert';
 class ReportarScreen extends StatefulWidget {
   final String jobId; // UUID como String
 
-  const ReportarScreen({Key? key, required this.jobId}) : super(key: key);
+  const ReportarScreen({super.key, required this.jobId});
 
   @override
   State<ReportarScreen> createState() => _ReportarScreenState();

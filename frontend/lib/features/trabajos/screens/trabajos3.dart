@@ -10,10 +10,10 @@ class DetalleTrabajoScreen extends StatefulWidget {
   final ScrollController scrollController;
 
   const DetalleTrabajoScreen({
-    Key? key,
+    super.key,
     required this.job,
     required this.scrollController,
-  }) : super(key: key);
+  });
 
   @override
   State<DetalleTrabajoScreen> createState() => _DetalleTrabajoScreenState();
@@ -30,6 +30,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
     print("DEBUG JOB => ${widget.job}");
   }
 
+  @override
   Widget build(BuildContext context) {
     final images = widget.job["images"] is List
         ? List<String>.from(widget.job["images"])

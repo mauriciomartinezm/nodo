@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/features/crear_publicacion/widgets/foto_widget.dart';
+import 'package:nodo/widgets/foto_widget.dart';
 import 'package:nodo/providers/userprovider.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';

@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 export const getCategorias = async (req, res) => {
   console.log("Peticion en getCategorias");
   try {
-    const result = await db.query("SELECT * FROM categoria_trabajo");
+    const result = await db.query("SELECT * FROM Categoria");
     res.json(result.rows);
   } catch (error) {
     return res
@@ -83,16 +83,26 @@ export const createCategoria = async (req, res) => {
     const { nombre_cat, descripcion } = req.body;
     const id = uuidv4();
     const query = `
-      INSERT INTO Categoria_trabajo (id, nombre_cat, descripcion)
+      INSERT INTO Categoria (id, nombre_cat, descripcion)
       VALUES ($1, $2, $3)
     `;
 
     await db.query(query, [id, nombre_cat, descripcion]);
 
-    res.status(200).json({ message: "Categoria registrada exitosamente", categoria: { id, nombre_cat, descripcion } });
+    res
+      .status(200)
+      .json({
+        message: "Categoria registrada exitosamente",
+        categoria: { id, nombre_cat, descripcion },
+      });
   } catch (error) {
     console.error("Error al crear la categoria:", error);
-    res.status(500).json({ message: "Error al registrar la categoria", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error al registrar la categoria",
+        error: error.message,
+      });
   }
 };
 
@@ -212,8 +222,8 @@ export const deleteCliente = async (req, res) => {
 
     res.json({ message: "Registro eliminado exitosamente" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    res.status(500).json({ message: error.message });
+  }
 };
 
- */
+ */

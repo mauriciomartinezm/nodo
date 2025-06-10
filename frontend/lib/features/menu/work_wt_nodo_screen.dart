@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
+import 'package:nodo/features/register/widgets/register5.dart';
 
 class WorkWtNodo extends StatelessWidget {
   const WorkWtNodo({super.key});
@@ -95,7 +96,11 @@ class WorkWtNodo extends StatelessWidget {
                             horizontal: 24, vertical: 12),
                       ),
                       onPressed: () {
-                        // Acción del botón
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Register5()),
+                        );
                       },
                       child: Text(
                         'Activar mi perfil como trabajador',

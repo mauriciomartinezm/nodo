@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nodo/core/theme/app_colors.dart';
 
 class SubirFotoWidget extends StatefulWidget {
-  const SubirFotoWidget({Key? key}) : super(key: key);
+  const SubirFotoWidget({super.key});
 
   @override
   _SubirFotoWidgetState createState() => _SubirFotoWidgetState();
@@ -17,7 +17,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
   List<XFile> _fotos = [];
 
   Future<void> _seleccionarFotos() async {
-    final List<XFile>? fotosSeleccionadas = await _picker.pickMultiImage();
+    final List<XFile> fotosSeleccionadas = await _picker.pickMultiImage();
 
     if (fotosSeleccionadas != null && fotosSeleccionadas.isNotEmpty) {
       setState(() {

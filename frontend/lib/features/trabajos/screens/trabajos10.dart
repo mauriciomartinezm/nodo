@@ -89,7 +89,7 @@ class _TiempoPublicacionScreenState extends State<TiempoPublicacionScreen> {
                       });
                     },
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
