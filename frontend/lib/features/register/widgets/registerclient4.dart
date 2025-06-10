@@ -26,6 +26,7 @@ class _RegisterClient4State extends State<RegisterClient4> {
   bool _acceptedTerms = false;
   File? _imageFile;
   String? foto_perfil;
+  bool _isLoading = false; // Nuevo estado para controlar la carga
 
   Future<void> _pickImage() async {
     final pickedFile =
@@ -36,24 +37,24 @@ class _RegisterClient4State extends State<RegisterClient4> {
       setState(() {
         _imageFile = imageTemp;
       });
-
     }
   }
 
-Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
-  try {
-    final nombreArchivo = '${cedula}_${path.basename(imagen.path)}';
-    final ref = FirebaseStorage.instance.ref().child('perfiles/$nombreArchivo');
+  Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
+    try {
+      final nombreArchivo = '${cedula}_${path.basename(imagen.path)}';
+      final ref =
+          FirebaseStorage.instance.ref().child('perfiles/$nombreArchivo');
 
-    final uploadTask = ref.putFile(imagen);
-    final snapshot = await uploadTask;
-    final url = await snapshot.ref.getDownloadURL();
-    return url;
-  } catch (e) {
-    print("Error al subir imagen a Firebase: $e");
-    rethrow;
+      final uploadTask = ref.putFile(imagen);
+      final snapshot = await uploadTask;
+      final url = await snapshot.ref.getDownloadURL();
+      return url;
+    } catch (e) {
+      print("Error al subir imagen a Firebase: $e");
+      rethrow;
+    }
   }
-}
 
   Future<void> _enviarImagenAlBackend(String cedula, String urlFoto) async {
     final String apiUrl = ApiConstants.updateUsuarioEndpoint(cedula);
@@ -78,36 +79,45 @@ Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
   }
 
   void _onConfirmar() async {
-  final userProvider = Provider.of<UserProvider>(context, listen: false);
-  final cedula = userProvider.cedula;
-  String urlImagen;
+    if (!_acceptedTerms || _isLoading) return; // Evitar múltiples clics
 
-  try {
-    if (_imageFile != null) {
-      urlImagen = await _subirImagenAFirebase(_imageFile!, cedula);
-    } else {
-      // Si no se seleccionó imagen, usamos una por defecto que ya tengas en Storage
-      urlImagen = "https://firebasestorage.googleapis.com/v0/b/nodo-b1ff4.firebasestorage.app/o/perfiles%2FiconNodoBlue.png?alt=media&token=22b11580-c0ac-403e-89e3-5f09cc5cd25c"; // Puedes tenerla subida fija en Storage
+    setState(() => _isLoading = true); // Activar estado de carga
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final cedula = userProvider.cedula;
+    String urlImagen;
+
+    try {
+      if (_imageFile != null) {
+        urlImagen = await _subirImagenAFirebase(_imageFile!, cedula);
+      } else {
+        urlImagen =
+            "https://firebasestorage.googleapis.com/v0/b/nodo-b1ff4.firebasestorage.app/o/perfiles%2FiconNodoBlue.png?alt=media&token=22b11580-c0ac-403e-89e3-5f09cc5cd25c";
+      }
+
+      await _enviarImagenAlBackend(cedula, urlImagen);
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('seen_welcome', true);
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hubo un problema al subir la imagen.')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false); // Desactivar carga al finalizar
+      }
     }
-
-    await _enviarImagenAlBackend(cedula, urlImagen);
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('seen_welcome', true); // Marcar que ya vio el welcome
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const LoginScreen(),
-      ),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Hubo un problema al subir la imagen.')),
-    );
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +228,8 @@ Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: _acceptedTerms ? _onConfirmar : null,
+                    onPressed:
+                        _acceptedTerms && !_isLoading ? _onConfirmar : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1A3557),
                       minimumSize: const Size(double.infinity, 48),
@@ -226,11 +237,21 @@ Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text(
-                      'Aceptar y confirmar',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Aceptar y confirmar',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
                   ),
                   const SizedBox(height: 24),
                 ],
