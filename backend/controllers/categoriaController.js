@@ -93,6 +93,7 @@ export const getCliente = async (req, res) => {
 };*/
 
 export const createCategoria = async (req, res) => {
+  console.log("Peticion recibida en /createCategoria. Cuerpo de la petición: ");
   console.log(req.body);
   try {
     const { nombre_cat, descripcion } = req.body;
