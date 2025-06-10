@@ -8,7 +8,7 @@ class YourIncome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Tus ingresos en NODO',
           style: AppTypography.h1,
         ),

@@ -59,7 +59,7 @@ Total recibido: \$${finalAmount.toStringAsFixed(0)}
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calculadora de ganancias', style: AppTypography.h1),
+        title: Text('Calculadora de ganancias', style: AppTypography.h1),
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
         surfaceTintColor: AppColors.white,

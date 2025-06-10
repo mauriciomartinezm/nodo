@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;
@@ -21,25 +21,17 @@ class CustomTextField extends StatelessWidget {
       child: TextField(
         controller: controller,
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        style: TextStyle(
-          fontSize: 9.sp,
-          color: Colors.black,
-          fontFamily: "GothamBook",
-        ),
+        style: AppTypography.body,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(
-            fontSize: 9.sp,
-            color: AppColors.aux,
-            fontFamily: "GothamBook",
-          ),
+          labelStyle: AppTypography.body.copyWith(color: AppColors.whiteT),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.r, color: AppColors.aux),
+            borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.r, color: AppColors.aux),
+            borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
           ),
           contentPadding: EdgeInsets.symmetric(
             vertical: 6.h,

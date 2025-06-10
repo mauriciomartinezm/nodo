@@ -8,7 +8,7 @@ class CommissionsFeesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Comisiones y tarifas',
           style: AppTypography.h1
         ),

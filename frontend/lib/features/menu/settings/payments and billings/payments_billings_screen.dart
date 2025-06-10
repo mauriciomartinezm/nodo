@@ -11,7 +11,7 @@ class PaymentsBillings extends StatelessWidget {
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Pagos y facturación',
           style: AppTypography.h1,
         ),

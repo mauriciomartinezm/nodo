@@ -11,7 +11,7 @@ class About extends StatelessWidget {
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Acerca de',
           style: AppTypography.h1,
         ),

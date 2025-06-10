@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/features/crear_publicacion/widgets/date_picker.dart';
 import 'package:nodo/features/crear_publicacion/widgets/foto_widget.dart';
 import 'package:nodo/providers/userprovider.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/app_colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../logic/crear_publicacion_controller.dart';
 import '../widgets/header_info.dart';
 import '../widgets/text_field.dart';
 import '../widgets/categoria_dropdown.dart';
 import '../widgets/descripcion_field.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class CrearPublicacionScreen extends StatefulWidget {
   const CrearPublicacionScreen({super.key});
@@ -25,6 +26,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
   final _presupuestoController = TextEditingController();
   final _fechaLimiteController = TextEditingController();
   final _descripcionController = TextEditingController();
+  final FocusNode _emptyFocusNode = FocusNode();
   String? _categoriaSeleccionada;
 
   @override
@@ -44,6 +46,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
     _presupuestoController.dispose();
     _fechaLimiteController.dispose();
     _descripcionController.dispose();
+    _emptyFocusNode.dispose(); // 👈 importante
     super.dispose();
   }
 
@@ -145,36 +148,15 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       CustomTextField("Presupuesto", _presupuestoController,
                           isNumber: true),
                       SizedBox(height: 10.h),
-
-                      /// CAMPO DE FECHA CON DATEPICKER
-                      GestureDetector(
-                        onTap: () async {
-                          FocusScope.of(context).unfocus();
-                          final pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(2100),
-                          );
-                          if (pickedDate != null) {
-                            final formattedDate =
-                                "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
-                            setState(() {
-                              _fechaLimiteController.text = formattedDate;
-                            });
-                          }
-                        },
-                        child: AbsorbPointer(
-                          child: TextFormField(
-                            controller: _fechaLimiteController,
-                            decoration: const InputDecoration(
-                              labelText: "Fecha límite",
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
+                      CustomDatePicker(
+                        label: "Fecha límite",
+                        controller: _fechaLimiteController,
+                        initialDate: DateTime.now()
+                            .add(const Duration(days: 7)), // Opcional
+                        firstDate: DateTime.now(), // Opcional
+                        lastDate: DateTime(2100), // Opcional
+                        emptyFocusNode: _emptyFocusNode, // 👈 nuevo
                       ),
-
                       SizedBox(height: 10.h),
                       DescripcionField(controller: _descripcionController),
                       SizedBox(height: 10.h),
@@ -183,7 +165,6 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                         onUploadComplete: (urls) => _urlsImagenes = urls,
                         initialUrls: _urlsImagenes, // Pasa las URLs iniciales
                       ),
-
                       if (controller.errorMessage != null) ...[
                         SizedBox(height: 10.h),
                         Text(
@@ -196,26 +177,22 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       ],
                       SizedBox(height: 15.h),
                       FractionallySizedBox(
-                        widthFactor: 0.3,
+                        widthFactor: 0.4,
                         child: ElevatedButton(
                           onPressed:
                               controller.isLoading ? null : _enviarPublicacion,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryColor,
+                            backgroundColor: AppColors.blue,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           child: controller.isLoading
                               ? const CircularProgressIndicator(
-                                  color: Colors.white)
+                                  color: AppColors.white)
                               : Text(
                                   "Publicar",
-                                  style: TextStyle(
-                                    color: AppColors.secondaryColor,
-                                    fontFamily: "GothamMedium",
-                                    fontSize: 12.sp,
-                                  ),
+                                  style: AppTypography.h2.copyWith(color: AppColors.white)
                                 ),
                         ),
                       ),

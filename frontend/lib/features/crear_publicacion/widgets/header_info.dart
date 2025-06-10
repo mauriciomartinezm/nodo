@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import '../../../core/theme/app_colors.dart';
 import '../../../providers/userprovider.dart';
 import '../../../core/constants/api_constants.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class HeaderInfoWidget extends StatefulWidget {
   const HeaderInfoWidget({super.key});
@@ -71,7 +71,7 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
                 radius: 30.r,
                 backgroundImage: fotoPerfil != null && fotoPerfil.isNotEmpty
                     ? NetworkImage(fotoPerfil) as ImageProvider
-                    : const AssetImage('assets/images/default_profile.jpg'),
+                    : const AssetImage('assets/images/default_profile.jpg'), //innecesario porque ya la imgen tiene un url por defecto
               ),
               SizedBox(width: 10.w),
               Column(
@@ -79,11 +79,7 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
                 children: [
                   Text(
                     nombre,
-                    style: TextStyle(
-                      color: AppColors.primaryColor,
-                      fontFamily: "GothamMedium",
-                      fontSize: 14.r,
-                    ),
+                    style: AppTypography.h2.copyWith(color: AppColors.blue),
                   ),
                   if (_loadingCategoria)
                     SizedBox(
@@ -91,17 +87,13 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
                       height: 20.r,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.r,
-                        color: AppColors.primaryColor,
+                        color: AppColors.blue,
                       ),
                     )
                   else if (_profesion.isNotEmpty)
                     Text(
                       _profesion,
-                      style: TextStyle(
-                        color: AppColors.primaryColor,
-                        fontSize: 14.r,
-                        fontFamily: "GothamBook",
-                      ),
+                      style: AppTypography.h3.copyWith(color: AppColors.blue, fontWeight: FontWeight.w100,),
                     ),
                 ],
               ),
@@ -110,19 +102,11 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
           SizedBox(height: 10.h),
           Text(
             "Publica tu solicitud y encuentra al profesional ideal",
-            style: TextStyle(
-              color: AppColors.primaryColor,
-              fontFamily: "GothamMedium",
-              fontSize: 17.r,
-            ),
+            style: AppTypography.h2.copyWith(color: AppColors.blue),
           ),
           Text(
             "Describe lo que necesitas y deja que los mejores trabajadores te contacten",
-            style: TextStyle(
-              color: AppColors.accentColor,
-              fontFamily: "GothamBook",
-              fontSize: 14.r,
-            ),
+            style: AppTypography.h3.copyWith(color: AppColors.orange),
           ),
         ],
       ),

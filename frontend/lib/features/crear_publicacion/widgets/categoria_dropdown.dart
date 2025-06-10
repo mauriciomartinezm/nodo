@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class CategoriaDropdown extends StatelessWidget {
   final List<Map<String, String>> categorias;
@@ -16,35 +16,44 @@ class CategoriaDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      decoration: InputDecoration(
-        labelText: "Categoría",
-        labelStyle: TextStyle(
-          fontSize: 9.sp,
-          color: AppColors.aux,
-          fontFamily: "GothamBook",
+    return SizedBox(
+      height: 30.h,
+      child: DropdownButtonFormField<String>(
+        decoration: InputDecoration(
+          labelText: "Categoría",
+          labelStyle: AppTypography.body.copyWith(color: AppColors.whiteT),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            vertical: 6.h,
+            horizontal: 10.w,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(width: 2.r, color: AppColors.aux),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(width: 2.r, color: AppColors.aux),
-        ),
-        contentPadding: EdgeInsets.symmetric(
-          vertical: 6.h,
-          horizontal: 10.w,
-        ),
+        value: value,
+        style: AppTypography.body,
+        dropdownColor: Colors.white,
+        icon: const Icon(Icons.arrow_drop_down),
+        items: categorias.map<DropdownMenuItem<String>>((categoria) {
+          return DropdownMenuItem<String>(
+            value: categoria['nombre'],
+            child: Text(
+              categoria['nombre']!,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.black,
+                fontFamily: "GothamBook",
+              ),
+            ),
+          );
+        }).toList(),
+        onChanged: onChanged,
       ),
-      value: value,
-      items: categorias.map<DropdownMenuItem<String>>((categoria) {
-        return DropdownMenuItem<String>(
-          value: categoria['nombre'],
-          child: Text(categoria['nombre']!),
-        );
-      }).toList(),
-      onChanged: onChanged,
     );
   }
 }

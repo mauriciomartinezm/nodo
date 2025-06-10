@@ -8,7 +8,7 @@ class SecuritysScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Seguridad',
           style: AppTypography.h1,
         ),
