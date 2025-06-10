@@ -85,7 +85,7 @@ export const createPublicacion = async (req, res) => {
     }
 
     // Validar que la categoría exista
-    const categoriaCheck = await db.query("SELECT id FROM categoria_trabajo WHERE id = $1", [id_categoria]);
+    const categoriaCheck = await db.query("SELECT id FROM Categoria WHERE id = $1", [id_categoria]);
     console.log(categoriaCheck);
 
     if (categoriaCheck.rowCount === 0) {

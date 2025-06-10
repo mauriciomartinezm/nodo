@@ -6,8 +6,8 @@ import 'package:path/path.dart';
 
 class SubirFotoWidget extends StatefulWidget {
   final Function(List<String>) onUploadComplete;
-
-  const SubirFotoWidget({super.key, required this.onUploadComplete});
+  final List<String> initialUrls;
+  const SubirFotoWidget({super.key, required this.onUploadComplete, this.initialUrls = const [],});
 
   @override
   State<SubirFotoWidget> createState() => _SubirFotoWidgetState();
