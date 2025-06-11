@@ -7,7 +7,7 @@ import 'package:nodo/features/trabajos/screens/trabajos11.dart';
 
 
 class FiltroCategoriaScreen extends StatelessWidget {
-  const FiltroCategoriaScreen({Key? key}) : super(key: key);
+  const FiltroCategoriaScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class GraciasScreen extends StatelessWidget {
-  const GraciasScreen({Key? key}) : super(key: key);
+  const GraciasScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

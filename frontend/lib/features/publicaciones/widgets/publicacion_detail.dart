@@ -45,7 +45,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
       String cleanedString = fotosString.trim();
 
       // Caso 1: Si es un JSON válido con escapes (menos común)
-      if (cleanedString.startsWith(r'{\"') || cleanedString.startsWith('{\"')) {
+      if (cleanedString.startsWith(r'{\"') || cleanedString.startsWith('{"')) {
         cleanedString =
             cleanedString.replaceAll(r'\"', '"').replaceAll('\\"', '"');
       }

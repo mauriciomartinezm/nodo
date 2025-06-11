@@ -100,8 +100,8 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
   void _formAdd() {
     String titular = '';
     String numero = '';
-    String fecha_caducidad = '';
-    String codigo_seguridad = '';
+    String fechaCaducidad = '';
+    String codigoSeguridad = '';
 
     showDialog(
       context: context,
@@ -162,7 +162,7 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
                 ),
               ),
               keyboardType: TextInputType.number,
-              onChanged: (value) => fecha_caducidad = value,
+              onChanged: (value) => fechaCaducidad = value,
             ),
             TextField(
               decoration:
@@ -179,7 +179,7 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
                 ),
               ),
               keyboardType: TextInputType.number,
-              onChanged: (value) => codigo_seguridad = value,
+              onChanged: (value) => codigoSeguridad = value,
             ),
           ],
         ),

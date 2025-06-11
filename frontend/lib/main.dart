@@ -21,7 +21,6 @@ import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart'
 import 'package:nodo/features/publicaciones/logic/publicaciones_service.dart';
 import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:nodo/features/trabajos/screens/trabajos5.dart';
-
 import 'package:nodo/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,6 +31,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/userprovider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+
 
 // Configuración de rutas nombradas
 abstract class AppRoutes {
@@ -86,6 +88,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return ScreenUtilInit(
       designSize: const Size(360, 690),
       builder: (context, child) {
@@ -93,6 +96,19 @@ class MyApp extends StatelessWidget {
           navigatorKey: NotificationService.navigatorKey, // Usa la misma clave
           debugShowCheckedModeBanner: false,
           title: 'Nodo App',
+          
+          //idioma de la app
+          locale: const Locale('es', 'ES'),
+          supportedLocales: const [
+            Locale('es', 'MX'),
+            Locale('en', 'US'),
+          ],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+
           theme: ThemeData(
             colorScheme:
                 ColorScheme.fromSeed(seedColor: AppColors.primaryColor),

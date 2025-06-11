@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/features/publicaciones/screens/publicaciones_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/providers/userprovider.dart';
@@ -28,38 +29,22 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: AppColors.blue),
-            onPressed: () {
-              Navigator.pushNamed(context, '/SettingsScreen');
-            },
-          )
-        ],
-      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: Column(
               children: [
                 Stack(
-                  clipBehavior: Clip
-                      .none, //Permite que el puto avatar se sobreponga en la portada
+                  clipBehavior: Clip.none,
                   children: [
-
                     //Portada
                     Column(
                       children: [
                         Container(
-                          height: 140,
+                          height: 160,
                           width: double.infinity,
                           color: AppColors.blue,
                         ),
-                        //linea inferior del borde
                         Container(
                           height: 15,
                           width: double.infinity,
@@ -68,20 +53,41 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
 
+                    //Boton retroceso
+                    Positioned(
+                      top: 40,
+                      left: 16,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.blue,
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: const Icon(
+                            Icons.arrow_back_sharp,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+
                     //Avatar
                     Positioned(
-                      top: 80,
+                      top: 100,
                       left: 16,
                       child: Container(
-                        padding: const EdgeInsets.all(4), // Grosor del contorno
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: AppColors.white, // Color del contorno
+                          color: AppColors.white,
                           shape: BoxShape.circle,
                         ),
                         child: Consumer<UserProvider>(
                           builder: (context, userProvider, child) {
                             final fotoPerfil = userProvider.usuario?.fotoPerfil;
-
                             return CircleAvatar(
                               radius: 60,
                               backgroundColor: AppColors.white,
@@ -90,11 +96,8 @@ class ProfileScreen extends StatelessWidget {
                                       ? NetworkImage(fotoPerfil)
                                       : null,
                               child: (fotoPerfil == null || fotoPerfil.isEmpty)
-                                  ? Icon(
-                                      Icons.person,
-                                      size: 90,
-                                      color: AppColors.white,
-                                    )
+                                  ? const Icon(Icons.person,
+                                      size: 90, color: AppColors.white)
                                   : null,
                             );
                           },
@@ -102,11 +105,11 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
 
-                    //Boton editar
+                    //Botón editar
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 155, right: 0),
+                        padding: const EdgeInsets.only(top: 175, right: 0),
                         child: TextButton.icon(
                           icon: const Icon(Icons.edit_outlined,
                               color: AppColors.blue),
@@ -132,18 +135,18 @@ class ProfileScreen extends StatelessWidget {
                       Row(
                         children: [
                           Text(user.nombres,
-                              style:AppTypography.h2
+                              style: AppTypography.h2
                                   .copyWith(color: AppColors.blue)),
-                          
                           Text(' ${user.primerApellido}',
                               style: AppTypography.h2
                                   .copyWith(color: AppColors.blue)),
-
                           Text(' ${user.segundoApellido}',
                               style: AppTypography.h2
                                   .copyWith(color: AppColors.blue)),
                         ],
                       ),
+
+                      //Datos de usuario
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: Text(user.tipoUsuario,
@@ -169,26 +172,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
 
-                      if (user.tipoUsuario == 'trabajador')
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: Row(
-                            children: [
-                              Text('Trabajos completados',
-                                  style: AppTypography.h3
-                                      .copyWith(color: AppColors.blue)),
-                              const SizedBox(width: 4),
-                              Text(
-                                user.trabajosCompletados?.toStringAsFixed(1) ??
-                                    '0',
-                                style: AppTypography.h3
-                                    .copyWith(color: AppColors.blue),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20),
 
                       //Información de contacto
                       _buildInfoSection(
@@ -203,7 +187,7 @@ class ProfileScreen extends StatelessWidget {
                         title: "Ubicación o ciudad",
                         content: user.ubicacion ?? 'No especificada',
                       ),
-                      const SizedBox(height: 30),
+                      // const SizedBox(height: 16),
 
                       //Descripción
                       Column(
@@ -273,50 +257,64 @@ class ProfileScreen extends StatelessWidget {
                           ],
                         ),
 
-
-
-                      // Estadísticas
+                      //Estadísticas
                       Text("Estadísticas",
-                          style: AppTypography.h2
-                              .copyWith(color: AppColors.blue)),
-                      ListTile(
-                        title: Text(
-                          "Publicaciones en las que te has postulado",
-                          style: AppTypography.h3
-                              .copyWith(color: AppColors.blue),
-                        ),
-                        onTap: () => goToMisPostulaciones(context),
-                      ),
-                      ListTile(
-                        title: Text("Trabajos completados",
+                          style:
+                              AppTypography.h2.copyWith(color: AppColors.blue)),
+
+                      if (user.tipoUsuario == 'trabajador') ...[
+                        ListTile(
+                          title: Text(
+                            "Publicaciones en las que te has postulado",
                             style: AppTypography.h3
-                                .copyWith(color: AppColors.blue)),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: Text(user.trabajosCompletados.toString(),
-                              style: AppTypography.body
-                                  .copyWith(color: AppColors.blue)),
+                                .copyWith(color: AppColors.blue),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PublicacionesScreen()),
+                            );
+                          },
                         ),
-                        onTap: () => goToMisTrabajos(context),
-                      ),
-                      ListTile(
-                        title: Text("Total ganado",
-                            style: AppTypography.h3
-                                .copyWith(color: AppColors.blue)),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: Text(user.tipoUsuario,
-                              style: AppTypography.body
+                        ListTile(
+                          title: Text("Trabajos completados",
+                              style: AppTypography.h3
                                   .copyWith(color: AppColors.blue)),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                            child: Text(
+                              (user.trabajosCompletados ?? 0) == 0
+                                  ? '0'
+                                  : (user.trabajosCompletados ?? 0)
+                                      .toInt()
+                                      .toString(),
+                              style: AppTypography.body
+                                  .copyWith(color: AppColors.blue),
+                            ),
+                          ),
                         ),
-                      ),
+                        ListTile(
+                          title: Text("Total ganado",
+                              style: AppTypography.h3
+                                  .copyWith(color: AppColors.blue)),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                            child: Text(user.tipoUsuario,
+                                style: AppTypography.body
+                                    .copyWith(color: AppColors.blue)),
+                          ),
+                        ),
+                      ],
+
                       ListTile(
                         title: Text("Miembro desde",
                             style: AppTypography.h3
                                 .copyWith(color: AppColors.blue)),
                         subtitle: Padding(
                           padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: Text(_formatDate(user.fechaRegistro),
+                          child: Text(formatDate(user.fechaRegistro),
                               style: AppTypography.body
                                   .copyWith(color: AppColors.blue)),
                         ),
@@ -345,12 +343,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+//Wdgt para el correo numero ubicacion
   Widget _buildInfoSection({required String title, required String content}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-            style: AppTypography.body.copyWith(color: AppColors.blue)),
+        Text(title, style: AppTypography.body.copyWith(color: AppColors.blue)),
         Padding(
           padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
           child: Text(content,
@@ -361,24 +359,14 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void goToMisPostulaciones(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Ir a "Trabajos > Mis postulaciones"',
-            style: AppTypography.h3.copyWith(color: AppColors.white)),
-        backgroundColor: AppColors.orange,
-      ),
-    );
-  }
-
-  void goToMisTrabajos(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Ir a "Trabajos > Mis trabajos"',
-            style: AppTypography.h3.copyWith(color: AppColors.white)),
-        backgroundColor: AppColors.orange,
-      ),
-    );
+  //Formato de fecha
+  String formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString).toLocal();
+      return DateFormat('d MMMM y', 'es').format(date);
+    } catch (e) {
+      return dateString;
+    }
   }
 
   //Formato de fecha

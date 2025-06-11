@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/features/register/widgets/register_scaffold.dart';
@@ -253,6 +252,7 @@ class _RegisterClient4State extends State<RegisterClient4> {
                                 fontWeight: FontWeight.bold),
                           ),
                   ),
+
                   const SizedBox(height: 24),
                 ],
               ),
@@ -264,4 +264,5 @@ class _RegisterClient4State extends State<RegisterClient4> {
       showNextButton: false, // ocultamos botón siguiente
     );
   }
+  
 }

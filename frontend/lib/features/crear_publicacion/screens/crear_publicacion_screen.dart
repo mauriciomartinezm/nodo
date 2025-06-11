@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/features/crear_publicacion/widgets/date_picker.dart';
-import 'package:nodo/features/crear_publicacion/widgets/foto_widget.dart';
+//import 'package:nodo/features/crear_publicacion/widgets/foto_widget.dart';
 import 'package:nodo/providers/userprovider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -160,11 +160,11 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       SizedBox(height: 10.h),
                       DescripcionField(controller: _descripcionController),
                       SizedBox(height: 10.h),
-                      SubirFotoWidget(
-                        key: ValueKey(_urlsImagenes), // Añade una clave única
-                        onUploadComplete: (urls) => _urlsImagenes = urls,
-                        initialUrls: _urlsImagenes, // Pasa las URLs iniciales
-                      ),
+                      //SubirFotoWidget(
+                      //  key: ValueKey(_urlsImagenes), // Añade una clave única
+                      //  onUploadComplete: (urls) => _urlsImagenes = urls,
+                      //  initialUrls: _urlsImagenes, // Pasa las URLs iniciales
+                      //),
                       if (controller.errorMessage != null) ...[
                         SizedBox(height: 10.h),
                         Text(

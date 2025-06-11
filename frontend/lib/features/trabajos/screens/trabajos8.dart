@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FiltroUbicacionScreen extends StatefulWidget {
-  const FiltroUbicacionScreen({Key? key}) : super(key: key);
+  const FiltroUbicacionScreen({super.key});
 
   @override
   State<FiltroUbicacionScreen> createState() => _FiltroUbicacionScreenState();

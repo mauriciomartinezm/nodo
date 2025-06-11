@@ -45,6 +45,7 @@ class Usuario {
     this.trabajosCompletados,
   });
 
+  //Metodo para crear un usuario desde JSON (para respuestas API)
   factory Usuario.fromJson(Map<String, dynamic> json) {
     return Usuario(
       id: json['id'],
@@ -67,6 +68,7 @@ class Usuario {
     );
   }
 
+  //Metodo para convertir Usuario a JSON (para enviar al API)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -90,7 +92,7 @@ class Usuario {
   }
 }
 
-// Provider
+//Provider - gestión de estado
 class UserProvider with ChangeNotifier {
   Usuario? _usuario;
   bool _isLoading = false;
@@ -99,6 +101,7 @@ class UserProvider with ChangeNotifier {
   String _cedula = '';
   bool _isWorker = false;
 
+  //Getters para acceder al estado desde fuera
   Usuario? get usuario => _usuario;
   bool get isLoading => _isLoading;
   String get message => _message;
@@ -110,7 +113,7 @@ class UserProvider with ChangeNotifier {
   Future<String> loginUsuario(String identificador, String contrasena) async {
 
     _isLoading = true;
-    notifyListeners();
+    notifyListeners(); //Notifica a los widgets que el estado cambió
 
     try {
 

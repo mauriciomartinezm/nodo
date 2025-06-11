@@ -152,7 +152,7 @@ class _Register5State extends State<Register5> {
           ),
         ),
       ),
-      onNext: _actualizarTrabajador, 
+      onNext: _actualizarTrabajador,
       showNextButton: true,
     );
   }

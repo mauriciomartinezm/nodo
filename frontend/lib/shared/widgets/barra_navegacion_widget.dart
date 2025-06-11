@@ -39,9 +39,14 @@ class BarraNavegacionWidget extends StatelessWidget {
               const NavigationDestination(
                   icon: Icon(Icons.notifications, color: AppColors.white), label: ""),
               NavigationDestination(
-                icon: GestureDetector(
-                  onTap: () => _openEndDrawer(context),
-                  child: const Icon(Icons.menu, color: AppColors.white),
+                icon: SizedBox.expand(
+                  //le expandimos el hoyo para que abaque to
+                  child: GestureDetector(
+                    behavior: HitTestBehavior
+                        .opaque,//Pa que no haga tpas fantasmas
+                    onTap: () => _openEndDrawer(context),
+                    child: const Icon(Icons.menu, color: AppColors.white),
+                  ),
                 ),
                 label: "",
               ),
