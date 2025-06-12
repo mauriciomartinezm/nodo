@@ -111,12 +111,10 @@ class UserProvider with ChangeNotifier {
 
   // Método para login
   Future<String> loginUsuario(String identificador, String contrasena) async {
-
     _isLoading = true;
     notifyListeners(); //Notifica a los widgets que el estado cambió
 
     try {
-
       final response = await http.post(
         Uri.parse(ApiConstants.loginEndpoint),
         headers: {'Content-Type': 'application/json'},
@@ -212,7 +210,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> guardarTokenEnServidor() async {
-      print("Guardando token");
+    print("Guardando token");
 
     try {
       //para web se supone que es el fcmToken
@@ -253,4 +251,35 @@ class UserProvider with ChangeNotifier {
       print('❌ Excepción al guardar token: $e');
     }
   }
+
+  //Actualizar usuario
+  Future<String> guardarCambiosUsuario(Usuario usuario) async {
+    final url = Uri.parse(ApiConstants.updateUsuarioEndpoint(usuario.id));
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(usuario.toJson()),
+      );
+
+      print("🔄 Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        updateUsuario(usuario); // Usamos el usuario local
+        _message = data['message'] ?? 'Usuario actualizado exitosamente';
+      } else {
+        final data = jsonDecode(response.body);
+        _message = data['message'] ?? 'Error al actualizar usuario';
+      }
+    } catch (e) {
+      _message = 'Error de conexión al actualizar usuario: $e';
+    }
+
+    notifyListeners();
+    return _message;
+  }
+
+
 }
