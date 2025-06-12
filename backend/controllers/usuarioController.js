@@ -24,7 +24,7 @@ export const getUsuario = async (req, res) => {
       return res.status(404).json({ message: "No existen registros" });
     }
 
-    res.json(result.rows);
+    res.json(result.rows[0]);
   } catch (error) {
     if (!res.headersSent) {
       res.status(500).json({ message: error.message });
@@ -77,7 +77,8 @@ export const loginUsuario = async (req, res) => {
     );
     if (result.rows.length === 1) {
       const usuario = result.rows[0];
-
+      
+      console.log("Inicio de sesión exitoso");
       return res.status(200).json({
         messageSuccess: "Inicio de sesión exitoso",
         usuario: usuario,

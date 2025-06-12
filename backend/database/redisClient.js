@@ -13,6 +13,7 @@ export default redis;
 
 //la siguiente configuracion es para conectarse a la base de datos redis de rediscloud
 
+console.log("Conectando a Redis Cloud");
 const redis = createClient({
     username: 'default',
     password: 'x2Z0BYe6iyuJMQgKLWJCplAww2l1jg5X',

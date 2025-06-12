@@ -2,6 +2,7 @@ import { db } from '../database/db.js';
 import { enviarNotificacionAUsuario } from '../utils/firebase.js';
 import { createNotificacion } from './notificacionController.js';
 import { guardarNotificacion } from '../services/notificacionService.js';
+import { v4 as uuidv4 } from "uuid";
 
 export const postularse = async (req, res) => {
     console.log("Petición recibida en /postularse. Cuerpo de la petición: ");
@@ -9,6 +10,7 @@ export const postularse = async (req, res) => {
     const { publicacionId, trabajadorId } = req.body;
 
     try {
+        //Se verifica que la publicacion exista en la base de datos.
         const publicacion = await db.query(
             'SELECT * FROM publicacion WHERE id = $1',
             [publicacionId]
@@ -32,9 +34,27 @@ export const postularse = async (req, res) => {
         const cliente = resultUsuario.rows[0];
         const fcmToken = cliente.fcm_token;
 
+        //Se inserta postulacion en la tabla
+        const idPostulacion = uuidv4();
+        const fechaPostulacion = new Date();
+
+        await db.query(`
+            INSERT INTO Postulacion (
+                id, id_publicacion, id_trabajador, fecha_postulacion, estado
+            ) VALUES ($1, $2, $3, $4, $5)
+        `, [
+            idPostulacion,
+            publicacionId,
+            trabajadorId,
+            fechaPostulacion,
+            'pendiente'
+        ]);
+
         if (!fcmToken) {
             return res.status(400).json({ message: 'El usuario no tiene token FCM' });
         }
+
+        //Se verifica que el cliente exista
         await guardarNotificacion(
             idCliente,
             'solicitud',
@@ -46,23 +66,103 @@ export const postularse = async (req, res) => {
             }
         );
 
-        /*
-        await enviarNotificacionAUsuario(
-            fcmToken,
-            'Nueva postulación',
-            'Un trabajador se ha postulado a tu publicación',
-            {
-                tipo: 'solicitud',
-                publicacionId: publicacionId.toString(),
-                trabajadorId: trabajadorId.toString()
-            },
-            idCliente
-        );
-        */
-
         res.status(200).json({ message: 'Notificación enviada correctamente' });
     } catch (error) {
         console.error('Error al postularse:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
+
+export const getPostulaciones = async (req, res) => {
+    console.log("Petición recibida en /getPostulaciones");
+    try {
+        const result = await db.query("SELECT * FROM Postulacion");
+        res.json(result.rows);
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: "Error interno del servidor", error: error.message });
+    }
+};
+
+export const getPostulacion = async (req, res) => {
+    console.log("Petición recibida en /getPostulacion");
+
+    try {
+        const result = await db.query(
+            "SELECT * FROM Postulacion WHERE id = $1",
+            [req.params.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "No existen registros" });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        if (!res.headersSent) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+};
+
+export const getPostulacionesByUserId = async (req, res) => {
+    console.log("Peetición recibida en /getPostulacionesByUserId");
+
+    try {
+        console.log(req.params.id);
+
+        const result = await db.query(
+            "SELECT * FROM Postulacion WHERE id_trabajador = $1",
+            [req.params.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(204).json({ message: "No existen registros" });
+        }
+
+        return res.status(200).json(result.rows);
+    } catch (error) {
+        if (!res.headersSent) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+};
+
+export const getPostulacionesByPostId = async (req, res) => {
+    console.log("Petición recibida en /getPostulacionesByPostId");
+
+    try {
+        console.log(req.params.id);
+
+        const result = await db.query(
+            "SELECT * FROM Postulacion WHERE id_publicacion = $1",
+            [req.params.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(204).json({ message: "No existen registros" });
+        }
+
+        return res.status(200).json(result.rows);
+    } catch (error) {
+        if (!res.headersSent) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+};
+
+/*No quiero volver a verla más nunca en mi camino
+Distancia que nos separa, me hiere su cruel olvido
+Es muy cierto que las noches tan largas con mi desvelo
+Rayito de la mañana, tú sabes cuanto la quiero
+
+Solitario en el recuerdo, se va alejando mi queja
+Amigos que me conocen me dirán
+¿Qué es lo que pasa en tu interior?
+No eres el mismo que conocimos, lleno de vida y de ilusión
+Se nota a leguas de verdad que te lastima el corazón
+
+Se nota a leguas que estás sufriendo por un amor
+Se nota a leguas que estás sufriendo por un amor */
