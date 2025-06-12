@@ -23,4 +23,5 @@ class ApiConstants {
   static String getUser(String id) => "$baseUrl/getUsuario/$id";       // ← NUEVO
   static String updateUsuarioEndpoint(String cedula) =>
     "$baseUrl/updateUsuario/$cedula";
+  static String updatePostulacionEndpoint(String id) => "$baseUrl/updatePostulacion/$id";    
 }

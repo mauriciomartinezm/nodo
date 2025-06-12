@@ -153,6 +153,56 @@ export const getPostulacionesByPostId = async (req, res) => {
     }
 };
 
+export const updatePostulacion = async (req, res) => {
+    console.log("Petición hecha en /updatePostulacion");
+
+    const postulacionId = req.params.id;
+    const { estado } = req.body;
+
+    try {
+        // Paso 1: Obtener la postulación actual
+        const { rows } = await db.query(
+            "SELECT id_publicacion FROM Postulacion WHERE id = $1",
+            [postulacionId]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Postulación no encontrada" });
+        }
+
+        const idPublicacion = rows[0].id_publicacion;
+
+        // Paso 2: Si el nuevo estado es "aceptado", rechazar las demás
+        if (estado === "aceptado") {
+            await db.query(
+                `UPDATE Postulacion
+                 SET estado = 'rechazado'
+                 WHERE id_publicacion = $1 AND id != $2`,
+                [idPublicacion, postulacionId]
+            );
+        }
+
+        // Paso 3: Actualizar esta postulación normalmente
+        const keys = Object.keys(req.body);
+        const values = Object.values(req.body);
+        const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ");
+        values.push(postulacionId);
+
+        const updateQuery = `UPDATE Postulacion SET ${setClause} WHERE id = $${values.length}`;
+        const result = await db.query(updateQuery, values);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "No se pudo actualizar la postulación" });
+        }
+
+        res.json({ message: "Postulación actualizada correctamente" });
+    } catch (error) {
+        console.error("Error al actualizar postulación:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+};
+
+
 /*No quiero volver a verla más nunca en mi camino
 Distancia que nos separa, me hiere su cruel olvido
 Es muy cierto que las noches tan largas con mi desvelo

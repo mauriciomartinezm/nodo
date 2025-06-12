@@ -79,11 +79,40 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
   }
 
   void aceptarPostulacion(String idPostulacion) {
-    print('Aceptado: $idPostulacion');
+    actualizarEstadoPostulacion(idPostulacion, "aceptado");
   }
 
   void rechazarPostulacion(String idPostulacion) {
-    print('Rechazado: $idPostulacion');
+    actualizarEstadoPostulacion(idPostulacion, "rechazado");
+  }
+
+  Future<void> actualizarEstadoPostulacion(
+      String idPostulacion, String nuevoEstado) async {
+    final url =
+        Uri.parse(ApiConstants.updatePostulacionEndpoint(idPostulacion));
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'estado': nuevoEstado}),
+    );
+
+    if (response.statusCode == 200) {
+      // Opcional: mostrar snackbar o recargar datos
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Estado actualizado a "$nuevoEstado"')),
+      );
+      // Vuelve a cargar la lista
+      fetchPostulaciones();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al actualizar la postulación')),
+      );
+    }
+  }
+
+  bool yaHayUnaAceptada() {
+    return postulaciones.any((p) => p['estado'] == 'aceptado');
   }
 
   @override
@@ -103,7 +132,13 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
                       backgroundImage: NetworkImage(post['foto']),
                     ),
                     title: Text(post['nombre']),
-                    subtitle: Text(post['correo']),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(post['correo']),
+                        Text("Estado: ${post['estado']}"),
+                      ],
+                    ),
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'info') {
@@ -119,7 +154,6 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
                                   const SizedBox(height: 8),
                                   Text("Ubicación: ${post['ubicacion']}"),
                                   const SizedBox(height: 8),
-
                                   Text("Categoría: ${post['categoria']}"),
                                   const SizedBox(height: 8),
                                   Text("Descripción:"),
@@ -141,11 +175,20 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
                           rechazarPostulacion(post['id_postulacion']);
                         }
                       },
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(value: 'info', child: Text("Ver info")),
-                        PopupMenuItem(value: 'aceptar', child: Text("Aceptar")),
+                      itemBuilder: (_) => [
+                        const PopupMenuItem(
+                            value: 'info', child: Text("Ver info")),
                         PopupMenuItem(
-                            value: 'rechazar', child: Text("Rechazar")),
+                          value: 'aceptar',
+                          enabled: post['estado'] == 'pendiente' &&
+                              !yaHayUnaAceptada(),
+                          child: Text("Aceptar"),
+                        ),
+                        PopupMenuItem(
+                          value: 'rechazar',
+                          enabled: post['estado'] == 'pendiente',
+                          child: Text("Rechazar"),
+                        ),
                       ],
                     ),
                   ),
