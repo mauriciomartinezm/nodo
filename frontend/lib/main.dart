@@ -24,7 +24,7 @@ import 'package:nodo/features/trabajos/screens/trabajos5.dart';
 import 'package:nodo/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nodo/core/theme/app_colors.dart';
+// import 'package:nodo/core/theme/app_colors.dart';a
 import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/features/welcome/widgets/welcome1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +32,7 @@ import 'providers/userprovider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 
 
@@ -84,20 +85,17 @@ Future<bool> isFirstTime() async {
 class MyApp extends StatelessWidget {
   final bool firstTime;
   const MyApp({super.key, required this.firstTime});
-  //const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    
     return ScreenUtilInit(
       designSize: const Size(360, 690),
       builder: (context, child) {
         return MaterialApp(
-          navigatorKey: NotificationService.navigatorKey, // Usa la misma clave
+          navigatorKey: NotificationService.navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'Nodo App',
-          
-          //idioma de la app
+
           locale: const Locale('es', 'ES'),
           supportedLocales: const [
             Locale('es', 'MX'),
@@ -109,16 +107,25 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
 
-          theme: ThemeData(
-            colorScheme:
-                ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
-            useMaterial3: true,
-          ),
-          // home: const Welcome1Screen(),
-          // Lógica firstTime mantenida
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            final scale = mediaQuery.textScaler.scale(1.0).clamp(1.0, 1.2);
+
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                textScaler: TextScaler.linear(scale),
+              ),
+              child: child!,
+            );
+          },
+
+          // Aquí se aplica tu tema personalizado
+          theme: appTheme,
+          home: child,
+
+          // Ruta inicial
           initialRoute: firstTime ? AppRoutes.welcome : AppRoutes.login,
-          //home: firstTime ? const Welcome1Screen() : const LoginScreen(),
-          // Sistema de rutas combinado
+
           routes: {
             AppRoutes.welcome: (context) => const Welcome1Screen(),
             AppRoutes.login: (context) => const LoginScreen(),

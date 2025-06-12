@@ -37,8 +37,11 @@ dependencies:
   carousel_slider: ^5.0.0
   http: ^0.13.6
   provider: ^6.1.1
+<<<<<<< HEAD
   intl: ^0.19.0
   flutter_launcher_icons: ^0.13.1
+=======
+>>>>>>> 1588f2355cf0b522293ca4c8c0bcfcbebe822d53
   shared_preferences: ^2.2.2
   flutter_localizations:
     sdk: flutter
@@ -65,6 +68,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -113,8 +117,8 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 flutter_launcher_icons:
+  image_path: "assets/icons/iconNodoApp.png"
   android: true
   ios: true
-  image_path: "assets/icons/iconNodoApp.png"
   adaptive_icon_background: "#063666"
   adaptive_icon_foreground: "assets/icons/iconNodoApp.png"
