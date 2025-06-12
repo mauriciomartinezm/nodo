@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:nodo/features/publicaciones/screens/postulaciones_screen.dart';
 import '../../../core/theme/app_colors.dart';
 
 class PublicacionDetail extends StatefulWidget {
@@ -259,56 +260,98 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
   }
 
   Widget _buildActionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildActionButton(
-          Icons.edit,
-          'Editar',
-          AppColors.secondaryColor,
-          AppColors.primaryColor,
-          () {
-            // Acción editar
-          },
-        ),
-        _buildActionButton(
-          Icons.check_circle_outline,
-          'Completado',
-          AppColors.primaryColor,
-          AppColors.primaryColor.withOpacity(0.2),
-          () {
-            // Acción completado
-          },
-        ),
-        ElevatedButton.icon(
-          onPressed: widget.onDelete,
-          icon: Icon(
-            Icons.delete,
-            size: 16.sp,
-            color: AppColors.primaryColor,
+    return Column(children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildActionButton(
+            Icons.edit,
+            'Editar',
+            AppColors.secondaryColor,
+            AppColors.primaryColor,
+            () {
+              // Acción editar
+            },
           ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryColor.withOpacity(0.2),
-            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(5),
-                topRight: Radius.circular(5),
-                bottomLeft: Radius.circular(5),
+          _buildActionButton(
+            Icons.check_circle_outline,
+            'Completado',
+            AppColors.primaryColor,
+            AppColors.primaryColor.withOpacity(0.2),
+            () {
+              // Acción completado
+            },
+          ),
+          ElevatedButton.icon(
+            onPressed: widget.onDelete,
+            icon: Icon(
+              Icons.delete,
+              size: 16.sp,
+              color: AppColors.primaryColor,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor.withOpacity(0.2),
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                  bottomLeft: Radius.circular(5),
+                ),
+              ),
+            ),
+            label: Text(
+              'Eliminar publicación',
+              style: TextStyle(
+                color: AppColors.primaryColor,
+                fontSize: 10.sp,
+                fontFamily: 'GothamMedium',
               ),
             ),
           ),
-          label: Text(
-            'Eliminar publicación',
-            style: TextStyle(
+        ],
+      ),
+      Row(
+        children: [
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PostulacionesScreen(
+                    idPublicacion: widget.publicacion['id'],
+                  ),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.delete,
+              size: 16.sp,
               color: AppColors.primaryColor,
-              fontSize: 10.sp,
-              fontFamily: 'GothamMedium',
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor.withOpacity(0.2),
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                  bottomLeft: Radius.circular(5),
+                ),
+              ),
+            ),
+            label: Text(
+              'Ver postulaciones',
+              style: TextStyle(
+                color: AppColors.primaryColor,
+                fontSize: 10.sp,
+                fontFamily: 'GothamMedium',
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      )
+    ]);
   }
 
   Widget _buildActionButton(
