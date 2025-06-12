@@ -20,6 +20,10 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   bool _isLoading = true;
   String _errorMessage = '';
   List<dynamic> _postulaciones = [];
+  List<dynamic> _postulacionesPendientes = [];
+  List<dynamic> _postulacionesAceptadas = [];
+  List<dynamic> _postulacionesRechazadas = [];
+
   bool _isLoadingPostulaciones = true;
   String _errorMessagePostulaciones = '';
   String _trabajadorId = '';
@@ -66,8 +70,19 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
           await TrabajoService.fetchPostulacionesPorUsuario(currentId);
       print(postulaciones);
 
+      // Filtrar por estado
+      final pendientes =
+          postulaciones.where((p) => p['estado'] == 'pendiente').toList();
+      final aceptadas =
+          postulaciones.where((p) => p['estado'] == 'aceptado').toList();
+      final rechazadas =
+          postulaciones.where((p) => p['estado'] == 'rechazado').toList();
+
       setState(() {
         _postulaciones = postulaciones;
+        _postulacionesPendientes = pendientes;
+        _postulacionesAceptadas = aceptadas;
+        _postulacionesRechazadas = rechazadas;
         _isLoadingPostulaciones = false;
       });
     } catch (e) {
@@ -117,8 +132,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     print(_nombresClientes);
     print(idCliente);
 
-    final nombreCliente =
-        _nombresClientes[idCliente.toString()] ?? 'Cliente';
+    final nombreCliente = _nombresClientes[idCliente.toString()] ?? 'Cliente';
 
     print(nombreCliente);
     _mostrarDetalleTrabajo(publicacion, nombreCliente, true);
@@ -209,7 +223,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
           children: [
             _buildJobList(context),
             _buildPostulacionesList(context),
-            const Center(child: Text("Mis trabajos")),
+            _buildMisTrabajosList(context),
           ],
         ),
       ),
@@ -285,6 +299,54 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                     )
                   : JobList(
                       publicaciones: _postulaciones
+                          .where((postulacion) =>
+                              postulacion['estado'] != 'aceptado')
+                          .map((postulacion) {
+                            final idPublicacion = postulacion['id_publicacion'];
+                            final publicacion = _publicaciones.firstWhere(
+                              (pub) => pub['id'] == idPublicacion,
+                              orElse: () => null,
+                            );
+                            return publicacion;
+                          })
+                          .where((pub) => pub != null)
+                          .toList(),
+                      nombresClientes: _nombresClientes,
+                      onVerDetalles: _mostrarDetalleDesdePostulacion,
+                    ),
+    );
+  }
+
+  Widget _buildMisTrabajosList(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: _loadPostulaciones,
+      color: Colors.orange,
+      child: _isLoadingPostulaciones
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessagePostulaciones.isNotEmpty
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: Center(child: Text(_errorMessagePostulaciones)),
+                    ),
+                  ],
+                )
+              : _postulacionesAceptadas.isEmpty
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          child: const Center(
+                            child: Text('Aún no tienes trabajos aceptados'),
+                          ),
+                        ),
+                      ],
+                    )
+                  : JobList(
+                      publicaciones: _postulacionesAceptadas
                           .map((postulacion) {
                             final idPublicacion = postulacion['id_publicacion'];
                             final publicacion = _publicaciones.firstWhere(
