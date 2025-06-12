@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nodo/core/constants/api_constants.dart';
+import 'package:nodo/features/chat/screens/Chat1.dart';
 
 class PostulacionesScreen extends StatefulWidget {
   final String idPublicacion;
@@ -84,6 +85,18 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
 
   void rechazarPostulacion(String idPostulacion) {
     actualizarEstadoPostulacion(idPostulacion, "rechazado");
+  }
+
+  void irAlChat(String idTrabajador, String nombre) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(
+            //receptorId: idTrabajador,
+            //receptorNombre: nombre,
+            ),
+      ),
+    );
   }
 
   Future<void> actualizarEstadoPostulacion(
@@ -173,6 +186,8 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
                           aceptarPostulacion(post['id_postulacion']);
                         } else if (value == 'rechazar') {
                           rechazarPostulacion(post['id_postulacion']);
+                        } else if (value == 'chat') {
+                          irAlChat(post['id_trabajador'], post['nombre']);
                         }
                       },
                       itemBuilder: (_) => [
@@ -189,6 +204,7 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
                           enabled: post['estado'] == 'pendiente',
                           child: Text("Rechazar"),
                         ),
+                        PopupMenuItem(value: 'chat', child: Text("Chatear")),
                       ],
                     ),
                   ),
