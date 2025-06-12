@@ -35,10 +35,13 @@ class TrabajoService {
   }
 
   static Future<List<dynamic>> fetchPublicaciones() async {
+    print("Haciendo fetch a publicaciones");
     final response = await http.get(
       Uri.parse(ApiConstants.getPublicacionesEndpoint),
       headers: {'Content-Type': 'application/json'},
     );
+    print("PubLicaciones: ");
+    print(response.body);
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -49,6 +52,8 @@ class TrabajoService {
 
   static Future<Map<String, String>> fetchNombresClientes(
       List publicaciones) async {
+    print("Haciendo fetch a usuarios");
+
     final Map<String, String> nombres = {};
     final clientIds =
         publicaciones.map((p) => p['id_cliente']).toSet().toList();
@@ -57,16 +62,44 @@ class TrabajoService {
         Uri.parse(ApiConstants.getClienteById(clientId)),
         headers: {'Content-Type': 'application/json'},
       );
-
+      print("Usuario");
+      print(response.body);
       if (response.statusCode == 200) {
         final clienteData = json.decode(response.body);
-        nombres[clientId] = clienteData[0]['nombres'];
+        print("Client Data");
+        print(clienteData);
+        nombres[clientId] = clienteData['nombres'];
       } else {
         nombres[clientId] = 'Cliente $clientId';
       }
     }
+    print("Nombres: ");
+    print(nombres);
 
     return nombres;
+  }
+
+  static Future<List<dynamic>> fetchPostulacionesPorUsuario(
+      String userId) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.getPostulacionesByUserId(userId)),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+    print("Postulaciones: ");
+    print(response.body);
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+    print("Devolviendo respuesta buena");
+
+      return jsonDecode(response.body);
+    } else {
+    print("ESTO JAMAS ESTÁ ACÁAAAAA");
+
+      throw Exception('Error al cargar postulaciones');
+    }
   }
 
   static IconData getIconForCategory(String categoryId) {

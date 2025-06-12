@@ -4,6 +4,8 @@ import 'package:nodo/features/trabajos/screens/trabajos3.dart';
 import 'package:nodo/features/trabajos/screens/trabajos6.dart';
 import 'package:nodo/features/trabajos/logic/TrabajoService.dart'; // Asegúrate de importar aquí
 import 'package:nodo/features/trabajos/widgets/joblist.dart';
+import 'package:nodo/providers/userprovider.dart';
+import 'package:provider/provider.dart';
 
 class TrabajosScreen2 extends StatefulWidget {
   const TrabajosScreen2({super.key});
@@ -17,14 +19,24 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   Map<String, String> _nombresClientes = {};
   bool _isLoading = true;
   String _errorMessage = '';
-
+  List<dynamic> _postulaciones = [];
+  bool _isLoadingPostulaciones = true;
+  String _errorMessagePostulaciones = '';
+  String _trabajadorId = '';
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    await _loadData();
+    await _loadPostulaciones();
   }
 
   Future<void> _loadData() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final currentId = userProvider.usuario?.id; // o userProvider.cedula
     try {
       final publicaciones = await TrabajoService.fetchPublicaciones();
       final nombres = await TrabajoService.fetchNombresClientes(publicaciones);
@@ -33,6 +45,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
         _publicaciones = publicaciones;
         _nombresClientes = nombres;
         _isLoading = false;
+        _trabajadorId = currentId!;
       });
     } catch (e) {
       setState(() {
@@ -42,7 +55,31 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     }
   }
 
-  void _mostrarDetalleTrabajo(dynamic publicacion, String nombreCliente) {
+  Future<void> _loadPostulaciones() async {
+    print("Cargando Postulaciones");
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final currentId = userProvider.usuario?.id;
+    if (currentId == null) return;
+
+    try {
+      final postulaciones =
+          await TrabajoService.fetchPostulacionesPorUsuario(currentId);
+      print(postulaciones);
+
+      setState(() {
+        _postulaciones = postulaciones;
+        _isLoadingPostulaciones = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingPostulaciones = false;
+        _errorMessagePostulaciones = 'Error: $e';
+      });
+    }
+  }
+
+  void _mostrarDetalleTrabajo(
+      dynamic publicacion, String nombreCliente, bool desdePostulaciones) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -68,17 +105,31 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                 _parseImages(publicacion['fotos']), // Usa las imágenes reales
           },
           scrollController: scrollController,
+          desdePostulaciones: desdePostulaciones,
         ),
       ),
     );
   }
 
+  void _mostrarDetalleDesdePostulacion(dynamic publicacion, String _) {
+    final idCliente = publicacion['id_cliente'];
+    print("nombres de clientes");
+    print(_nombresClientes);
+    print(idCliente);
+
+    final nombreCliente =
+        _nombresClientes[idCliente.toString()] ?? 'Cliente';
+
+    print(nombreCliente);
+    _mostrarDetalleTrabajo(publicacion, nombreCliente, true);
+  }
+
   List<String> _parseImages(String fotosString) {
     print("fotos string");
     print(fotosString);
-     if (fotosString.isEmpty || fotosString.toLowerCase() == 'sin fotos') {
-    return ['assets/images/diomedes_joven.jpg']; // Imagen por defecto
-  }
+    if (fotosString.isEmpty || fotosString.toLowerCase() == 'sin fotos') {
+      return ['assets/images/diomedes_joven.jpg']; // Imagen por defecto
+    }
 
     try {
       // Limpieza inicial del string
@@ -157,7 +208,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
         body: TabBarView(
           children: [
             _buildJobList(context),
-            const Center(child: Text("Mis postulaciones")),
+            _buildPostulacionesList(context),
             const Center(child: Text("Mis trabajos")),
           ],
         ),
@@ -172,14 +223,80 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage.isNotEmpty
-              ? Center(child: Text(_errorMessage))
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: Center(child: Text(_errorMessage)),
+                    ),
+                  ],
+                )
               : _publicaciones.isEmpty
-                  ? const Center(
-                      child: Text('No hay publicaciones disponibles'))
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          child: const Center(
+                            child: Text('No hay publicaciones disponibles'),
+                          ),
+                        ),
+                      ],
+                    )
                   : JobList(
                       publicaciones: _publicaciones,
                       nombresClientes: _nombresClientes,
-                      onVerDetalles: _mostrarDetalleTrabajo,
+                      onVerDetalles: (publicacion, nombreCliente) {
+                        _mostrarDetalleTrabajo(publicacion, nombreCliente,
+                            false); // false porque viene de publicaciones
+                      },
+                    ),
+    );
+  }
+
+  Widget _buildPostulacionesList(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: _loadPostulaciones,
+      color: Colors.orange,
+      child: _isLoadingPostulaciones
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessagePostulaciones.isNotEmpty
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: Center(child: Text(_errorMessagePostulaciones)),
+                    ),
+                  ],
+                )
+              : _postulaciones.isEmpty
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          child: const Center(
+                            child: Text('No tienes postulaciones aún'),
+                          ),
+                        ),
+                      ],
+                    )
+                  : JobList(
+                      publicaciones: _postulaciones
+                          .map((postulacion) {
+                            final idPublicacion = postulacion['id_publicacion'];
+                            final publicacion = _publicaciones.firstWhere(
+                              (pub) => pub['id'] == idPublicacion,
+                              orElse: () => null,
+                            );
+                            return publicacion;
+                          })
+                          .where((pub) => pub != null)
+                          .toList(),
+                      nombresClientes: _nombresClientes,
+                      onVerDetalles: _mostrarDetalleDesdePostulacion,
                     ),
     );
   }

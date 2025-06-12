@@ -8,11 +8,13 @@ import 'package:provider/provider.dart';
 class DetalleTrabajoScreen extends StatefulWidget {
   final Map<String, dynamic> job;
   final ScrollController scrollController;
+  final bool desdePostulaciones;
 
   const DetalleTrabajoScreen({
     super.key,
     required this.job,
     required this.scrollController,
+    this.desdePostulaciones = false,
   });
 
   @override
@@ -235,6 +237,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
+                if (!widget.desdePostulaciones)
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {

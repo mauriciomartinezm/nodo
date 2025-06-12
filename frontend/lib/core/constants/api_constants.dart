@@ -1,8 +1,8 @@
 class ApiConstants {
-  //static const String baseUrl = "http://192.168.0.103:3000/api"; //descomenta esto y cambia la ip por localhost si la api la abriste localmente
+  static const String baseUrl = "http://192.168.128.200:3000/api"; //descomenta esto y cambia la ip por localhost si la api la abriste localmente
 
   //static const String baseUrl = "http://10.0.2.2:3000/api"; //descomenta esto y cambia la ip por localhost si la api la abriste localmente
-  static const String baseUrl = "https://nodo-unv8.onrender.com/api"; //ruta para api en la nube en render
+  //static const String baseUrl = "https://nodo-unv8.onrender.com/api"; //ruta para api en la nube en render
 
   static const String createPublicacionEndpoint = "$baseUrl/createPublicacion";
   static const String loginEndpoint = "$baseUrl/loginUsuario";
@@ -18,6 +18,8 @@ class ApiConstants {
   static String getNotificacionesByUserId(String id) => "$baseUrl/getNotificacionesByUserId/$id";       // ← NUEVO
   static const String postularse= "$baseUrl/postularse";       // ← NUEVO
   static const String createReporte= "$baseUrl/createReporte";       // ← NUEVO
+  static String getPostulacionesByUserId(String id) => "$baseUrl/getPostulacionesByUserId/$id";       // ← NUEVO
+
   
   static String updateUsuarioEndpoint(String cedula) =>
     "$baseUrl/updateUsuario/$cedula";
