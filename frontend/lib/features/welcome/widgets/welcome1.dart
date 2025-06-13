@@ -1,5 +1,6 @@
 // welcome1.dart
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'welcome2.dart'; // Importa la segunda pantalla de bienvenida
 
 class Welcome1Screen extends StatefulWidget {
@@ -65,9 +66,7 @@ class _Welcome1ScreenState extends State<Welcome1Screen> {
                           width: 40, // Ajusta el tamaño según necesites
                           height: 40,
                         ),
-
                         const SizedBox(width: 20),
-
                         const Text(
                           'NODO',
                           style: TextStyle(
@@ -96,28 +95,33 @@ class _Welcome1ScreenState extends State<Welcome1Screen> {
                         // Botón "Omitir" a la izquierda
                         Expanded(
                           child: TextButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setBool('seen_welcome',
+                                  true); // Marcar que ya vio la bienvenida
+                              if (!mounted) return;
+                              Navigator.pushReplacementNamed(context,
+                                  '/login'); // Ir a login y eliminar Welcome del stack
+
                               setState(() {
-                                isOmitirPressed = true; // Subrayar al presionar
-                                isSiguientePressed =
-                                    false; // Quitar subrayado del otro botón
+                                isOmitirPressed = true;
+                                isSiguientePressed = false;
                               });
                             },
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.white, // Color del texto
-                              padding:
-                                  EdgeInsets
-                                      .zero, // Elimina el padding adicional
+                              padding: EdgeInsets
+                                  .zero, // Elimina el padding adicional
                             ),
                             child: Text(
                               'Omitir',
                               style: TextStyle(
-                                decoration:
-                                    isOmitirPressed
-                                        ? TextDecoration
-                                            .underline // Subrayado si está presionado
-                                        : TextDecoration
-                                            .none, // Sin subrayado por defecto
+                                decoration: isOmitirPressed
+                                    ? TextDecoration
+                                        .underline // Subrayado si está presionado
+                                    : TextDecoration
+                                        .none, // Sin subrayado por defecto
                               ),
                             ),
                           ),
@@ -136,17 +140,15 @@ class _Welcome1ScreenState extends State<Welcome1Screen> {
                                 duration: Duration(
                                   milliseconds: 300,
                                 ), // Duración de la animación
-                                curve:
-                                    Curves
-                                        .easeInOut, // Efecto de animación suave
+                                curve: Curves
+                                    .easeInOut, // Efecto de animación suave
                                 width: index == currentIndex ? 10 : 6,
                                 height: index == currentIndex ? 10 : 6,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color:
-                                      index == currentIndex
-                                          ? Colors.orange
-                                          : Colors.black54,
+                                  color: index == currentIndex
+                                      ? Colors.orange
+                                      : Colors.black54,
                                 ),
                               ),
                             ),
@@ -162,12 +164,12 @@ class _Welcome1ScreenState extends State<Welcome1Screen> {
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                  pageBuilder:
-                                      (
-                                        context,
-                                        animation,
-                                        secondaryAnimation,
-                                      ) => const Welcome2Screen(),
+                                  pageBuilder: (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                  ) =>
+                                      const Welcome2Screen(),
                                   transitionsBuilder: (
                                     context,
                                     animation,
@@ -196,19 +198,17 @@ class _Welcome1ScreenState extends State<Welcome1Screen> {
                             },
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.white, // Color del texto
-                              padding:
-                                  EdgeInsets
-                                      .zero, // Elimina el padding adicional
+                              padding: EdgeInsets
+                                  .zero, // Elimina el padding adicional
                             ),
                             child: Text(
                               'Siguiente',
                               style: TextStyle(
-                                decoration:
-                                    isSiguientePressed
-                                        ? TextDecoration
-                                            .underline // Subrayado si está presionado
-                                        : TextDecoration
-                                            .none, // Sin subrayado por defecto
+                                decoration: isSiguientePressed
+                                    ? TextDecoration
+                                        .underline // Subrayado si está presionado
+                                    : TextDecoration
+                                        .none, // Sin subrayado por defecto
                               ),
                             ),
                           ),
