@@ -128,17 +128,46 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
   }
 
   Widget _buildImageCarousel() {
+    if (imageList.isEmpty) {
+      return Container(
+        height: 150.h,
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(16.r),
+        child: Text(
+          'No hay imágenes disponibles para esta publicación',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: AppColors.primaryColor,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'GothamMedium',
+          ),
+        ),
+      );
+    }
+
     return CarouselSlider(
       items: imageList.map((imageUrl) {
         return Image.network(
           imageUrl,
-          //fit: BoxFit.cover,
-          //width: double.infinity,
+          fit: BoxFit.cover,
+          width: double.infinity,
           errorBuilder: (context, error, stackTrace) {
-            return Image.asset(
-              'assets/images/diomedes_joven.jpg',
-              //fit: BoxFit.cover,
-              //width: double.infinity,
+            // Mostrar el mensaje directamente, sin imagen ni efecto de carrusel
+            return Container(
+              height: 150.h,
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(16.r),
+              child: Text(
+                'No hay imágenes disponibles para esta publicación',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.primaryColor,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'GothamMedium',
+                ),
+              ),
             );
           },
           loadingBuilder: (BuildContext context, Widget child,
@@ -158,7 +187,11 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
       options: CarouselOptions(
         height: 150.h,
         enlargeCenterPage: true,
-        enableInfiniteScroll: true,
+        enableInfiniteScroll: false,
+        viewportFraction: 1.0,
+        scrollPhysics: imageList.length > 1
+            ? const BouncingScrollPhysics()
+            : const NeverScrollableScrollPhysics(), // <- desactiva movimiento si solo hay una imagen
         onPageChanged: (index, reason) {
           setState(() {
             _currentIndex = index;
@@ -243,6 +276,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
   }
 
   Widget _buildActionButtons() {
+    final estado = widget.publicacion['estado'];
     return Column(children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -256,46 +290,6 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               // Acción editar
             },
           ),
-          _buildActionButton(
-            Icons.check_circle_outline,
-            'Completado',
-            AppColors.primaryColor,
-            AppColors.primaryColor.withOpacity(0.2),
-            () {
-              // Acción completado
-            },
-          ),
-          ElevatedButton.icon(
-            onPressed: widget.onDelete,
-            icon: Icon(
-              Icons.delete,
-              size: 16.sp,
-              color: AppColors.primaryColor,
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor.withOpacity(0.2),
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                  bottomLeft: Radius.circular(5),
-                ),
-              ),
-            ),
-            label: Text(
-              'Eliminar publicación',
-              style: TextStyle(
-                color: AppColors.primaryColor,
-                fontSize: 10.sp,
-                fontFamily: 'GothamMedium',
-              ),
-            ),
-          ),
-        ],
-      ),
-      Row(
-        children: [
           ElevatedButton.icon(
             onPressed: () {
               Navigator.push(
@@ -332,8 +326,45 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               ),
             ),
           ),
+          if (estado == 'en_proceso')
+            _buildActionButton(
+              Icons.check_circle_outline,
+              'Completado',
+              AppColors.primaryColor,
+              AppColors.primaryColor.withOpacity(0.2),
+              () {
+                // Acción completado
+              },
+            ),
+          ElevatedButton.icon(
+            onPressed: widget.onDelete,
+            icon: Icon(
+              Icons.delete,
+              size: 16.sp,
+              color: AppColors.primaryColor,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor.withOpacity(0.2),
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                  bottomLeft: Radius.circular(5),
+                ),
+              ),
+            ),
+            label: Text(
+              'Eliminar publicación',
+              style: TextStyle(
+                color: AppColors.primaryColor,
+                fontSize: 10.sp,
+                fontFamily: 'GothamMedium',
+              ),
+            ),
+          ),
         ],
-      )
+      ),
     ]);
   }
 
