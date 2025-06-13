@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nodo/features/publicaciones/screens/postulaciones_screen.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 
 class PublicacionDetail extends StatefulWidget {
   final dynamic publicacion;
@@ -84,7 +84,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
             width: 40.w,
             height: 8.h,
             decoration: BoxDecoration(
-              color: AppColors.primaryColor,
+              color: AppColors.blue,
               borderRadius: BorderRadius.circular(10),
             ),
           ),
@@ -98,11 +98,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               children: [
                 Text(
                   widget.publicacion['titulo'] ?? 'Sin título',
-                  style: TextStyle(
-                    color: AppColors.primaryColor,
-                    fontFamily: 'GothamMedium',
-                    fontSize: 14.sp,
-                  ),
+                  style: AppTypography.h3.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: 8.h),
                 _buildDetailInfo(
@@ -136,12 +132,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
         child: Text(
           'No hay imágenes disponibles para esta publicación',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppColors.primaryColor,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'GothamMedium',
-          ),
+          style: AppTypography.h2.copyWith(color: AppColors.blue),
         ),
       );
     }
@@ -161,12 +152,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               child: Text(
                 'No hay imágenes disponibles para esta publicación',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.primaryColor,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'GothamMedium',
-                ),
+                style: AppTypography.h2.copyWith(color: AppColors.blue),
               ),
             );
           },
@@ -211,9 +197,8 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
           margin: EdgeInsets.symmetric(horizontal: 4.w),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _currentIndex == entry.key
-                ? AppColors.accentColor
-                : AppColors.primaryColor,
+            color:
+                _currentIndex == entry.key ? AppColors.orange : AppColors.blue,
           ),
         );
       }).toList(),
@@ -226,24 +211,14 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
       child: isDescription
           ? Text(
               texto,
-              style: TextStyle(
-                color: AppColors.primaryColor,
-                fontFamily: 'GothamBook',
-                fontSize: 12.sp,
-              ),
+              style: AppTypography.body.copyWith(color: AppColors.blue),
               softWrap: true,
               overflow: TextOverflow.visible,
             )
           : Row(
               children: [
-                Text(
-                  texto,
-                  style: TextStyle(
-                    color: AppColors.primaryColor,
-                    fontFamily: 'GothamBook',
-                    fontSize: 12.sp,
-                  ),
-                ),
+                Text(texto,
+                    style: AppTypography.body.copyWith(color: AppColors.blue)),
               ],
             ),
     );
@@ -256,19 +231,11 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
         children: [
           Text(
             'Estado: ',
-            style: TextStyle(
-              color: AppColors.primaryColor,
-              fontFamily: 'GothamBook',
-              fontSize: 12.sp,
-            ),
+            style: AppTypography.body.copyWith(color: AppColors.blue),
           ),
           Text(
             _translateStatus(status),
-            style: TextStyle(
-              color: AppColors.primaryColor,
-              fontFamily: 'GothamMedium',
-              fontSize: 12.sp,
-            ),
+            style: AppTypography.body.copyWith(color: AppColors.blue),
           ),
         ],
       ),
@@ -282,15 +249,15 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildActionButton(
-            Icons.edit,
+            Icons.edit_outlined,
             'Editar',
-            AppColors.secondaryColor,
-            AppColors.primaryColor,
+            AppColors.white,
+            AppColors.blue,
             () {
               // Acción editar
             },
           ),
-          ElevatedButton.icon(
+          TextButton.icon(
             onPressed: () {
               Navigator.push(
                 context,
@@ -302,13 +269,13 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               );
             },
             icon: Icon(
-              Icons.delete,
-              size: 16.sp,
-              color: AppColors.primaryColor,
+              Icons.delete_outline,
+              size: 20.sp,
+              color: AppColors.blue,
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor.withOpacity(0.2),
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+              backgroundColor: AppColors.blue.withOpacity(0.2),
+              padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(5),
@@ -318,34 +285,30 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               ),
             ),
             label: Text(
-              'Ver postulaciones',
-              style: TextStyle(
-                color: AppColors.primaryColor,
-                fontSize: 10.sp,
-                fontFamily: 'GothamMedium',
-              ),
+              'Postulaciones',
+              style: AppTypography.h3.copyWith(color: AppColors.blue),
             ),
           ),
           if (estado == 'en_proceso')
             _buildActionButton(
               Icons.check_circle_outline,
               'Completado',
-              AppColors.primaryColor,
-              AppColors.primaryColor.withOpacity(0.2),
+              AppColors.blue,
+              AppColors.blue.withOpacity(0.2),
               () {
                 // Acción completado
               },
             ),
-          ElevatedButton.icon(
+          TextButton.icon(
             onPressed: widget.onDelete,
             icon: Icon(
-              Icons.delete,
-              size: 16.sp,
-              color: AppColors.primaryColor,
+              Icons.delete_outline,
+              size: 20.sp,
+              color: AppColors.blue,
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor.withOpacity(0.2),
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+              backgroundColor: AppColors.blue.withOpacity(0.2),
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(5),
@@ -355,12 +318,8 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               ),
             ),
             label: Text(
-              'Eliminar publicación',
-              style: TextStyle(
-                color: AppColors.primaryColor,
-                fontSize: 10.sp,
-                fontFamily: 'GothamMedium',
-              ),
+              'Eliminar',
+              style: AppTypography.h3.copyWith(color: AppColors.blue),
             ),
           ),
         ],
@@ -377,14 +336,10 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
   ) {
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 16.sp, color: textColor),
+      icon: Icon(icon, size: 20.sp, color: textColor),
       label: Text(
         text,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 10.sp,
-          fontFamily: 'GothamMedium',
-        ),
+       style: AppTypography.h3.copyWith(color: AppColors.white),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
