@@ -205,17 +205,35 @@ export const updatePublicacion = async (req, res) => {
 
 export const deletePublicacion = async (req, res) => {
   try {
-    const result = await db.query(
-      "DELETE FROM publicacion WHERE id = $1",
+    const client = await db.connect(); // Inicia conexión manual si usas pool
+
+    await client.query('BEGIN'); // Comienza transacción
+
+    // 1. Eliminar las postulaciones asociadas
+    await client.query(
+      'DELETE FROM postulacion WHERE id_publicacion = $1',
       [req.params.id]
     );
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "No se encuentra registrado" });
+    // 2. Eliminar la publicación
+    const result = await client.query(
+      'DELETE FROM publicacion WHERE id = $1',
+      [req.params.id]
+    );
+
+    await client.query('COMMIT'); // Confirma transacción
+    client.release();
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'No se encuentra registrado' });
     }
 
-    res.json({ message: "Registro eliminado exitosamente" });
+    res.json({ message: 'Registro eliminado exitosamente' });
+
   } catch (error) {
+    await client.query('ROLLBACK'); // Revierte si hay error
+    client.release();
     res.status(500).json({ message: error.message });
   }
 };
+

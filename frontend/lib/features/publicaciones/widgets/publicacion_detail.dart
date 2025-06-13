@@ -187,23 +187,6 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
     );
   }
 
-  /*Widget _buildDescriptionInfo(String texto) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
-      child: Text(
-        texto,
-        style: TextStyle(
-          color: AppColors.primaryColor,
-          fontFamily: 'GothamBook',
-          fontSize: 12.sp,
-        ),
-        softWrap: true, // Esto permite el salto de línea
-        overflow: TextOverflow
-            .visible, // O usa TextOverflow.ellipsis si prefieres puntos suspensivos
-      ),
-    );
-  }*/
-
   Widget _buildDetailInfo(String texto, {bool isDescription = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
