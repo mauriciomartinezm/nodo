@@ -87,16 +87,15 @@ class TrabajoService {
         'Content-Type': 'application/json',
       },
     );
-    print("Postulaciones: ");
-    print(response.body);
+    print("💬 Postulaciones: ");
     print(response.statusCode);
 
     if (response.statusCode == 200) {
-    print("Devolviendo respuesta buena");
+      print("💬 Devolviendo respuesta buena");
 
       return jsonDecode(response.body);
     } else {
-    print("ESTO JAMAS ESTÁ ACÁAAAAA");
+      print("💬 Malparido error");
 
       throw Exception('Error al cargar postulaciones');
     }

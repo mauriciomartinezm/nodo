@@ -29,7 +29,7 @@ class ApiConstants {
   static String getPostulacionesByPostId(String id) =>
       "$baseUrl/getPostulacionesByPostId/$id"; // ← NUEVO
   static String getPostulacionesByUserId(String id) =>
-      "$baseUrl/getPostulacionesByPostId/$id"; // ← NUEVO
+      "$baseUrl/getPostulacionesByUserId/$id"; // ← NUEVO
   static String updatePostulacionEndpoint(String id) =>
       "$baseUrl/updatePostulacion/$id";
 

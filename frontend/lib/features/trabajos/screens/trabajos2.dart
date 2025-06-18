@@ -60,7 +60,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   }
 
   Future<void> _loadPostulaciones() async {
-    print("Cargando Postulaciones");
+    print("💬 Cargando Postulaciones");
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final currentId = userProvider.usuario?.id;
     if (currentId == null) return;
