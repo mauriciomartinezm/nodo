@@ -5,7 +5,8 @@ import {
     getPostulaciones,
     getPostulacionesByUserId,
     getPostulacionesByPostId,
-    updatePostulacion
+    updatePostulacion,
+    deletePostulacion
 } from '../controllers/postulacionController.js';
 
 const postulacionRouter = Router ();
@@ -16,6 +17,8 @@ postulacionRouter.get('/api/getPostulaciones', getPostulaciones);
 postulacionRouter.get('/api/getPostulacionesByUserId/:id', getPostulacionesByUserId);
 postulacionRouter.get('/api/getPostulacionesByPostId/:id', getPostulacionesByPostId);
 postulacionRouter.put('/api/updatePostulacion/:id', updatePostulacion);
+postulacionRouter.delete('/api/deletePostulacion/:id', deletePostulacion);
+
 
 
 

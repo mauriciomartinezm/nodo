@@ -259,11 +259,17 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                       ],
                     )
                   : JobList(
-                      publicaciones: _publicaciones,
+                      publicaciones: _publicaciones.where((pub) {
+                        // Verifica si hay alguna postulación para esta publicación
+                        final yaPostulado = _postulaciones.any(
+                          (post) => post['id_publicacion'] == pub['id'],
+                        );
+                        return !yaPostulado; // Mostrar solo si NO hay postulación
+                      }).toList(),
                       nombresClientes: _nombresClientes,
                       onVerDetalles: (publicacion, nombreCliente) {
-                        _mostrarDetalleTrabajo(publicacion, nombreCliente,
-                            false); // false porque viene de publicaciones
+                        _mostrarDetalleTrabajo(
+                            publicacion, nombreCliente, false);
                       },
                     ),
     );

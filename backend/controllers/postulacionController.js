@@ -202,6 +202,22 @@ export const updatePostulacion = async (req, res) => {
     }
 };
 
+export const deletePostulacion = async (req, res) => {
+  try {
+    const result = await db.query(
+      "DELETE FROM Postulacion WHERE id = $1",
+      [req.params.id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "No se encuentra registrado" });
+    }
+
+    res.json({ message: "Registro eliminado exitosamente" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 /*No quiero volver a verla más nunca en mi camino
 Distancia que nos separa, me hiere su cruel olvido
