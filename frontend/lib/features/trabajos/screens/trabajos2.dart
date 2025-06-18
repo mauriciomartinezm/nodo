@@ -124,6 +124,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
           },
           scrollController: scrollController,
           desdePostulaciones: desdePostulaciones,
+          onPostulacionCambiada: _loadAllData, // <--- LLAMADO AL REFRESCO
         ),
       ),
     );

@@ -10,6 +10,7 @@ class DetalleTrabajoScreen extends StatefulWidget {
   final ScrollController scrollController;
   final bool desdePostulaciones;
   final Map<String, dynamic> postulacion;
+  final VoidCallback? onPostulacionCambiada;
 
   const DetalleTrabajoScreen({
     super.key,
@@ -17,6 +18,7 @@ class DetalleTrabajoScreen extends StatefulWidget {
     required this.postulacion,
     required this.scrollController,
     this.desdePostulaciones = false,
+    this.onPostulacionCambiada,
   });
 
   @override
@@ -269,7 +271,10 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                                   content: Text(
                                       'Postulación enviada correctamente')),
                             );
-
+                            // ✅ Cierra el modal
+                            Navigator.of(context).pop();
+                            // ✅ Notifica al padre para recargar
+                            widget.onPostulacionCambiada?.call();
                             // Opcional: Actualizar el estado si es necesario
                             setState(() {});
                           } catch (e) {
@@ -347,6 +352,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                                   content: Text(
                                       'Postulación eliminada correctamente')),
                             );
+                            widget.onPostulacionCambiada?.call();
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
