@@ -51,7 +51,7 @@ export const postularse = async (req, res) => {
         ]);
 
         if (!fcmToken) {
-            return res.status(400).json({ message: 'El usuario no tiene token FCM' });
+            res.status(200).json({ message: 'Postulación creada correctamente pero el usuario no tiene token FCM' });
         }
 
         //Se verifica que el cliente exista
@@ -66,7 +66,7 @@ export const postularse = async (req, res) => {
             }
         );
 
-        res.status(200).json({ message: 'Notificación enviada correctamente' });
+        res.status(200).json({ message: 'Postulación creada y notificación enviada correctamente' });
     } catch (error) {
         console.error('Error al postularse:', error);
         res.status(500).json({ message: 'Error interno del servidor' });

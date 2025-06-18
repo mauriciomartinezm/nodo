@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class TrabajoService {
   static Future<void> postularse(
       String publicacionId, String trabajadorId) async {
+        print("💬Postulando...");
     try {
       final response = await http.post(
         Uri.parse(ApiConstants.postularse),
@@ -19,11 +20,39 @@ class TrabajoService {
           'trabajadorId': trabajadorId,
         }),
       );
+        print("💬Respuesta del servidor: ");
 
+      print(response.body);
       if (response.statusCode == 200) {
         // Postulación exitosa
         final responseData = jsonDecode(response.body);
-        print('Postulación exitosa: $responseData');
+        print('✅ Postulación exitosa: $responseData');
+      } else {
+        // Error en la postulación
+        throw Exception('Error al postularse: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error en postularse: $e');
+      rethrow; // Re-lanzamos la excepción para manejarla en el UI
+    }
+  }
+  static Future<void> deletePostulacion(
+      String postulacionId) async {
+        print("💬Eliminando postulación...");
+    try {
+      final response = await http.delete(
+        Uri.parse(ApiConstants.deletePostulacionEndpoint(postulacionId)),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+        print("💬Respuesta del servidor: ");
+
+      print(response.body);
+      if (response.statusCode == 200) {
+        // Postulación exitosa
+        final responseData = jsonDecode(response.body);
+        print('✅ Postulación exitosa: $responseData');
       } else {
         // Error en la postulación
         throw Exception('Error al postularse: ${response.statusCode}');
@@ -35,12 +64,12 @@ class TrabajoService {
   }
 
   static Future<List<dynamic>> fetchPublicaciones() async {
-    print("Haciendo fetch a publicaciones");
+    print("💬 Haciendo fetch a publicaciones");
     final response = await http.get(
       Uri.parse(ApiConstants.getPublicacionesEndpoint),
       headers: {'Content-Type': 'application/json'},
     );
-    print("PubLicaciones: ");
+    print("💬 PubLicaciones: ");
     print(response.body);
 
     if (response.statusCode == 200) {
@@ -52,7 +81,7 @@ class TrabajoService {
 
   static Future<Map<String, String>> fetchNombresClientes(
       List publicaciones) async {
-    print("Haciendo fetch a usuarios");
+    print("💬 Haciendo fetch a usuarios");
 
     final Map<String, String> nombres = {};
     final clientIds =
@@ -91,12 +120,14 @@ class TrabajoService {
     print(response.statusCode);
 
     if (response.statusCode == 200) {
-      print("💬 Devolviendo respuesta buena");
+      print("✅ Se encontraron postulaciones");
 
       return jsonDecode(response.body);
-    } else {
-      print("💬 Malparido error");
-
+    } else if (response.statusCode == 204){
+      print("⚠️ No se encontraron postulaciones");
+      return [];
+    }
+    else {
       throw Exception('Error al cargar postulaciones');
     }
   }

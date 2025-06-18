@@ -9,10 +9,12 @@ class DetalleTrabajoScreen extends StatefulWidget {
   final Map<String, dynamic> job;
   final ScrollController scrollController;
   final bool desdePostulaciones;
+  final Map<String, dynamic> postulacion;
 
   const DetalleTrabajoScreen({
     super.key,
     required this.job,
+    required this.postulacion,
     required this.scrollController,
     this.desdePostulaciones = false,
   });
@@ -237,57 +239,58 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                if (!widget.desdePostulaciones)
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        try {
-                          final userProvider =
-                              Provider.of<UserProvider>(context, listen: false);
-                          // Verificamos que el usuario esté logueado
-                          if (userProvider.usuario == null) {
+                  if (!widget.desdePostulaciones)
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false);
+                            // Verificamos que el usuario esté logueado
+                            if (userProvider.usuario == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Debes iniciar sesión para postularte')),
+                              );
+                              return;
+                            }
+                            // Asumiendo que tienes el ID del trabajador disponible (podría ser de tu sistema de autenticación)
+                            final trabajadorId = userProvider.usuario!.id;
+                            final publicacionId = widget.job['id'];
+
+                            await TrabajoService.postularse(
+                                publicacionId, trabajadorId);
+
+                            // Opcional: Mostrar un mensaje de éxito
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                   content: Text(
-                                      'Debes iniciar sesión para postularte')),
+                                      'Postulación enviada correctamente')),
                             );
-                            return;
+
+                            // Opcional: Actualizar el estado si es necesario
+                            setState(() {});
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Error al postularse: ${e.toString()}')),
+                            );
                           }
-                          // Asumiendo que tienes el ID del trabajador disponible (podría ser de tu sistema de autenticación)
-                          final trabajadorId = userProvider.usuario!.id;
-                          final publicacionId = widget.job['id'];
-
-                          await TrabajoService.postularse(
-                              publicacionId, trabajadorId);
-
-                          // Opcional: Mostrar un mensaje de éxito
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('Postulación enviada correctamente')),
-                          );
-
-                          // Opcional: Actualizar el estado si es necesario
-                          setState(() {});
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(
-                                    'Error al postularse: ${e.toString()}')),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedAction == 'postularme'
-                            ? const Color(0xFF003366)
-                            : Colors.grey[300],
-                        foregroundColor: selectedAction == 'postularme'
-                            ? Colors.white
-                            : Colors.black,
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: selectedAction == 'postularme'
+                              ? const Color(0xFF003366)
+                              : Colors.grey[300],
+                          foregroundColor: selectedAction == 'postularme'
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                        child: const Text("Postularme"),
                       ),
-                      child: const Text("Postularme"),
                     ),
-                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
@@ -315,6 +318,56 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                       ),
                     ),
                   ),
+                  if (widget.desdePostulaciones)
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false);
+                            if (userProvider.usuario == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Debes iniciar sesión para postularte')),
+                              );
+                              return;
+                            }
+
+                            await TrabajoService.deletePostulacion(
+                                widget.postulacion['id']);
+
+                            // ✅ Cierra el modal
+                            Navigator.of(context).pop();
+
+                            // Mostrar mensaje de éxito
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Postulación eliminada correctamente')),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Error al eliminar postulación: ${e.toString()}')),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              selectedAction == 'Eliminar postulacion'
+                                  ? const Color(0xFF003366)
+                                  : Colors.grey[300],
+                          foregroundColor:
+                              selectedAction == 'Eliminar postulacion'
+                                  ? Colors.white
+                                  : Colors.black,
+                        ),
+                        child: const Text("Eliminar Postulacion"),
+                      ),
+                    ),
                 ],
               ),
             ),

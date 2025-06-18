@@ -94,7 +94,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   }
 
   void _mostrarDetalleTrabajo(
-      dynamic publicacion, String nombreCliente, bool desdePostulaciones) {
+      dynamic publicacion, String nombreCliente, String idPostulacion, bool desdePostulaciones) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -119,6 +119,9 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
             "images":
                 _parseImages(publicacion['fotos']), // Usa las imágenes reales
           },
+          postulacion: {
+            "id": idPostulacion
+          },
           scrollController: scrollController,
           desdePostulaciones: desdePostulaciones,
         ),
@@ -131,11 +134,15 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     print("nombres de clientes");
     print(_nombresClientes);
     print(idCliente);
+    final postulacion = _postulaciones.firstWhere(
+      (p) => p['id_publicacion'] == publicacion['id'],
+      orElse: () => null,
+    );
 
     final nombreCliente = _nombresClientes[idCliente.toString()] ?? 'Cliente';
 
     print(nombreCliente);
-    _mostrarDetalleTrabajo(publicacion, nombreCliente, true);
+    _mostrarDetalleTrabajo(publicacion, nombreCliente, postulacion['id'], true);
   }
 
   List<String> _parseImages(String fotosString) {
@@ -232,7 +239,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
 
   Widget _buildJobList(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: _loadData,
+      onRefresh: _loadAllData,
       color: Colors.orange,
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -269,7 +276,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                       nombresClientes: _nombresClientes,
                       onVerDetalles: (publicacion, nombreCliente) {
                         _mostrarDetalleTrabajo(
-                            publicacion, nombreCliente, false);
+                            publicacion, nombreCliente, "0", false);
                       },
                     ),
     );
@@ -294,11 +301,33 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
               : _postulaciones.isEmpty
                   ? ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0, vertical: 40.0),
                       children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          child: const Center(
-                            child: Text('No tienes postulaciones aún'),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.work_outline,
+                                  size: 80, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text(
+                                'Aún no te has postulado a ningún trabajo',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF003366),
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Text(
+                                'Explora las oportunidades disponibles y postúlate para comenzar a trabajar. Postúlate a los trabajos que mejor se adapten a tus habilidades y experiencia.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black87),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -325,7 +354,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
 
   Widget _buildMisTrabajosList(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: _loadPostulaciones,
+      onRefresh: _loadAllData,
       color: Colors.orange,
       child: _isLoadingPostulaciones
           ? const Center(child: CircularProgressIndicator())

@@ -32,7 +32,8 @@ class ApiConstants {
       "$baseUrl/getPostulacionesByUserId/$id"; // ← NUEVO
   static String updatePostulacionEndpoint(String id) =>
       "$baseUrl/updatePostulacion/$id";
-
+  static String deletePostulacionEndpoint(String id) =>
+      "$baseUrl/deletePostulacion/$id";
   static String getNotificacionesByUserId(String id) =>
       "$baseUrl/getNotificacionesByUserId/$id"; // ← NUEVO
   static const String saveToken = "$baseUrl/saveToken"; // ← NUEVO
