@@ -49,7 +49,7 @@ void main() async {
   // Configura la clave global antes de inicializar NotificationService
   NotificationService.navigatorKey = GlobalKey<NavigatorState>();
   await NotificationService.requestPermissions();
-  await NotificationService.initialize(); // Añade esta línea
+  await NotificationService.initialize();
   //await NotificacionService.instance.initialize();
   // Inicialización para Android y iOS
   final firstTime = await isFirstTime();
