@@ -71,4 +71,23 @@ class PublicacionesService {
       return [];
     }
   }
+
+  Future<bool> updatePublicacion(
+      String idPublicacion, Map<String, dynamic> data) async {
+    final url =
+        Uri.parse('${ApiConstants.baseUrl}/updatePublicacion/$idPublicacion');
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Error al actualizar publicación: ${response.body}');
+      return false;
+    }
+  }
 }

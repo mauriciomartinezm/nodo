@@ -27,6 +27,7 @@ class PublicacionesController extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
   Future<bool> deletePublicacion(String publicacionId) async {
     try {
       _setLoading(true);
@@ -42,13 +43,36 @@ class PublicacionesController extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  Future<bool> updatePublicacion(String publicacionId, String estado) async {
+    print("❕❕❕❕Publicacion id");
+    print(publicacionId);
+    try {
+      _setLoading(true);
+      final success = await _service.updatePublicacion(publicacionId, {
+        'estado': estado,
+      });
+      if (success) {
+        await loadPublicaciones(); // Refresca la lista
+      }
+      return success;
+    } catch (e) {
+      _errorMessage = 'Error al actualizar: ${e.toString()}';
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void setSelectedIndex(int index) {
     _selectedIndex = index;
     notifyListeners();
   }
 
   List<dynamic> filterPublicaciones(String estado) {
-    return _publicaciones.where((pub) => pub['estado'] == estado.toLowerCase()).toList();
+    return _publicaciones
+        .where((pub) => pub['estado'] == estado.toLowerCase())
+        .toList();
   }
 
   bool get hasPublications => _publicaciones.isNotEmpty;

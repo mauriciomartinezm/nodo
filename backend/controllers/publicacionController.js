@@ -94,7 +94,7 @@ export const createPublicacion = async (req, res) => {
       return res.status(404).json({ message: "La categoría no existe." });
     }
 
-     // Guardar el nombre de la categoría
+    // Guardar el nombre de la categoría
     const nombreCategoria = categoriaCheck.rows[0].nombre_cat;
 
     // Generar ID con uuidv4
@@ -139,13 +139,13 @@ export const createPublicacion = async (req, res) => {
       SELECT id FROM Usuario WHERE id_categoria = $1
     `;
     const trabajadoresResult = await db.query(trabajadoresQuery, [id_categoria]);
-    let  trabajadoresIds = trabajadoresResult.rows.map(row => row.id);
+    let trabajadoresIds = trabajadoresResult.rows.map(row => row.id);
     console.log("Trabajadores IDs antes de filtrar: ", trabajadoresIds);
 
     // 2. Filtrar el id_cliente (dueño de la publicación) de la lista de trabajadores
     console.log(id_cliente);
     trabajadoresIds = trabajadoresIds.filter(trabajadorId => trabajadorId !== id_cliente);
-    
+
     console.log("Trabajadores IDs después de filtrar (excluyendo al dueño): ", trabajadoresIds);
     // 2. Enviar notificación a cada trabajador
     for (const trabajadorId of trabajadoresIds) {
@@ -185,7 +185,8 @@ export const updatePublicacion = async (req, res) => {
     const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ");
 
     // Añade el valor de ID al final para usarlo como último parámetro
-    values.push(req.params.id);
+    const publicacionId = req.params.id;
+    values.push(publicacionId);
 
     const query = `UPDATE publicacion SET ${setClause} WHERE id = $${values.length}`;
 
@@ -193,6 +194,29 @@ export const updatePublicacion = async (req, res) => {
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: "No se encuentra registrado" });
+    }
+
+    // 🔔 Si se está actualizando el estado a "finalizada"
+    if (req.body.estado && req.body.estado === "finalizada") {
+      // Obtener el id_cliente de la publicación
+      const trabajadorResult = await db.query(
+        `SELECT id_trabajador FROM Postulacion WHERE id_publicacion = $1`,
+        [publicacionId]
+      );
+
+      if (trabajadorResult.rows.length > 0) {
+        const idTrabajador = trabajadorResult.rows[0].id_trabajador;
+
+        // 🔔 Aquí puedes llamar una función para enviar la notificación
+        await guardarNotificacion(
+          idTrabajador,
+          'trabajo completado',
+          'Trabajo finalizado',
+          'Tu trabajo ha sido finalizada con éxito. ¡No olvides dejar tu reseña!',
+          { publicacionId: req.params.id }
+        );
+
+      }
     }
 
     res.json({ message: "Datos actualizados exitosamente" });

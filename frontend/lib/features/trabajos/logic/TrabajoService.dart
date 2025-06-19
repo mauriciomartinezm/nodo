@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class TrabajoService {
   static Future<void> postularse(
       String publicacionId, String trabajadorId) async {
-        print("💬Postulando...");
+    print("💬Postulando...");
     try {
       final response = await http.post(
         Uri.parse(ApiConstants.postularse),
@@ -20,7 +20,7 @@ class TrabajoService {
           'trabajadorId': trabajadorId,
         }),
       );
-        print("💬Respuesta del servidor: ");
+      print("💬Respuesta del servidor: ");
 
       print(response.body);
       if (response.statusCode == 200) {
@@ -36,9 +36,9 @@ class TrabajoService {
       rethrow; // Re-lanzamos la excepción para manejarla en el UI
     }
   }
-  static Future<void> deletePostulacion(
-      String postulacionId) async {
-        print("💬Eliminando postulación...");
+
+  static Future<void> deletePostulacion(String postulacionId) async {
+    print("💬Eliminando postulación...");
     try {
       final response = await http.delete(
         Uri.parse(ApiConstants.deletePostulacionEndpoint(postulacionId)),
@@ -46,7 +46,7 @@ class TrabajoService {
           'Content-Type': 'application/json',
         },
       );
-        print("💬Respuesta del servidor: ");
+      print("💬Respuesta del servidor: ");
 
       print(response.body);
       if (response.statusCode == 200) {
@@ -62,6 +62,26 @@ class TrabajoService {
       rethrow; // Re-lanzamos la excepción para manejarla en el UI
     }
   }
+
+  static Future<void> aceptarPostulacion(
+      String idPostulacion, String nuevoEstado) async {
+    final url =
+        Uri.parse(ApiConstants.updatePostulacionEndpoint(idPostulacion));
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'estado': nuevoEstado}),
+    );
+
+    if (response.statusCode == 200) {
+      print("❕❕❕Status code 200");
+    } else {
+      print("❕❕❕Error");
+
+    }
+  }
+
 
   static Future<List<dynamic>> fetchPublicaciones() async {
     print("💬 Haciendo fetch a publicaciones");
@@ -123,11 +143,10 @@ class TrabajoService {
       print("✅ Se encontraron postulaciones");
 
       return jsonDecode(response.body);
-    } else if (response.statusCode == 204){
+    } else if (response.statusCode == 204) {
       print("⚠️ No se encontraron postulaciones");
       return [];
-    }
-    else {
+    } else {
       throw Exception('Error al cargar postulaciones');
     }
   }
@@ -162,4 +181,13 @@ class TrabajoService {
       return 'Recién publicado';
     }
   }
+
+  static Future<void> marcarComoTerminado(String? postulacionId) async {
+  // Llama a tu API y cambia el estado del trabajo a "terminado"
+}
+
+static Future<void> cancelarTrabajo(String? postulacionId) async {
+  // Llama a tu API y cambia el estado del trabajo a "cancelado"
+}
+
 }

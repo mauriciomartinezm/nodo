@@ -80,7 +80,8 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
   }
 
   void aceptarPostulacion(String idPostulacion) {
-    actualizarEstadoPostulacion(idPostulacion, "aceptado");
+    actualizarEstadoPostulacion(idPostulacion, "considerado");
+    
   }
 
   void rechazarPostulacion(String idPostulacion) {

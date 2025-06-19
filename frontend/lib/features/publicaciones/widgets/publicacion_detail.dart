@@ -3,15 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nodo/features/publicaciones/screens/postulaciones_screen.dart';
 import '../../../core/theme/app_theme.dart';
+import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart';
 
 class PublicacionDetail extends StatefulWidget {
   final dynamic publicacion;
   final VoidCallback onDelete;
+  final PublicacionesController publicacionesController;
 
   const PublicacionDetail({
     super.key,
     required this.publicacion,
     required this.onDelete,
+    required this.publicacionesController, // 👈
   });
 
   @override
@@ -248,80 +251,81 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildActionButton(
-            Icons.edit_outlined,
-            'Editar',
-            AppColors.white,
-            AppColors.blue,
-            () {
-              // Acción editar
-            },
-          ),
-          TextButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PostulacionesScreen(
-                    idPublicacion: widget.publicacion['id'],
+          if (estado != 'en proceso' && estado != 'finalizada')
+            _buildActionButton(
+              Icons.edit_outlined,
+              'Editar',
+              AppColors.white,
+              AppColors.blue,
+              () {
+                // Acción editar
+              },
+            ),
+          if (estado != 'en proceso' && estado != 'finalizada')
+            TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PostulacionesScreen(
+                      idPublicacion: widget.publicacion['id'],
+                    ),
+                  ),
+                );
+              },
+              icon: Icon(
+                Icons.delete_outline,
+                size: 20.sp,
+                color: AppColors.blue,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.blue.withOpacity(0.2),
+                padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    topRight: Radius.circular(5),
+                    bottomLeft: Radius.circular(5),
                   ),
                 ),
-              );
-            },
-            icon: Icon(
-              Icons.delete_outline,
-              size: 20.sp,
-              color: AppColors.blue,
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.blue.withOpacity(0.2),
-              padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                  bottomLeft: Radius.circular(5),
-                ),
+              ),
+              label: Text(
+                'Postulaciones',
+                style: AppTypography.h3.copyWith(color: AppColors.blue),
               ),
             ),
-            label: Text(
-              'Postulaciones',
-              style: AppTypography.h3.copyWith(color: AppColors.blue),
-            ),
-          ),
-          if (estado == 'en_proceso')
+          if (estado == 'en proceso' && estado != 'finalizada')
             _buildActionButton(
               Icons.check_circle_outline,
               'Completado',
-              AppColors.blue,
-              AppColors.blue.withOpacity(0.2),
-              () {
-                // Acción completado
-              },
+              AppColors.white,
+              AppColors.blue, // fondo azul
+              () => _confirmarFinalizacion(widget.publicacion['id']),
             ),
-          TextButton.icon(
-            onPressed: widget.onDelete,
-            icon: Icon(
-              Icons.delete_outline,
-              size: 20.sp,
-              color: AppColors.blue,
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.blue.withOpacity(0.2),
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                  bottomLeft: Radius.circular(5),
+          if (estado != 'en proceso' && estado != 'finalizada')
+            TextButton.icon(
+              onPressed: widget.onDelete,
+              icon: Icon(
+                Icons.delete_outline,
+                size: 20.sp,
+                color: AppColors.blue,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.blue.withOpacity(0.2),
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    topRight: Radius.circular(5),
+                    bottomLeft: Radius.circular(5),
+                  ),
                 ),
               ),
+              label: Text(
+                'Eliminar',
+                style: AppTypography.h3.copyWith(color: AppColors.blue),
+              ),
             ),
-            label: Text(
-              'Eliminar',
-              style: AppTypography.h3.copyWith(color: AppColors.blue),
-            ),
-          ),
         ],
       ),
     ]);
@@ -339,7 +343,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
       icon: Icon(icon, size: 20.sp, color: textColor),
       label: Text(
         text,
-       style: AppTypography.h3.copyWith(color: AppColors.white),
+        style: AppTypography.h3.copyWith(color: AppColors.white),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
@@ -353,6 +357,49 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
         ),
       ),
     );
+  }
+
+  void _confirmarFinalizacion(String idPublicacion) async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar'),
+        content: const Text(
+            '¿Estás seguro de marcar esta publicación como finalizada?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirmar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmado == true) {
+      try {
+        final success = await widget.publicacionesController
+            .updatePublicacion(idPublicacion.toString(), 'finalizada');
+
+        if (success) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Trabajo marcado como finalizado.')),
+          );
+        }
+
+        setState(() {
+          widget.publicacion['estado'] = 'finalizada';
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al actualizar: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   String _formatDate(String dateString) {

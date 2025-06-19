@@ -9,13 +9,13 @@ class DetalleTrabajoScreen extends StatefulWidget {
   final Map<String, dynamic> job;
   final ScrollController scrollController;
   final bool desdePostulaciones;
-  final Map<String, dynamic> postulacion;
+  final Map<String, dynamic>? postulacion;
   final VoidCallback? onPostulacionCambiada;
 
   const DetalleTrabajoScreen({
     super.key,
     required this.job,
-    required this.postulacion,
+    this.postulacion,
     required this.scrollController,
     this.desdePostulaciones = false,
     this.onPostulacionCambiada,
@@ -53,7 +53,10 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
     final String ubicacion = widget.job["location"] ?? "Sin ubicación";
     final String presupuesto = widget.job["price"] ?? "0";
     final String fechaLimite = widget.job["time"] ?? "";
-
+    final String estadoPostulacion =
+        widget.postulacion?['estado'].toString() ?? '';
+    print("Estado de la postulacion: ");
+    print(estadoPostulacion);
     // final int? jobId = widget.job["id"];
     //   if (jobId == null) {
     //     return const Center(child: Text('Error: Trabajo sin ID'));
@@ -323,7 +326,8 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                       ),
                     ),
                   ),
-                  if (widget.desdePostulaciones)
+                  if (widget.desdePostulaciones &&
+                      estadoPostulacion == 'considerado')
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
@@ -335,45 +339,108 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text(
-                                        'Debes iniciar sesión para postularte')),
+                                        'Debes iniciar sesión para aceptar la propuesta')),
                               );
                               return;
                             }
 
-                            await TrabajoService.deletePostulacion(
-                                widget.postulacion['id']);
+                            await TrabajoService.aceptarPostulacion(
+                                widget.postulacion?['id'], 'aceptado');
 
-                            // ✅ Cierra el modal
+                            Navigator.of(context).pop(); // Cierra el modal
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      '¡Has aceptado el trabajo exitosamente!')),
+                            );
+                            widget.onPostulacionCambiada
+                                ?.call(); // Refrescar datos
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Error al aceptar postulación: ${e.toString()}')),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text("Aceptar trabajo"),
+                      ),
+                    ),
+                  if (widget.desdePostulaciones)
+                    if (estadoPostulacion == 'aceptado') ...[
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            // Aquí deberías llamar a un método que marque el trabajo como terminado
+                            await TrabajoService.marcarComoTerminado(
+                                widget.postulacion?['id']);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Trabajo marcado como terminado')),
+                            );
                             Navigator.of(context).pop();
-
-                            // Mostrar mensaje de éxito
+                            widget.onPostulacionCambiada?.call();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade700,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Trabajo terminado"),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            // Aquí deberías llamar a un método que cancele el trabajo
+                            await TrabajoService.cancelarTrabajo(
+                                widget.postulacion?['id']);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Trabajo cancelado')),
+                            );
+                            Navigator.of(context).pop();
+                            widget.onPostulacionCambiada?.call();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Cancelar trabajo"),
+                        ),
+                      ),
+                    ] else
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            await TrabajoService.deletePostulacion(
+                                widget.postulacion?['id']);
+                            Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text(
                                       'Postulación eliminada correctamente')),
                             );
                             widget.onPostulacionCambiada?.call();
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Error al eliminar postulación: ${e.toString()}')),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              selectedAction == 'Eliminar postulacion'
-                                  ? const Color(0xFF003366)
-                                  : Colors.grey[300],
-                          foregroundColor:
-                              selectedAction == 'Eliminar postulacion'
-                                  ? Colors.white
-                                  : Colors.black,
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                selectedAction == 'Eliminar postulacion'
+                                    ? const Color(0xFF003366)
+                                    : Colors.grey[300],
+                            foregroundColor:
+                                selectedAction == 'Eliminar postulacion'
+                                    ? Colors.white
+                                    : Colors.black,
+                          ),
+                          child: const Text("Eliminar Postulacion"),
                         ),
-                        child: const Text("Eliminar Postulacion"),
                       ),
-                    ),
                 ],
               ),
             ),

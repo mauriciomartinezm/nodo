@@ -23,6 +23,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   List<dynamic> _postulacionesPendientes = [];
   List<dynamic> _postulacionesAceptadas = [];
   List<dynamic> _postulacionesRechazadas = [];
+  List<dynamic> _postulacionesConsideradas = [];
 
   bool _isLoadingPostulaciones = true;
   String _errorMessagePostulaciones = '';
@@ -77,12 +78,15 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
           postulaciones.where((p) => p['estado'] == 'aceptado').toList();
       final rechazadas =
           postulaciones.where((p) => p['estado'] == 'rechazado').toList();
+      final consideradas =
+          postulaciones.where((p) => p['estado'] == 'considerado').toList();
 
       setState(() {
         _postulaciones = postulaciones;
         _postulacionesPendientes = pendientes;
         _postulacionesAceptadas = aceptadas;
         _postulacionesRechazadas = rechazadas;
+        _postulacionesConsideradas = consideradas;
         _isLoadingPostulaciones = false;
       });
     } catch (e) {
@@ -93,8 +97,8 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     }
   }
 
-  void _mostrarDetalleTrabajo(
-      dynamic publicacion, String nombreCliente, String idPostulacion, bool desdePostulaciones) {
+  void _mostrarDetalleTrabajo(dynamic publicacion, String nombreCliente,
+      Map<String, dynamic>? postulacion, bool desdePostulaciones) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -119,9 +123,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
             "images":
                 _parseImages(publicacion['fotos']), // Usa las imágenes reales
           },
-          postulacion: {
-            "id": idPostulacion
-          },
+          postulacion: postulacion,
           scrollController: scrollController,
           desdePostulaciones: desdePostulaciones,
           onPostulacionCambiada: _loadAllData, // <--- LLAMADO AL REFRESCO
@@ -141,9 +143,11 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     );
 
     final nombreCliente = _nombresClientes[idCliente.toString()] ?? 'Cliente';
-
+    print("Nombre del cliente: ");
     print(nombreCliente);
-    _mostrarDetalleTrabajo(publicacion, nombreCliente, postulacion['id'], true);
+    print("Informacion de la postulacion: ");
+    print(postulacion);
+    _mostrarDetalleTrabajo(publicacion, nombreCliente, postulacion, true);
   }
 
   List<String> _parseImages(String fotosString) {
@@ -277,7 +281,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                       nombresClientes: _nombresClientes,
                       onVerDetalles: (publicacion, nombreCliente) {
                         _mostrarDetalleTrabajo(
-                            publicacion, nombreCliente, "0", false);
+                            publicacion, nombreCliente, null, false);
                       },
                     ),
     );
@@ -343,6 +347,10 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                               (pub) => pub['id'] == idPublicacion,
                               orElse: () => null,
                             );
+                            if (publicacion != null) {
+                              publicacion['estado_postulacion'] =
+                                  postulacion['estado']; // 👈 AÑADIDO
+                            }
                             return publicacion;
                           })
                           .where((pub) => pub != null)
