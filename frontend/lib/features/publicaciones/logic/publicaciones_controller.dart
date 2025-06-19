@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:nodo/core/constants/api_constants.dart';
 import 'publicaciones_service.dart';
+import 'package:http/http.dart' as http;
 
 class PublicacionesController extends ChangeNotifier {
   final PublicacionesService _service;
@@ -44,20 +48,62 @@ class PublicacionesController extends ChangeNotifier {
     }
   }
 
-  Future<bool> updatePublicacion(String publicacionId, String estado) async {
+  //Sí debería exister pero para el editar - falta modificarlo
+  Future<bool> updatePublicacion(
+      String publicacionId, Map<String, dynamic> camposActualizados) async {
     print("❕❕❕❕Publicacion id");
     print(publicacionId);
     try {
       _setLoading(true);
-      final success = await _service.updatePublicacion(publicacionId, {
-        'estado': estado,
-      });
+      final success =
+          await _service.updatePublicacion(publicacionId, camposActualizados);
+
       if (success) {
         await loadPublicaciones(); // Refresca la lista
       }
       return success;
     } catch (e) {
       _errorMessage = 'Error al actualizar: ${e.toString()}';
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> finalizarTrabajo(String id_publicacion) async {
+    print("❕❕❕❕Finalizando trabajo");
+
+    try {
+      _setLoading(true);
+      final url = Uri.parse(ApiConstants.finalizarTrabajo);
+
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id_publicacion': id_publicacion, // Usa la variable real aquí
+        }),
+      );
+      print("STATUS CODE: ");
+      print(response.statusCode);
+      //final resultadoPublicacion = await updatePublicacion(publicacionId, {
+      //  'estado': 'finalizada',
+      //});
+//
+//      //final resultadoPostulacion =
+      //    await _service.updatePostulacion(postulacionId, {
+      //  'estado': 'finalizada',
+      //});
+
+      if (response.statusCode == 200) {
+        await loadPublicaciones(); // Recarga la lista si todo va bien
+        return true;
+      } else {
+        _errorMessage = 'No se pudo finalizar el trabajo o la postulación.';
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = 'Error al finalizar trabajo: ${e.toString()}';
       return false;
     } finally {
       _setLoading(false);

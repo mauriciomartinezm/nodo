@@ -78,10 +78,8 @@ class TrabajoService {
       print("❕❕❕Status code 200");
     } else {
       print("❕❕❕Error");
-
     }
   }
-
 
   static Future<List<dynamic>> fetchPublicaciones() async {
     print("💬 Haciendo fetch a publicaciones");
@@ -182,12 +180,23 @@ class TrabajoService {
     }
   }
 
-  static Future<void> marcarComoTerminado(String? postulacionId) async {
-  // Llama a tu API y cambia el estado del trabajo a "terminado"
-}
+  static Future<void> marcarComoTerminado(String postulacionId) async {
+    print("❕❕❕❕Finalizando trabajo");
 
-static Future<void> cancelarTrabajo(String? postulacionId) async {
-  // Llama a tu API y cambia el estado del trabajo a "cancelado"
-}
+    final url = Uri.parse(ApiConstants.finalizarTrabajo);
 
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id_postulacion': postulacionId, // Usa la variable real aquí
+      }),
+    );
+    print("STATUS CODE: ");
+    print(response.statusCode);
+  }
+
+  static Future<void> cancelarTrabajo(String? postulacionId) async {
+    // Llama a tu API y cambia el estado del trabajo a "cancelado"
+  }
 }

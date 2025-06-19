@@ -239,6 +239,18 @@ export const updatePostulacion = async (req, res) => {
             console.log("Notificacion enviada");
 
         }
+        /*if (estado == 'finalizada') {
+            await guardarNotificacion(
+                idTrabajador,
+                'trabajo completado',
+                'Trabajo finalizado',
+                'Tu trabajo ha sido finalizada con éxito. ¡No olvides dejar tu reseña!',
+                { //publicacionId: req.params.id
+                }
+            );
+            console.log("Notificacion enviada");
+
+        }*/
         res.json({ message: "Postulación actualizada correctamente" });
     } catch (error) {
         console.error("Error al actualizar postulación:", error);

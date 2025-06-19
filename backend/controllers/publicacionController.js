@@ -197,7 +197,7 @@ export const updatePublicacion = async (req, res) => {
     }
 
     // 🔔 Si se está actualizando el estado a "finalizada"
-    if (req.body.estado && req.body.estado === "finalizada") {
+    /*if (req.body.estado && req.body.estado === "finalizada") {
       // Obtener el id_cliente de la publicación
       const trabajadorResult = await db.query(
         `SELECT id_trabajador FROM Postulacion WHERE id_publicacion = $1`,
@@ -217,7 +217,7 @@ export const updatePublicacion = async (req, res) => {
         );
 
       }
-    }
+    }*/
 
     res.json({ message: "Datos actualizados exitosamente" });
   } catch (error) {

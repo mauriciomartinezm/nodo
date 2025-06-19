@@ -90,4 +90,22 @@ class PublicacionesService {
       return false;
     }
   }
+  Future<bool> updatePostulacion(
+      String idPostulacion, Map<String, dynamic> data) async {
+    final url =
+        Uri.parse('${ApiConstants.baseUrl}/updatePostulacion/$idPostulacion');
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Error al actualizar publicación: ${response.body}');
+      return false;
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/chat/screens/Chat1.dart';
 import 'package:nodo/features/trabajos/logic/TrabajoService.dart';
 import 'package:nodo/features/trabajos/screens/trabajos4.dart';
@@ -64,7 +65,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         body: Column(
           children: [
             Container(
@@ -72,7 +73,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
               height: 5,
               margin: const EdgeInsets.only(top: 12, bottom: 12),
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: AppColors.whiteT,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -148,8 +149,8 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                           icon: const Icon(Icons.flag, size: 16),
                           label: const Text("Reportar"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange[600],
-                            foregroundColor: Colors.white,
+                            backgroundColor: AppColors.orange,
+                            foregroundColor: AppColors.white,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 6),
                             textStyle: const TextStyle(fontSize: 13),
@@ -300,32 +301,33 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                       ),
                     ),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() => selectedAction = 'hablar');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ChatScreen(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedAction == 'hablar'
-                            ? const Color(0xFF003366)
-                            : Colors.grey[300],
-                        foregroundColor: selectedAction == 'hablar'
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                      child: Text(
-                        "Hablar con $nombreSolo",
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
+                  if (estadoPostulacion != 'finalizada')
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() => selectedAction = 'hablar');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChatScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: selectedAction == 'hablar'
+                              ? const Color(0xFF003366)
+                              : Colors.grey[300],
+                          foregroundColor: selectedAction == 'hablar'
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                        child: Text(
+                          "Hablar con $nombreSolo",
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                       ),
                     ),
-                  ),
                   if (widget.desdePostulaciones &&
                       estadoPostulacion == 'considerado')
                     Expanded(
@@ -372,6 +374,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                     ),
                   if (widget.desdePostulaciones)
                     if (estadoPostulacion == 'aceptado') ...[
+                      //lo mismo que 'en proceso' de publicacion
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
@@ -381,7 +384,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content:
-                                      Text('Trabajo marcado como terminado')),
+                                      Text('Notificacion enviada al usuario')),
                             );
                             Navigator.of(context).pop();
                             widget.onPostulacionCambiada?.call();
@@ -414,7 +417,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                           child: const Text("Cancelar trabajo"),
                         ),
                       ),
-                    ] else
+                    ] else if (estadoPostulacion != 'finalizada')
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {

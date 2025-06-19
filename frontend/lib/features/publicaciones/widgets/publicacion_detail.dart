@@ -382,7 +382,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
     if (confirmado == true) {
       try {
         final success = await widget.publicacionesController
-            .updatePublicacion(idPublicacion.toString(), 'finalizada');
+            .finalizarTrabajo(idPublicacion.toString());
 
         if (success) {
           Navigator.pop(context);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 import 'package:nodo/features/trabajos/screens/trabajos3.dart';
 import 'package:nodo/features/trabajos/screens/trabajos6.dart';
@@ -194,9 +195,9 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.white,
           title: const Text(
             'Trabajos',
             style: TextStyle(
@@ -219,7 +220,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.filter_alt_outlined, color: Colors.orange),
+              icon: const Icon(Icons.filter_alt_outlined, color: AppColors.orange),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
@@ -340,7 +341,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                   : JobList(
                       publicaciones: _postulaciones
                           .where((postulacion) =>
-                              postulacion['estado'] != 'aceptado')
+                              postulacion['estado'] != 'aceptado' && postulacion['estado'] != 'finalizada')
                           .map((postulacion) {
                             final idPublicacion = postulacion['id_publicacion'];
                             final publicacion = _publicaciones.firstWhere(
@@ -362,6 +363,9 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   }
 
   Widget _buildMisTrabajosList(BuildContext context) {
+    final trabajos = _postulaciones.where((post) =>
+    post['estado'] == 'aceptado' || post['estado'] == 'finalizada'
+  ).toList();
     return RefreshIndicator(
       onRefresh: _loadAllData,
       color: Colors.orange,
@@ -377,20 +381,20 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                     ),
                   ],
                 )
-              : _postulacionesAceptadas.isEmpty
+              : trabajos.isEmpty
                   ? ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       children: [
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.8,
                           child: const Center(
-                            child: Text('Aún no tienes trabajos aceptados'),
+                            child: Text('Aún no tienes trabajos aceptados ni finalizados'),
                           ),
                         ),
                       ],
                     )
                   : JobList(
-                      publicaciones: _postulacionesAceptadas
+                      publicaciones: trabajos
                           .map((postulacion) {
                             final idPublicacion = postulacion['id_publicacion'];
                             final publicacion = _publicaciones.firstWhere(

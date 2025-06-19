@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class TrabajosScreen1 extends StatelessWidget {
   const TrabajosScreen1({super.key});
@@ -6,7 +7,7 @@ class TrabajosScreen1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         title: const Text(
           'Trabajos',
@@ -15,7 +16,6 @@ class TrabajosScreen1 extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
         iconTheme: const IconThemeData(color: Colors.black),
