@@ -2,10 +2,10 @@
 import pkg from 'pg';
 const { Pool } = pkg;
 export const db = new Pool({
-    host: "maglev.proxy.rlwy.net",
-    port: "44311",
+    host: "centerbeam.proxy.rlwy.net",
+    port: "20704",
     user: "postgres",
-    password: "fHCDXoXszWhbRGmJfXBHsHeJSjPduVrH",
+    password: "kNFfqByNwUlSjqxIAUiySmCAxnmxYKMU",
     database: "railway",
 });
 
