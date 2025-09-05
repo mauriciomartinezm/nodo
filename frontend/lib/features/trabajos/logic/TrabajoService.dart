@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class TrabajoService {
   static Future<void> postularse(
       String publicacionId, String trabajadorId) async {
+    print("💬Postulando...");
     try {
       final response = await http.post(
         Uri.parse(ApiConstants.postularse),
@@ -19,11 +20,13 @@ class TrabajoService {
           'trabajadorId': trabajadorId,
         }),
       );
+      print("💬Respuesta del servidor: ");
 
+      print(response.body);
       if (response.statusCode == 200) {
         // Postulación exitosa
         final responseData = jsonDecode(response.body);
-        print('Postulación exitosa: $responseData');
+        print('✅ Postulación exitosa: $responseData');
       } else {
         // Error en la postulación
         throw Exception('Error al postularse: ${response.statusCode}');
@@ -34,13 +37,57 @@ class TrabajoService {
     }
   }
 
+  static Future<void> deletePostulacion(String postulacionId) async {
+    print("💬Eliminando postulación...");
+    try {
+      final response = await http.delete(
+        Uri.parse(ApiConstants.deletePostulacionEndpoint(postulacionId)),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      print("💬Respuesta del servidor: ");
+
+      print(response.body);
+      if (response.statusCode == 200) {
+        // Postulación exitosa
+        final responseData = jsonDecode(response.body);
+        print('✅ Postulación exitosa: $responseData');
+      } else {
+        // Error en la postulación
+        throw Exception('Error al postularse: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error en postularse: $e');
+      rethrow; // Re-lanzamos la excepción para manejarla en el UI
+    }
+  }
+
+  static Future<void> aceptarPostulacion(
+      String idPostulacion, String nuevoEstado) async {
+    final url =
+        Uri.parse(ApiConstants.updatePostulacionEndpoint(idPostulacion));
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'estado': nuevoEstado}),
+    );
+
+    if (response.statusCode == 200) {
+      print("❕❕❕Status code 200");
+    } else {
+      print("❕❕❕Error");
+    }
+  }
+
   static Future<List<dynamic>> fetchPublicaciones() async {
-    print("Haciendo fetch a publicaciones");
+    print("💬 Haciendo fetch a publicaciones");
     final response = await http.get(
       Uri.parse(ApiConstants.getPublicacionesEndpoint),
       headers: {'Content-Type': 'application/json'},
     );
-    print("PubLicaciones: ");
+    print("💬 PubLicaciones: ");
     print(response.body);
 
     if (response.statusCode == 200) {
@@ -52,7 +99,7 @@ class TrabajoService {
 
   static Future<Map<String, String>> fetchNombresClientes(
       List publicaciones) async {
-    print("Haciendo fetch a usuarios");
+    print("💬 Haciendo fetch a usuarios");
 
     final Map<String, String> nombres = {};
     final clientIds =
@@ -87,17 +134,17 @@ class TrabajoService {
         'Content-Type': 'application/json',
       },
     );
-    print("Postulaciones: ");
-    print(response.body);
+    print("💬 Postulaciones: ");
     print(response.statusCode);
 
     if (response.statusCode == 200) {
-    print("Devolviendo respuesta buena");
+      print("✅ Se encontraron postulaciones");
 
       return jsonDecode(response.body);
+    } else if (response.statusCode == 204) {
+      print("⚠️ No se encontraron postulaciones");
+      return [];
     } else {
-    print("ESTO JAMAS ESTÁ ACÁAAAAA");
-
       throw Exception('Error al cargar postulaciones');
     }
   }
@@ -131,5 +178,25 @@ class TrabajoService {
     } else {
       return 'Recién publicado';
     }
+  }
+
+  static Future<void> marcarComoTerminado(String postulacionId) async {
+    print("❕❕❕❕Finalizando trabajo");
+
+    final url = Uri.parse(ApiConstants.finalizarTrabajo);
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id_postulacion': postulacionId, // Usa la variable real aquí
+      }),
+    );
+    print("STATUS CODE: ");
+    print(response.statusCode);
+  }
+
+  static Future<void> cancelarTrabajo(String? postulacionId) async {
+    // Llama a tu API y cambia el estado del trabajo a "cancelado"
   }
 }

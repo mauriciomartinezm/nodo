@@ -3,11 +3,12 @@ import pkg from 'pg';
 const { Pool } = pkg;
 export const db = new Pool({
     host: "centerbeam.proxy.rlwy.net",
-    port: "32324",
+    port: "20704",
     user: "postgres",
-    password: "AydGbikBIYaCygbzqzBuPdKcOgFbfwhX",
+    password: "kNFfqByNwUlSjqxIAUiySmCAxnmxYKMU",
     database: "railway",
 });
+
 // Para verificar la conexión
 async function testConnection() {
     try {

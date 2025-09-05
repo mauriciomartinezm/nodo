@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 import 'package:nodo/features/trabajos/screens/trabajos3.dart';
 import 'package:nodo/features/trabajos/screens/trabajos6.dart';
@@ -23,6 +24,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   List<dynamic> _postulacionesPendientes = [];
   List<dynamic> _postulacionesAceptadas = [];
   List<dynamic> _postulacionesRechazadas = [];
+  List<dynamic> _postulacionesConsideradas = [];
 
   bool _isLoadingPostulaciones = true;
   String _errorMessagePostulaciones = '';
@@ -60,7 +62,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   }
 
   Future<void> _loadPostulaciones() async {
-    print("Cargando Postulaciones");
+    print("💬 Cargando Postulaciones");
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final currentId = userProvider.usuario?.id;
     if (currentId == null) return;
@@ -77,12 +79,15 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
           postulaciones.where((p) => p['estado'] == 'aceptado').toList();
       final rechazadas =
           postulaciones.where((p) => p['estado'] == 'rechazado').toList();
+      final consideradas =
+          postulaciones.where((p) => p['estado'] == 'considerado').toList();
 
       setState(() {
         _postulaciones = postulaciones;
         _postulacionesPendientes = pendientes;
         _postulacionesAceptadas = aceptadas;
         _postulacionesRechazadas = rechazadas;
+        _postulacionesConsideradas = consideradas;
         _isLoadingPostulaciones = false;
       });
     } catch (e) {
@@ -93,8 +98,8 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     }
   }
 
-  void _mostrarDetalleTrabajo(
-      dynamic publicacion, String nombreCliente, bool desdePostulaciones) {
+  void _mostrarDetalleTrabajo(dynamic publicacion, String nombreCliente,
+      Map<String, dynamic>? postulacion, bool desdePostulaciones) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -119,8 +124,10 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
             "images":
                 _parseImages(publicacion['fotos']), // Usa las imágenes reales
           },
+          postulacion: postulacion,
           scrollController: scrollController,
           desdePostulaciones: desdePostulaciones,
+          onPostulacionCambiada: _loadAllData, // <--- LLAMADO AL REFRESCO
         ),
       ),
     );
@@ -131,11 +138,17 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     print("nombres de clientes");
     print(_nombresClientes);
     print(idCliente);
+    final postulacion = _postulaciones.firstWhere(
+      (p) => p['id_publicacion'] == publicacion['id'],
+      orElse: () => null,
+    );
 
     final nombreCliente = _nombresClientes[idCliente.toString()] ?? 'Cliente';
-
+    print("Nombre del cliente: ");
     print(nombreCliente);
-    _mostrarDetalleTrabajo(publicacion, nombreCliente, true);
+    print("Informacion de la postulacion: ");
+    print(postulacion);
+    _mostrarDetalleTrabajo(publicacion, nombreCliente, postulacion, true);
   }
 
   List<String> _parseImages(String fotosString) {
@@ -182,9 +195,9 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.white,
           title: const Text(
             'Trabajos',
             style: TextStyle(
@@ -207,7 +220,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.filter_alt_outlined, color: Colors.orange),
+              icon: const Icon(Icons.filter_alt_outlined, color: AppColors.orange),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
@@ -232,7 +245,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
 
   Widget _buildJobList(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: _loadData,
+      onRefresh: _loadAllData,
       color: Colors.orange,
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -259,11 +272,17 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                       ],
                     )
                   : JobList(
-                      publicaciones: _publicaciones,
+                      publicaciones: _publicaciones.where((pub) {
+                        // Verifica si hay alguna postulación para esta publicación
+                        final yaPostulado = _postulaciones.any(
+                          (post) => post['id_publicacion'] == pub['id'],
+                        );
+                        return !yaPostulado; // Mostrar solo si NO hay postulación
+                      }).toList(),
                       nombresClientes: _nombresClientes,
                       onVerDetalles: (publicacion, nombreCliente) {
-                        _mostrarDetalleTrabajo(publicacion, nombreCliente,
-                            false); // false porque viene de publicaciones
+                        _mostrarDetalleTrabajo(
+                            publicacion, nombreCliente, null, false);
                       },
                     ),
     );
@@ -288,11 +307,33 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
               : _postulaciones.isEmpty
                   ? ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0, vertical: 40.0),
                       children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          child: const Center(
-                            child: Text('No tienes postulaciones aún'),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.work_outline,
+                                  size: 80, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text(
+                                'Aún no te has postulado a ningún trabajo',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF003366),
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Text(
+                                'Explora las oportunidades disponibles y postúlate para comenzar a trabajar. Postúlate a los trabajos que mejor se adapten a tus habilidades y experiencia.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black87),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -300,13 +341,17 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                   : JobList(
                       publicaciones: _postulaciones
                           .where((postulacion) =>
-                              postulacion['estado'] != 'aceptado')
+                              postulacion['estado'] != 'aceptado' && postulacion['estado'] != 'finalizada')
                           .map((postulacion) {
                             final idPublicacion = postulacion['id_publicacion'];
                             final publicacion = _publicaciones.firstWhere(
                               (pub) => pub['id'] == idPublicacion,
                               orElse: () => null,
                             );
+                            if (publicacion != null) {
+                              publicacion['estado_postulacion'] =
+                                  postulacion['estado']; // 👈 AÑADIDO
+                            }
                             return publicacion;
                           })
                           .where((pub) => pub != null)
@@ -318,8 +363,11 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   }
 
   Widget _buildMisTrabajosList(BuildContext context) {
+    final trabajos = _postulaciones.where((post) =>
+    post['estado'] == 'aceptado' || post['estado'] == 'finalizada'
+  ).toList();
     return RefreshIndicator(
-      onRefresh: _loadPostulaciones,
+      onRefresh: _loadAllData,
       color: Colors.orange,
       child: _isLoadingPostulaciones
           ? const Center(child: CircularProgressIndicator())
@@ -333,20 +381,20 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                     ),
                   ],
                 )
-              : _postulacionesAceptadas.isEmpty
+              : trabajos.isEmpty
                   ? ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       children: [
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.8,
                           child: const Center(
-                            child: Text('Aún no tienes trabajos aceptados'),
+                            child: Text('Aún no tienes trabajos aceptados ni finalizados'),
                           ),
                         ),
                       ],
                     )
                   : JobList(
-                      publicaciones: _postulacionesAceptadas
+                      publicaciones: trabajos
                           .map((postulacion) {
                             final idPublicacion = postulacion['id_publicacion'];
                             final publicacion = _publicaciones.firstWhere(

@@ -21,7 +21,8 @@ class JobList extends StatelessWidget {
       itemCount: publicaciones.length,
       itemBuilder: (context, index) {
         final publicacion = publicaciones[index];
-        final nombreCliente = nombresClientes[publicacion['id_cliente']] ?? 'Cargando nombre...';
+        final nombreCliente =
+            nombresClientes[publicacion['id_cliente']] ?? 'Cargando nombre...';
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -33,7 +34,8 @@ class JobList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  TrabajoService.getIconForCategory(publicacion['id_categoria']),
+                  TrabajoService.getIconForCategory(
+                      publicacion['id_categoria']),
                   size: 35,
                   color: const Color(0xFF003366),
                 ),
@@ -69,6 +71,26 @@ class JobList extends StatelessWidget {
                           fontSize: 12,
                         ),
                       ),
+                      if (publicacion['estado_postulacion'] ==
+                          'considerado') ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'Esperando tu aceptación',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
                       Text(
                         publicacion['ubicacion'],
                         style: const TextStyle(
@@ -91,7 +113,8 @@ class JobList extends StatelessWidget {
                   onPressed: () => onVerDetalles(publicacion, nombreCliente),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange.shade300,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     textStyle: const TextStyle(fontSize: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),

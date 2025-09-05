@@ -5,7 +5,7 @@ import notificacionRouter from "./routes/notificacionesRoutes.js"; //Con redis
 import postulacionRouter from "./routes/postulacionRoutes.js";
 import tokenRouter from "./routes/tokenRoutes.js";
 import reporteRouter from "./routes/reportesRoutes.js";
-
+import trabajoRouter from "./routes/trabajosRoutes.js";
 import express from "express";
 import cors from "cors";
 
@@ -25,6 +25,7 @@ app.use(notificacionRouter);
 app.use(postulacionRouter);
 app.use(tokenRouter);
 app.use(reporteRouter);
+app.use(trabajoRouter);
 
 
 // Inicia el servidor

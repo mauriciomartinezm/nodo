@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/chat/screens/Chat1.dart';
 import 'package:nodo/features/trabajos/logic/TrabajoService.dart';
 import 'package:nodo/features/trabajos/screens/trabajos4.dart';
@@ -9,12 +10,16 @@ class DetalleTrabajoScreen extends StatefulWidget {
   final Map<String, dynamic> job;
   final ScrollController scrollController;
   final bool desdePostulaciones;
+  final Map<String, dynamic>? postulacion;
+  final VoidCallback? onPostulacionCambiada;
 
   const DetalleTrabajoScreen({
     super.key,
     required this.job,
+    this.postulacion,
     required this.scrollController,
     this.desdePostulaciones = false,
+    this.onPostulacionCambiada,
   });
 
   @override
@@ -49,7 +54,10 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
     final String ubicacion = widget.job["location"] ?? "Sin ubicación";
     final String presupuesto = widget.job["price"] ?? "0";
     final String fechaLimite = widget.job["time"] ?? "";
-
+    final String estadoPostulacion =
+        widget.postulacion?['estado'].toString() ?? '';
+    print("Estado de la postulacion: ");
+    print(estadoPostulacion);
     // final int? jobId = widget.job["id"];
     //   if (jobId == null) {
     //     return const Center(child: Text('Error: Trabajo sin ID'));
@@ -57,7 +65,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         body: Column(
           children: [
             Container(
@@ -65,7 +73,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
               height: 5,
               margin: const EdgeInsets.only(top: 12, bottom: 12),
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: AppColors.whiteT,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -141,8 +149,8 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                           icon: const Icon(Icons.flag, size: 16),
                           label: const Text("Reportar"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange[600],
-                            foregroundColor: Colors.white,
+                            backgroundColor: AppColors.orange,
+                            foregroundColor: AppColors.white,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 6),
                             textStyle: const TextStyle(fontSize: 13),
@@ -237,84 +245,205 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                if (!widget.desdePostulaciones)
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        try {
-                          final userProvider =
-                              Provider.of<UserProvider>(context, listen: false);
-                          // Verificamos que el usuario esté logueado
-                          if (userProvider.usuario == null) {
+                  if (!widget.desdePostulaciones)
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false);
+                            // Verificamos que el usuario esté logueado
+                            if (userProvider.usuario == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Debes iniciar sesión para postularte')),
+                              );
+                              return;
+                            }
+                            // Asumiendo que tienes el ID del trabajador disponible (podría ser de tu sistema de autenticación)
+                            final trabajadorId = userProvider.usuario!.id;
+                            final publicacionId = widget.job['id'];
+
+                            await TrabajoService.postularse(
+                                publicacionId, trabajadorId);
+
+                            // Opcional: Mostrar un mensaje de éxito
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Postulación enviada correctamente')),
+                            );
+                            // ✅ Cierra el modal
+                            Navigator.of(context).pop();
+                            // ✅ Notifica al padre para recargar
+                            widget.onPostulacionCambiada?.call();
+                            // Opcional: Actualizar el estado si es necesario
+                            setState(() {});
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Error al postularse: ${e.toString()}')),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: selectedAction == 'postularme'
+                              ? const Color(0xFF003366)
+                              : Colors.grey[300],
+                          foregroundColor: selectedAction == 'postularme'
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                        child: const Text("Postularme"),
+                      ),
+                    ),
+                  const SizedBox(width: 8),
+                  if (estadoPostulacion != 'finalizada')
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() => selectedAction = 'hablar');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChatScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: selectedAction == 'hablar'
+                              ? const Color(0xFF003366)
+                              : Colors.grey[300],
+                          foregroundColor: selectedAction == 'hablar'
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                        child: Text(
+                          "Hablar con $nombreSolo",
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ),
+                  if (widget.desdePostulaciones &&
+                      estadoPostulacion == 'considerado')
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false);
+                            if (userProvider.usuario == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Debes iniciar sesión para aceptar la propuesta')),
+                              );
+                              return;
+                            }
+
+                            await TrabajoService.aceptarPostulacion(
+                                widget.postulacion?['id'], 'aceptado');
+
+                            Navigator.of(context).pop(); // Cierra el modal
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text(
-                                      'Debes iniciar sesión para postularte')),
+                                      '¡Has aceptado el trabajo exitosamente!')),
                             );
-                            return;
+                            widget.onPostulacionCambiada
+                                ?.call(); // Refrescar datos
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Error al aceptar postulación: ${e.toString()}')),
+                            );
                           }
-                          // Asumiendo que tienes el ID del trabajador disponible (podría ser de tu sistema de autenticación)
-                          final trabajadorId = userProvider.usuario!.id;
-                          final publicacionId = widget.job['id'];
-
-                          await TrabajoService.postularse(
-                              publicacionId, trabajadorId);
-
-                          // Opcional: Mostrar un mensaje de éxito
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('Postulación enviada correctamente')),
-                          );
-
-                          // Opcional: Actualizar el estado si es necesario
-                          setState(() {});
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(
-                                    'Error al postularse: ${e.toString()}')),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedAction == 'postularme'
-                            ? const Color(0xFF003366)
-                            : Colors.grey[300],
-                        foregroundColor: selectedAction == 'postularme'
-                            ? Colors.white
-                            : Colors.black,
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text("Aceptar trabajo"),
                       ),
-                      child: const Text("Postularme"),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() => selectedAction = 'hablar');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ChatScreen(),
+                  if (widget.desdePostulaciones)
+                    if (estadoPostulacion == 'aceptado') ...[
+                      //lo mismo que 'en proceso' de publicacion
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            // Aquí deberías llamar a un método que marque el trabajo como terminado
+                            await TrabajoService.marcarComoTerminado(
+                                widget.postulacion?['id']);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Notificacion enviada al usuario')),
+                            );
+                            Navigator.of(context).pop();
+                            widget.onPostulacionCambiada?.call();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade700,
+                            foregroundColor: Colors.white,
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedAction == 'hablar'
-                            ? const Color(0xFF003366)
-                            : Colors.grey[300],
-                        foregroundColor: selectedAction == 'hablar'
-                            ? Colors.white
-                            : Colors.black,
+                          child: const Text("Trabajo terminado"),
+                        ),
                       ),
-                      child: Text(
-                        "Hablar con $nombreSolo",
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            // Aquí deberías llamar a un método que cancele el trabajo
+                            await TrabajoService.cancelarTrabajo(
+                                widget.postulacion?['id']);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Trabajo cancelado')),
+                            );
+                            Navigator.of(context).pop();
+                            widget.onPostulacionCambiada?.call();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Cancelar trabajo"),
+                        ),
                       ),
-                    ),
-                  ),
+                    ] else if (estadoPostulacion != 'finalizada')
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            await TrabajoService.deletePostulacion(
+                                widget.postulacion?['id']);
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Postulación eliminada correctamente')),
+                            );
+                            widget.onPostulacionCambiada?.call();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                selectedAction == 'Eliminar postulacion'
+                                    ? const Color(0xFF003366)
+                                    : Colors.grey[300],
+                            foregroundColor:
+                                selectedAction == 'Eliminar postulacion'
+                                    ? Colors.white
+                                    : Colors.black,
+                          ),
+                          child: const Text("Eliminar Postulacion"),
+                        ),
+                      ),
                 ],
               ),
             ),

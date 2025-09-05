@@ -22,6 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<Widget> _screens;
   bool _initialized = false;
 
+  
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -71,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
+     final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.usuario;
 
     return Scaffold(
@@ -98,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 child: Row(
+
                   //Avatar
                   children: [
                     Consumer<UserProvider>(
@@ -128,33 +131,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Row( 
                             children: [
                               Text("${user?.nombres.split(' ').first}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(color: AppColors.white)),
-                              Text(' ${user?.primerApellido}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(color: AppColors.white)),
+                                  style: AppTypography.h2
+                                      .copyWith(color: AppColors.white)),
+                              
+                              Text(
+                                  ' ${user?.primerApellido}' ,
+                                  style: AppTypography.h2
+                                      .copyWith(color: AppColors.white)),
                             ],
                           ),
                           Text(user?.tipoUsuario ?? "Sin tipo",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(color: AppColors.white)),
+                              style: AppTypography.h3
+                                  .copyWith(color: AppColors.white)),
                           const SizedBox(height: 4),
                           if (user?.tipoUsuario == 'trabajador')
                             Text(
                                 "${user?.trabajosCompletados ?? 0} trabajos completados",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(color: AppColors.white)),
+                                style: AppTypography.h3
+                                    .copyWith(color: AppColors.white)),
                         ],
                       ),
                     ),
@@ -164,26 +161,26 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             drawerTile(Icons.settings, "Ajustes", '/SettingsScreen'),
-            if (user?.tipoUsuario != 'trabajador')
-              drawerTile(Icons.work_rounded, "Trabajar con NODO", '/workWNodo'),
+
+            if (user?.tipoUsuario != 'trabajador') 
+            drawerTile(Icons.work_rounded, "Trabajar con NODO", '/workWNodo'),
             drawerTile(Icons.info_rounded, "Acerca de", '/About'),
             const Spacer(),
-            Divider(color: const Color.fromARGB(77, 6, 54, 102)),
+            Divider(color: Colors.grey.shade300),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: GestureDetector(
                 onTap: () async {
-                  //Cerrar el drawer primero
+                  // 1. Cerrar el drawer primero
                   Navigator.of(context).pop();
-
-                  //Mostrar diálogo de confirmación
+                  //Navigator.pushNamed(context, '/logout');
+                  // 2. Mostrar diálogo de confirmación
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text('Cerrar sesión'),
-                      content: const Text(
-                        '¿Estás seguro que deseas cerrar sesión?',
-                      ),
+                      title: const Text('Cerrar sesión'),
+                      content:
+                          const Text('¿Estás seguro que deseas cerrar sesión?'),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
@@ -198,28 +195,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
 
                   if (confirm == true) {
-                    // Muestra un indicador de carga
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => PopScope(
-                        canPop: false,
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                    );
+                      // Muestra un indicador de carga
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => PopScope(
+                          canPop: false,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      );
 
-                    // Ejecuta el logout (que ahora incluye toda la limpieza)
-                    await Provider.of<UserProvider>(context, listen: false)
-                        .logout();
-                    print("Usuario desloggeado");
-                    // Navega al login
-                    // 5. Navegar al login - FORMA CORREGIDA
-                    Navigator.of(context, rootNavigator: true)
-                        .pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => LoginScreen()),
-                      (route) => false,
-                    );
-                  }
+                      // Ejecuta el logout (que ahora incluye toda la limpieza)
+                      await Provider.of<UserProvider>(context, listen: false)
+                          .logout();
+                      print("Usuario desloggeado");
+                      // Navega al login
+                      // 5. Navegar al login - FORMA CORREGIDA
+                      Navigator.of(context, rootNavigator: true)
+                          .pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => LoginScreen()),
+                        (route) => false,
+                      );
+                    }
                 },
                 child: Row(
                   children: const [
@@ -252,11 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget drawerTile(IconData icon, String title, String routeName) {
     return ListTile(
       leading: Icon(icon, color: AppColors.blue),
-      title: Text(title,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(color: AppColors.blue)),
+      title: Text(title, style: const TextStyle(fontSize: 16)),
       onTap: () {
         Navigator.pushNamed(context, routeName);
       },

@@ -97,9 +97,10 @@ export const updateUsuario = async (req, res) => {
   try {
     const keys = Object.keys(req.body);
     const values = Object.values(req.body);
-    const setClause = keys
-      .map((key, index) => `${key} = $${index + 1}`)
-      .join(", ");
+    // Construye dinámicamente el SET usando los índices $1, $2, ...
+    const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ");
+
+    // Añade el valor de ID al final para usarlo como último parámetro
     values.push(req.params.id);
 
     const query = `UPDATE Usuario SET ${setClause} WHERE id = $${values.length}`;
@@ -110,23 +111,12 @@ export const updateUsuario = async (req, res) => {
       return res.status(404).json({ message: "No se encuentra registrado" });
     }
 
-    // 🔧 Aquí debes hacer un SELECT para obtener el usuario actualizado:
-    const updatedUser = await db.query("SELECT * FROM Usuario WHERE id = $1", [
-      req.params.id,
-    ]);
-
-    // ✅ Ahora devolvemos los datos actualizados
-    res.json({
-      message: "Datos actualizados exitosamente",
-      usuario: updatedUser.rows[0],
-    });
+    res.json({ message: "Datos actualizados exitosamente" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
-
-
 export const deleteUsuario = async (req, res) => {
   try {
     const result = await db.query(

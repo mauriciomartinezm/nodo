@@ -19,7 +19,7 @@ class PublicacionListView extends StatelessWidget {
       case 0:
         return 'pendiente';
       case 1:
-        return 'en_proceso';
+        return 'en proceso';
       case 2:
         return 'finalizada';
       default:
@@ -56,6 +56,7 @@ class PublicacionListView extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: PublicacionDetail(
           publicacion: item,
+          publicacionesController: controller,
           onDelete: () => _confirmDelete(context, item, controller),
         ),
       );

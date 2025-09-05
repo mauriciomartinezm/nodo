@@ -178,7 +178,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       ],
                       SizedBox(height: 15.h),
                       FractionallySizedBox(
-                        widthFactor: 0.4,
+                        widthFactor: 0.5,
                         child: ElevatedButton(
                           onPressed:
                               controller.isLoading ? null : _enviarPublicacion,

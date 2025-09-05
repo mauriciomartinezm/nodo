@@ -14,7 +14,6 @@ export async function guardarNotificacion(
   if (!usuarioId || !titulo || !mensaje || !tipo) {
     throw new Error('Faltan campos obligatorios');
   }
-
   const notificacion = {
     id: uuidv4(),
     tipo,
@@ -31,6 +30,8 @@ export async function guardarNotificacion(
     [usuarioId]
   );
   const fcmToken = result.rows[0]?.fcm_token;
+  console.log("Token del usuario a enviar notificación: ");
+  console.log(fcmToken);
 
   if (fcmToken) {
     await enviarNotificacionAUsuario(

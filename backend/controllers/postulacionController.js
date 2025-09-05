@@ -51,7 +51,7 @@ export const postularse = async (req, res) => {
         ]);
 
         if (!fcmToken) {
-            return res.status(400).json({ message: 'El usuario no tiene token FCM' });
+            return res.status(200).json({ message: 'Postulacion creada correctamente pero el usuario no tiene token FCM' });
         }
 
         //Se verifica que el cliente exista
@@ -66,7 +66,7 @@ export const postularse = async (req, res) => {
             }
         );
 
-        res.status(200).json({ message: 'Notificación enviada correctamente' });
+        res.status(200).json({ message: 'Postulacion creada y notificación enviada correctamente' });
     } catch (error) {
         console.error('Error al postularse:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
@@ -162,7 +162,7 @@ export const updatePostulacion = async (req, res) => {
     try {
         // Paso 1: Obtener la postulación actual
         const { rows } = await db.query(
-            "SELECT id_publicacion FROM Postulacion WHERE id = $1",
+            "SELECT * FROM Postulacion WHERE id = $1",
             [postulacionId]
         );
 
@@ -171,7 +171,10 @@ export const updatePostulacion = async (req, res) => {
         }
 
         const idPublicacion = rows[0].id_publicacion;
+        const idTrabajador = rows[0].id_trabajador;
 
+        console.log("Id del trabajador: ");
+        console.log(idTrabajador);
         // Paso 2: Si el nuevo estado es "aceptado", rechazar las demás
         if (estado === "aceptado") {
             await db.query(
@@ -180,6 +183,33 @@ export const updatePostulacion = async (req, res) => {
                  WHERE id_publicacion = $1 AND id != $2`,
                 [idPublicacion, postulacionId]
             );
+            const { rows } = await db.query(
+                "SELECT * FROM Publicacion WHERE id = $1",
+                [idPublicacion]
+            );
+            await db.query(
+                `UPDATE Publicacion
+                 SET estado = 'en proceso'
+                 WHERE id = $1`,
+                [idPublicacion]
+            );
+            if (rows.length === 0) {
+                return res.status(404).json({ message: "Publicacion no encontrada" });
+            }
+            const idCliente = rows[0].id_cliente;
+            console.log("Id del cliente a enviar notificación: ");
+            console.log(idCliente);
+            await guardarNotificacion(
+                idCliente,
+                'postulacion_aceptada',
+                'Un trabajador ha aceptado tu oferta',
+                'El trabajador ha aceptado el trabajo. Puedes iniciar la conversación para coordinar detalles',
+                {
+                    //publicacionId: publicacionId.toString(),
+                    //trabajadorId: trabajadorId.toString()
+                }
+            );
+            console.log("Notificacion enviada");
         }
 
         // Paso 3: Actualizar esta postulación normalmente
@@ -194,7 +224,33 @@ export const updatePostulacion = async (req, res) => {
         if (result.rowCount === 0) {
             return res.status(404).json({ message: "No se pudo actualizar la postulación" });
         }
+        //Enviar notificacion al trabajador
+        if (estado == 'considerado') {
+            await guardarNotificacion(
+                idTrabajador,
+                'consideracion',
+                'Un cliente está interesado en ti',
+                'El empleador te ha considerado para una oferta. ¿Quieres aceptar?',
+                {
+                    //publicacionId: publicacionId.toString(),
+                    //trabajadorId: trabajadorId.toString()
+                }
+            );
+            console.log("Notificacion enviada");
 
+        }
+        /*if (estado == 'finalizada') {
+            await guardarNotificacion(
+                idTrabajador,
+                'trabajo completado',
+                'Trabajo finalizado',
+                'Tu trabajo ha sido finalizada con éxito. ¡No olvides dejar tu reseña!',
+                { //publicacionId: req.params.id
+                }
+            );
+            console.log("Notificacion enviada");
+
+        }*/
         res.json({ message: "Postulación actualizada correctamente" });
     } catch (error) {
         console.error("Error al actualizar postulación:", error);
@@ -202,6 +258,22 @@ export const updatePostulacion = async (req, res) => {
     }
 };
 
+export const deletePostulacion = async (req, res) => {
+    try {
+        const result = await db.query(
+            "DELETE FROM Postulacion WHERE id = $1",
+            [req.params.id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "No se encuentra registrado" });
+        }
+
+        res.json({ message: "Registro eliminado exitosamente" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+};
 
 /*No quiero volver a verla más nunca en mi camino
 Distancia que nos separa, me hiere su cruel olvido
