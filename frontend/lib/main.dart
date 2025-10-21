@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/crear_publicacion/logic/crear_publicacion_controller.dart';
 import 'package:nodo/features/crear_publicacion/logic/crear_publicacion_service.dart';
 import 'package:nodo/features/home/screens/home_screen.dart';
@@ -24,7 +25,6 @@ import 'package:nodo/features/trabajos/screens/trabajos5.dart';
 import 'package:nodo/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nodo/core/theme/app_colors.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/features/welcome/widgets/welcome1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +32,6 @@ import 'providers/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 
 
 // Configuración de rutas nombradas
@@ -110,11 +109,12 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
 
-          theme: ThemeData(
+          theme: /*ThemeData(
             colorScheme:
                 ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
             useMaterial3: true,
-          ),
+          ),*/
+          appTheme,
           // home: const Welcome1Screen(),
           // Lógica firstTime mantenida
           initialRoute: firstTime ? AppRoutes.welcome : AppRoutes.login,

@@ -1,6 +1,7 @@
 // settings_screen.dart
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotificacionesSettings extends StatefulWidget {
@@ -29,7 +30,7 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
             fontFamily: 'GothamMedium',
             fontSize: 13.sp,
             fontWeight: FontWeight.w600,
-            color: AppColors.primaryColor),
+            color: AppColors.blue),
       );
     //  ,
     //);
@@ -55,9 +56,9 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
                         activeColor: Colors
                             .white, // Color del círculo cuando está activo
                         activeTrackColor: AppColors
-                            .primaryColor, // Color del fondo cuando está activo
+                            .blue, // Color del fondo cuando está activo
                         inactiveThumbColor: AppColors
-                            .primaryColor, // Color del círculo cuando está inactivo
+                            .blue, // Color del círculo cuando está inactivo
                         inactiveTrackColor: Colors
                             .transparent, // Fondo transparente cuando está inactivo
                       ),
@@ -67,7 +68,7 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
                       style: TextStyle(
                         fontFamily: 'GothamMedium',
                         fontSize: 12.sp,
-                        color: AppColors.primaryColor,
+                        color: AppColors.blue,
                       ),
                     ),
                   ],
@@ -77,7 +78,7 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontFamily: 'GothamBook',
-                    color: AppColors.primaryColor,
+                    color: AppColors.blue,
                   ),
                 ),
               ],
@@ -90,13 +91,13 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
 
   Widget _buildFrecuenciaOption(String texto, String valor) {
     return CheckboxListTile(
-      activeColor: AppColors.primaryColor,
+      activeColor: AppColors.blue,
       contentPadding: EdgeInsets.symmetric(horizontal: 0.w),
       title: Text(
         texto,
         style: TextStyle(
           fontSize: 10.sp,
-          color: AppColors.primaryColor,
+          color: AppColors.blue,
           fontFamily: 'GothamBook',
         ),
       ),
@@ -116,14 +117,14 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
         title: Text(
           'Configura tus notificaciones',
           style: TextStyle(
-            color: AppColors.primaryColor,
+            color: AppColors.blue,
             fontFamily: 'GothamMedium',
             fontSize: 14.sp,
           ),
         ),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryColor),
+          icon: const Icon(Icons.arrow_back, color: AppColors.blue),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -138,16 +139,16 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
               style: TextStyle(
                   fontSize: 13.sp,
                   fontFamily: 'GothamBook',
-                  color: AppColors.primaryColor),
+                  color: AppColors.blue),
             ),
-            Divider(height: 12.h, thickness: 1, color: AppColors.accentColor),
+            Divider(height: 12.h, thickness: 1, color: AppColors.orange),
             _buildSwitchTile(
               'Desactivar todas las publicaciones',
               'Ten en cuenta que no recibirás notificaciones, excepto aquellas importantes sobre tu cuenta.',
               desactivarTodas,
               (valor) => setState(() => desactivarTodas = valor),
             ),
-            Divider(height: 12.h, thickness: 1, color: AppColors.accentColor),
+            Divider(height: 12.h, thickness: 1, color: AppColors.orange),
             _buildTituloSeccion('Publicaciones de clientes'),
             _buildSwitchTile(
               'Desactivar notificaciones de publicaciones',
@@ -174,7 +175,7 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
                 style: TextStyle(
                     fontFamily: 'GothamMedium',
                     fontSize: 10.sp,
-                    color: AppColors.primaryColor),
+                    color: AppColors.blue),
               ),
             ),
             _buildFrecuenciaOption('Cada 2 horas', '2h'),
@@ -188,7 +189,7 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             padding: EdgeInsets.symmetric(vertical: 14.h),
-            backgroundColor: AppColors.primaryColor,
+            backgroundColor: AppColors.blue,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
@@ -204,7 +205,7 @@ class _NotificacionesSettingsState extends State<NotificacionesSettings> {
             'Guardar preferencias',
             style: TextStyle(
               fontSize: 12.sp,
-              color: AppColors.secondaryColor,
+              color: AppColors.white,
               fontFamily: 'GothamMedium',
             ),
           ),

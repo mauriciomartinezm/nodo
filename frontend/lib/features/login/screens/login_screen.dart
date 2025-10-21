@@ -7,7 +7,7 @@ import 'package:nodo/features/welcome/widgets/welcome3.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/user_provider.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.primaryColor,
+                color: AppColors.blue,
                 borderRadius: BorderRadius.only(
                   bottomRight: Radius.circular(100),
                 ),
@@ -114,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Inicia sesión y descubre nuevas oportunidades de trabajo y servicios en un solo lugar',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppColors.secondaryColor,
+                        color: AppColors.white,
                         fontSize: 14.sp,
                         fontFamily: 'GothamMedium',
                       ),
@@ -143,8 +143,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _identificadorController,
                       decoration: InputDecoration(
                         labelText: "Correo electronico o teléfono",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
                       ),
                     ),
                   ),
@@ -158,8 +156,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: "Contraseña",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
                       ),
                     ),
                   ),
@@ -170,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         "¿Olvidaste tu contraseña?",
                         style: TextStyle(
-                            color: AppColors.accentColor,
+                            color: AppColors.orange,
                             fontFamily: "GothamBook",
                             fontSize: 11.r),
                       ),
@@ -191,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Text("¿No tienes una cuenta? ",
                           style: TextStyle(
-                              color: AppColors.primaryColor,
+                              color: AppColors.blue,
                               fontFamily: "GothamBook",
                               fontSize: 11.r)),
                       TextButton(
@@ -205,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(
                           "Regístrate",
                           style: TextStyle(
-                              color: AppColors.accentColor,
+                              color: AppColors.orange,
                               fontFamily: "GothamMedium",
                               fontSize: 11.r),
                         ),
@@ -219,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       "O continua con: ",
                       style: TextStyle(
-                          color: AppColors.primaryColor,
+                          color: AppColors.orange,
                           fontFamily: "GothamMedium",
                           fontSize: 11.r),
                     ),
@@ -232,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Icon(
                           Icons.facebook,
                           size: MediaQuery.of(context).size.height * 0.03,
-                          color: AppColors.primaryColor,
+                          color: AppColors.blue,
                         ),
                       ),
                       SizedBox(
@@ -242,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Icon(
                           FontAwesomeIcons.google,
                           size: MediaQuery.of(context).size.height * 0.03,
-                          color: AppColors.primaryColor,
+                          color: AppColors.blue,
                         ),
                       ),
                       SizedBox(
@@ -252,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Icon(
                           FontAwesomeIcons.linkedin,
                           size: MediaQuery.of(context).size.height * 0.03,
-                          color: AppColors.primaryColor,
+                          color: AppColors.blue,
                         ),
                       ),
                     ],

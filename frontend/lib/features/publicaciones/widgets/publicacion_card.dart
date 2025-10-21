@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class PublicacionCard extends StatelessWidget {
   final dynamic item;
@@ -66,7 +66,7 @@ class PublicacionCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: tieneImagenes 
                   ? Colors.transparent 
-                  : AppColors.primaryColor.withOpacity(0.2),
+                  : AppColors.blue.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: tieneImagenes
@@ -97,7 +97,7 @@ class PublicacionCard extends StatelessWidget {
           Text(
             item['titulo'] ?? 'Sin título',
             style: TextStyle(
-              color: AppColors.primaryColor,
+              color: AppColors.blue,
               fontFamily: 'GothamMedium',
               fontSize: 10.sp,
             ),
@@ -108,7 +108,7 @@ class PublicacionCard extends StatelessWidget {
           Text(
             _formatDate(item['fecha_publicacion']),
             style: TextStyle(
-              color: AppColors.primaryColor,
+              color: AppColors.blue,
               fontFamily: 'GothamBook',
               fontSize: 10.sp,
             ),
@@ -123,7 +123,7 @@ class PublicacionCard extends StatelessWidget {
     return Center(
       child: Icon(
         Icons.work_outline,
-        color: AppColors.primaryColor,
+        color: AppColors.blue,
         size: 50.sp, // Tamaño más pequeño para que no domine
       ),
     );

@@ -42,19 +42,48 @@ class AppTypography {
 }
 
 final ThemeData appTheme = ThemeData(
-  //ElevatedButton
+  useMaterial3: true, // puedes dejarlo en true si usas M3
+  colorScheme: ColorScheme.fromSeed(seedColor: AppColors.blue),
+
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      
-      shape: RoundedRectangleBorder(
+      backgroundColor: AppColors.blue,
+      foregroundColor: AppColors.white, // color del texto o íconos
+      textStyle: AppTypography.h2.copyWith(
+        //fontFamily: "GothamMedium",
+        fontSize: 12.sp,
+      ),
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(0),
-          topRight: Radius.circular(16),
-          bottomLeft: Radius.circular(16),
-          bottomRight: Radius.circular(0),
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+          bottomRight: Radius.circular(10),
         ),
       ),
-      textStyle: AppTypography.h2,
+      minimumSize: Size(double.infinity, 36.h), // alto base del botón
+      elevation: 0,
+    ),
+  ),
+
+  inputDecorationTheme: InputDecorationTheme(
+    //filled: true,
+    //fillColor: AppColors.whiteT.withOpacity(0.1), // color de fondo del input
+    contentPadding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 14.w),
+
+    //labelStyle: AppTypography.body.copyWith(color: AppColors.blue),
+    //hintStyle: AppTypography.body2.copyWith(color: AppColors.whiteT),
+
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: AppColors.blue, width: 1),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: AppColors.whiteT, width: 1),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: AppColors.blue, width: 2),
     ),
   ),
 );

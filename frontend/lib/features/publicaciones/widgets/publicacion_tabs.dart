@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class PublicacionTabs extends StatelessWidget {
   final int selectedIndex;
@@ -29,14 +29,14 @@ class PublicacionTabs extends StatelessWidget {
               margin: EdgeInsets.only(right: 5.w),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.primaryColor
-                    : AppColors.primaryColor.withOpacity(0.2),
+                    ? AppColors.blue
+                    : AppColors.blue.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 tabs[index],
                 style: TextStyle(
-                  color: isSelected ? Colors.white : AppColors.primaryColor,
+                  color: isSelected ? Colors.white : AppColors.blue,
                   fontFamily: 'GothamMedium',
                   fontSize: 10.sp,
                 ),

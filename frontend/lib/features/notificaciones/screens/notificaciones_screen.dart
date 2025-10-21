@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../widgets/notificaciones_settings.dart';
 import 'package:provider/provider.dart';
@@ -77,7 +77,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
         title: Text(
           'Notificaciones',
           style: TextStyle(
-              color: AppColors.primaryColor,
+              color: AppColors.blue,
               fontFamily: 'GothamMedium',
               fontSize: 14.sp),
         ),
@@ -86,7 +86,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
           IconButton(
             icon: Icon(
               Icons.settings_outlined,
-              color: AppColors.primaryColor,
+              color: AppColors.blue,
               size: 24.r,
             ),
             onPressed: () {
@@ -115,8 +115,8 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                     margin: EdgeInsets.only(right: 5.w),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppColors.primaryColor
-                          : AppColors.primaryColor.withOpacity(0.2),
+                          ? AppColors.blue
+                          : AppColors.blue.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -124,7 +124,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                       style: TextStyle(
                           color: isSelected
                               ? Colors.white
-                              : AppColors.primaryColor,
+                              : AppColors.blue,
                           fontFamily: 'GothamMedium',
                           fontSize: 10.sp),
                     ),
@@ -143,7 +143,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return RefreshIndicator(
-                    color: AppColors.primaryColor,
+                    color: AppColors.blue,
                     onRefresh: () async {
                       setState(() {
                         _notificationsFuture = _fetchNotifications();
@@ -158,7 +158,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                             child: Text(
                               'No hay notificaciones',
                               style: TextStyle(
-                                color: AppColors.primaryColor,
+                                color: AppColors.blue,
                                 fontFamily: 'GothamMedium',
                                 fontSize: 14.sp,
                               ),
@@ -176,7 +176,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                 );
 
                 return RefreshIndicator(
-                  color: AppColors.primaryColor,
+                  color: AppColors.blue,
                   onRefresh: () async {
                     setState(() {
                       _notificationsFuture = _fetchNotifications();
@@ -220,12 +220,12 @@ class _NotificationItem extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: AppColors.primaryColor.withOpacity(0.2),
+              color: AppColors.blue.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               _getIconForType(notification['tipo']),
-              color: AppColors.primaryColor,
+              color: AppColors.blue,
               size: 40,
             ),
           ),
@@ -237,7 +237,7 @@ class _NotificationItem extends StatelessWidget {
                 Text(
                   notification['titulo'],
                   style: TextStyle(
-                    color: AppColors.primaryColor,
+                    color: AppColors.blue,
                     fontFamily: 'GothamMedium',
                     fontSize: 12.sp,
                   ),
@@ -246,7 +246,7 @@ class _NotificationItem extends StatelessWidget {
                 Text(
                   notification['mensaje'],
                   style: TextStyle(
-                    color: AppColors.primaryColor,
+                    color: AppColors.blue,
                     fontFamily: 'GothamBook',
                     fontSize: 10.sp,
                   ),

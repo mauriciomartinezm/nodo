@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nodo/core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
+
 
 class SubirFotoWidget extends StatefulWidget {
   const SubirFotoWidget({super.key});
@@ -36,7 +37,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
       children: [
         Text(
           "Fotos (Máximo 10)",
-          style: TextStyle(fontSize: 10.sp, color: AppColors.aux),
+          style: TextStyle(fontSize: 10.sp, color: AppColors.whiteT),
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -45,7 +46,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
             width: double.infinity,
             height: 50.h,
             decoration: BoxDecoration(
-              border: Border.all(width: 2.r, color: AppColors.aux),
+              border: Border.all(width: 2.r, color: AppColors.whiteT),
               borderRadius: BorderRadius.circular(12),
             ),
             child: _fotos.isEmpty

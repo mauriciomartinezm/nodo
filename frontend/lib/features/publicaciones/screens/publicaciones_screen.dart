@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../logic/publicaciones_controller.dart';
 import '../widgets/publicacion_empty_state.dart';
@@ -34,7 +34,7 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
         title: Text(
           'Mis Publicaciones',
           style: TextStyle(
-              color: AppColors.primaryColor,
+              color: AppColors.blue,
               fontFamily: 'GothamMedium',
               fontSize: 14.sp),
         ),
@@ -43,7 +43,7 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
           IconButton(
             icon: Icon(
               Icons.refresh,
-              color: AppColors.primaryColor,
+              color: AppColors.blue,
               size: 24.r,
             ),
             onPressed: controller.loadPublicaciones,

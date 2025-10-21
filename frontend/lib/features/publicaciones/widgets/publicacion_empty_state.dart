@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class PublicacionEmptyState extends StatelessWidget {
   final String title;
@@ -52,7 +52,7 @@ class PublicacionEmptyState extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                color: AppColors.accentColor.withOpacity(0.6),
+                color: AppColors.orange.withOpacity(0.6),
                 fontFamily: 'GothamMedium',
                 fontSize: 18.sp,
               ),
@@ -62,7 +62,7 @@ class PublicacionEmptyState extends StatelessWidget {
             Text(
               description,
               style: TextStyle(
-                color: AppColors.primaryColor.withOpacity(0.6),
+                color: AppColors.blue.withOpacity(0.6),
                 fontFamily: 'GothamBook',
                 fontSize: 15.sp,
               ),
