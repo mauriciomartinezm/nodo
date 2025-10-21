@@ -76,6 +76,7 @@ void main() async {
 }
 
 Future<bool> isFirstTime() async {
+  return true; // Temporalmente siempre true para pruebas
   final prefs = await SharedPreferences.getInstance();
   return !(prefs.getBool('seen_welcome') ?? false);
 }
