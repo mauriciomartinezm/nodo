@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/user_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -179,43 +180,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     margin: EdgeInsets.only(
                       top: MediaQuery.of(context).size.height * 0.025,
                     ),
-                    child: ElevatedButton(
-                      onPressed: _loading ? null : _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
-                            bottomRight: Radius.circular(10),
-                          ),
-                        ),
-                        minimumSize: Size(
-                          double.infinity,
-                          MediaQuery.of(context).size.height * 0.06,
-                        ),
-                      ),
-                      child: _loading
-                          ? CircularProgressIndicator(
-                              color: AppColors.secondaryColor)
-                          : ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxHeight:
-                                    MediaQuery.of(context).size.height * 0.025,
-                              ),
-                              child: Center(
-                                child: AutoSizeText("Iniciar sesión",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: AppColors.secondaryColor,
-                                      fontFamily: "GothamMedium",
-                                      fontSize: 12.sp,
-                                    ),
-                                    maxLines: 2,
-                                    minFontSize: 5,
-                                    maxFontSize: 28),
-                              ),
-                            ),
+                    child: CustomElevatedButton(
+                      text: "Iniciar sesión",
+                      onPressed: _login,
+                      loading: _loading,
                     ),
                   ),
                   Row(

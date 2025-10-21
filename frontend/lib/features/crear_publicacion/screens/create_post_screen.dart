@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/features/crear_publicacion/widgets/date_picker.dart';
+import 'package:nodo/features/crear_publicacion/widgets/date_picker_widget.dart';
 //import 'package:nodo/features/crear_publicacion/widgets/foto_widget.dart';
 import 'package:nodo/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../widgets/foto_widget.dart';
 import '../logic/crear_publicacion_controller.dart';
-import '../widgets/header_info.dart';
-import '../widgets/text_field.dart';
-import '../widgets/categoria_dropdown.dart';
-import '../widgets/descripcion_field.dart';
+import '../widgets/header_info_widget.dart';
+import '../widgets/text_field_widget.dart';
+import '../widgets/categoria_dropdown_widget.dart';
+import '../widgets/descripcion_field_widget.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
 class CrearPublicacionScreen extends StatefulWidget {
