@@ -68,18 +68,18 @@ final ThemeData appTheme = ThemeData(
   inputDecorationTheme: InputDecorationTheme(
     //filled: true,
     //fillColor: AppColors.whiteT.withOpacity(0.1), // color de fondo del input
-    contentPadding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 14.w),
+    contentPadding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 14.w),
 
     //labelStyle: AppTypography.body.copyWith(color: AppColors.blue),
     //hintStyle: AppTypography.body2.copyWith(color: AppColors.whiteT),
 
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(color: AppColors.blue, width: 1),
+      borderSide: BorderSide(color: AppColors.blue, width: 1), // borde por defecto, no hace ningun cambio
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(color: AppColors.whiteT, width: 1),
+      borderSide: BorderSide(color: AppColors.whiteT, width: 2),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
