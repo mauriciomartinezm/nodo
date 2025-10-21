@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/shared/widgets/barra_navegacion_widget.dart';
-import 'package:nodo/features/crear_publicacion/screens/crear_publicacion_screen.dart';
+import 'package:nodo/features/crear_publicacion/screens/create_post_screen.dart';
 import 'package:nodo/features/notificaciones/screens/notificaciones_screen.dart';
 import 'package:nodo/features/publicaciones/screens/publicaciones_screen.dart';
 import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:nodo/features/trabajos/screens/trabajos1.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {

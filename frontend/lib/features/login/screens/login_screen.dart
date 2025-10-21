@@ -6,7 +6,7 @@ import 'package:nodo/features/home/screens/home_screen.dart';
 import 'package:nodo/features/welcome/widgets/welcome3.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../providers/userprovider.dart';
+import '../../../providers/user_provider.dart';
 import '../../../core/theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {

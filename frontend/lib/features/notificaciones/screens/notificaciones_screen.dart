@@ -5,7 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../widgets/notificaciones_settings.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/userprovider.dart';
+import '../../../providers/user_provider.dart';
 import '../../../core/constants/api_constants.dart';
 
 class NotificacionesScreen extends StatefulWidget {

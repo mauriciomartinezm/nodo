@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import '../../../providers/userprovider.dart';
+import '../../../providers/user_provider.dart';
 import '../../../core/constants/api_constants.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 

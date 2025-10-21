@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nodo/features/publicaciones/screens/publicaciones_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatelessWidget {

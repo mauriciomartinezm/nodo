@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../core/constants/api_constants.dart';
-import '../../../providers/userprovider.dart';
+import '../../../providers/user_provider.dart';
 
 class Postulacion {
   final String id;

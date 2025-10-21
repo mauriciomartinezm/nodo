@@ -5,7 +5,7 @@ import 'registerclient3.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 import 'package:nodo/core/constants/api_constants.dart';
 
 class RegisterClient2 extends StatefulWidget {

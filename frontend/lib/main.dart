@@ -28,7 +28,7 @@ import 'package:nodo/core/theme/app_colors.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/features/welcome/widgets/welcome1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'providers/userprovider.dart';
+import 'providers/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

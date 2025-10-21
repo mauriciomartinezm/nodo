@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nodo/features/register/widgets/register_scaffold.dart';
 import 'package:nodo/features/register/widgets/registerclient2.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 import 'package:nodo/core/constants/api_constants.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;

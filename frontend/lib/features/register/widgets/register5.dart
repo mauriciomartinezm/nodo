@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:nodo/features/register/widgets/registerclient4.dart';
 import 'package:nodo/features/register/widgets/register_scaffold.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 import 'package:nodo/core/constants/api_constants.dart';
 
 class Register5 extends StatefulWidget {

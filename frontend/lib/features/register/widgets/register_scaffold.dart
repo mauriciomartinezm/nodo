@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/features/register/widgets/progress.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 
 class RegisterScaffold extends StatelessWidget {
   final String title;

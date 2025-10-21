@@ -5,7 +5,7 @@ import 'package:nodo/features/trabajos/screens/trabajos3.dart';
 import 'package:nodo/features/trabajos/screens/trabajos6.dart';
 import 'package:nodo/features/trabajos/logic/TrabajoService.dart'; // Asegúrate de importar aquí
 import 'package:nodo/features/trabajos/widgets/joblist.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class TrabajosScreen2 extends StatefulWidget {

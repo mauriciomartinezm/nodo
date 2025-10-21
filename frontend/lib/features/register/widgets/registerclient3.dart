@@ -5,7 +5,7 @@ import 'package:nodo/features/register/widgets/register_scaffold.dart';
 import 'registerclient4.dart';
 import 'register5.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 
 class RegisterClient3 extends StatefulWidget {
   const RegisterClient3({super.key});

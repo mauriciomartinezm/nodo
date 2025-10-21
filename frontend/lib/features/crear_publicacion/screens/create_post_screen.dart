@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/features/crear_publicacion/widgets/date_picker.dart';
 //import 'package:nodo/features/crear_publicacion/widgets/foto_widget.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../widgets/foto_widget.dart';

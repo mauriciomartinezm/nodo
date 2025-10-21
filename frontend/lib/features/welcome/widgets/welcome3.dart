@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/userprovider.dart';
+import 'package:nodo/providers/user_provider.dart';
 import 'package:nodo/features/register/widgets/registerclient1.dart';
 
 class Welcome3Screen extends StatelessWidget {
