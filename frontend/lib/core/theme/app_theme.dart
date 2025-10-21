@@ -70,8 +70,8 @@ final ThemeData appTheme = ThemeData(
     //fillColor: AppColors.whiteT.withOpacity(0.1), // color de fondo del input
     contentPadding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 14.w),
 
-    //labelStyle: AppTypography.body.copyWith(color: AppColors.blue),
-    //hintStyle: AppTypography.body2.copyWith(color: AppColors.whiteT),
+    labelStyle: AppTypography.body.copyWith(color: AppColors.whiteT),
+    //hintStyle: AppTypography.body2.copyWith(color: AppColors.whiteT), //no se donde se usa
 
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),

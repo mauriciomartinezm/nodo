@@ -113,11 +113,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: AutoSizeText(
                       'Inicia sesión y descubre nuevas oportunidades de trabajo y servicios en un solo lugar',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 14.sp,
-                        fontFamily: 'GothamMedium',
-                      ),
+                      style: AppTypography.h2.copyWith(
+                                color: AppColors.white),
                       maxLines: 3,
                       minFontSize: 5,
                       maxFontSize: 22,
@@ -165,10 +162,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {},
                       child: Text(
                         "¿Olvidaste tu contraseña?",
-                        style: TextStyle(
-                            color: AppColors.orange,
-                            fontFamily: "GothamBook",
-                            fontSize: 11.r),
+                        style: AppTypography.body.copyWith(
+                                color: AppColors.orange),
                       ),
                     ),
                   ),
@@ -186,10 +181,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text("¿No tienes una cuenta? ",
-                          style: TextStyle(
-                              color: AppColors.blue,
-                              fontFamily: "GothamBook",
-                              fontSize: 11.r)),
+                          style: AppTypography.body.copyWith(
+                                color: AppColors.blue)),
                       TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -198,13 +191,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 builder: (context) => const Welcome3Screen()),
                           );
                         },
-                        child: Text(
-                          "Regístrate",
-                          style: TextStyle(
-                              color: AppColors.orange,
-                              fontFamily: "GothamMedium",
-                              fontSize: 11.r),
-                        ),
+                        child: Text("Regístrate",
+                            style: AppTypography.body.copyWith(
+                                fontFamily: 'GothamMedium',
+                                color: AppColors.orange)),
                       ),
                     ],
                   ),
@@ -212,13 +202,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     margin: EdgeInsets.only(
                         top: MediaQuery.of(context).size.height * 0.09,
                         bottom: MediaQuery.of(context).size.height * 0.015),
-                    child: Text(
-                      "O continua con: ",
-                      style: TextStyle(
-                          color: AppColors.orange,
-                          fontFamily: "GothamMedium",
-                          fontSize: 11.r),
-                    ),
+                    child: Text("O continua con: ",
+                        style: AppTypography.body.copyWith(
+                            fontFamily: 'GothamMedium', color: AppColors.blue)),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
