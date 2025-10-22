@@ -124,7 +124,7 @@ class _RegisterClient1State extends State<RegisterClient1> {
           final segundoApellido = _segundoApellidoController.text.trim();
 
           final userProvider = Provider.of<UserProvider>(context, listen: false);
-          userProvider.setCedula(cedula);
+          //userProvider.setCedula(cedula); ??
 
           final tipoUsuario = userProvider.isWorker ? "trabajador" : "cliente";
 

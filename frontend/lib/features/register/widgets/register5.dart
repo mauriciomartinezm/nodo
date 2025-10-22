@@ -110,7 +110,7 @@ class _Register5State extends State<Register5> {
     final fieldSpacing = screenHeight * 0.02;
 
     final userProvider = Provider.of<UserProvider>(context);
-    cedula = userProvider.cedula;
+    //cedula = userProvider.cedula; ??
     final isWorker = userProvider.isWorker;
 
     return RegisterScaffold(

@@ -50,7 +50,7 @@ class _RegisterClient2State extends State<RegisterClient2> {
     final fieldSpacing = screenHeight * 0.02;
 
     final userProvider = Provider.of<UserProvider>(context);
-    final cedula = userProvider.cedula;
+    final cedula = userProvider.user?.id;
 
     final formContent = Center(
       child: SingleChildScrollView(
@@ -135,7 +135,7 @@ class _RegisterClient2State extends State<RegisterClient2> {
           return;
         }
 
-        final url = Uri.parse(ApiConstants.updateUsuarioEndpoint(cedula));
+        final url = Uri.parse(ApiConstants.updateUsuarioEndpoint(cedula!));
 
         final response = await http.put(
           url,

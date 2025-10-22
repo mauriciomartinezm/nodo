@@ -27,7 +27,7 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
 
   Future<void> _loadCategoria() async {
     final userProvider = context.read<UserProvider>();
-    final idCategoria = userProvider.usuario?.idCategoria;
+    final idCategoria = userProvider.user?.idCategoria;
 
     if (idCategoria == null || idCategoria.isEmpty) {
       return;
@@ -57,8 +57,8 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final nombre = '${userProvider.usuario?.nombres ?? ''} ${userProvider.usuario?.primerApellido ?? ''}'.trim();
-    final fotoPerfil = userProvider.usuario?.fotoPerfil;
+    final nombre = '${userProvider.user?.nombres ?? ''} ${userProvider.user?.primerApellido ?? ''}'.trim();
+    final fotoPerfil = userProvider.user?.fotoPerfil;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 15.r),

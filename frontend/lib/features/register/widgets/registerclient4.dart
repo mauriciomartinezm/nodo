@@ -83,18 +83,18 @@ class _RegisterClient4State extends State<RegisterClient4> {
     setState(() => _isLoading = true); // Activar estado de carga
 
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final cedula = userProvider.cedula;
+    final cedula = userProvider.user?.id;
     String urlImagen;
 
     try {
       if (_imageFile != null) {
-        urlImagen = await _subirImagenAFirebase(_imageFile!, cedula);
+        urlImagen = await _subirImagenAFirebase(_imageFile!, cedula!);
       } else {
         urlImagen =
             "https://firebasestorage.googleapis.com/v0/b/nodo-b1ff4.firebasestorage.app/o/perfiles%2FiconNodoBlue.png?alt=media&token=22b11580-c0ac-403e-89e3-5f09cc5cd25c";
       }
 
-      await _enviarImagenAlBackend(cedula, urlImagen);
+      await _enviarImagenAlBackend(cedula!, urlImagen);
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seen_welcome', true);

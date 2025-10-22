@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:nodo/features/home/screens/home_screen.dart';
+import 'package:nodo/features/login/logic/login_controller.dart';
 import 'package:nodo/features/welcome/widgets/welcome3.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/user_provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
@@ -22,69 +21,18 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController();
   final TextEditingController _contrasenaController = TextEditingController();
 
-  bool _loading = false;
+  late LoginController _loginController;
 
-  Future<void> _login() async {
-    print("Entrando a la función _login");
-    final identificador = _identificadorController.text.trim();
-    final contrasena = _contrasenaController.text;
-
-    if (identificador.isEmpty || contrasena.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor completa todos los campos')),
-      );
-      return;
-    }
-
-    setState(() {
-      _loading = true;
-    });
-    try {
-      print("Entrado al try dentro del _login");
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      print(
-          "Esperando al login exitoso de la API en la funcion dentro de userProvider");
-      String message =
-          await userProvider.loginUsuario(identificador, contrasena);
-      print("Mensaje devuelto por userProvider: ");
-      print(message);
-      if (message.startsWith("Login exitoso")) {
-        final prefs = await SharedPreferences.getInstance();
-        final seenWelcome = prefs.getBool('seen_welcome') ?? false;
-        print('seen_welcome en navegación: $seenWelcome');
-
-        print("Login exitoso, ejecutando pushReplacement /home");
-        /*Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );*/
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-          (route) => false,
-        );
-      } else if (message.startsWith("Credenciales inválidas")) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Credenciales inválidas')),
-        );
-      } else if (message == "Error al conectar con el servidor") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al conectar con el servidor')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error de conexión: $e')),
-      );
-    } finally {
-      setState(() {
-        _loading = false;
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _loginController = LoginController(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final bool _loading = userProvider.isLoading;
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(children: [
@@ -113,8 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: AutoSizeText(
                       'Inicia sesión y descubre nuevas oportunidades de trabajo y servicios en un solo lugar',
                       textAlign: TextAlign.center,
-                      style: AppTypography.h2.copyWith(
-                                color: AppColors.white),
+                      style: AppTypography.h2.copyWith(color: AppColors.white),
                       maxLines: 3,
                       minFontSize: 5,
                       maxFontSize: 22,
@@ -162,8 +109,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {},
                       child: Text(
                         "¿Olvidaste tu contraseña?",
-                        style: AppTypography.body.copyWith(
-                                color: AppColors.orange),
+                        style: AppTypography.body
+                            .copyWith(color: AppColors.orange),
                       ),
                     ),
                   ),
@@ -173,7 +120,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: CustomElevatedButton(
                       text: "Iniciar sesión",
-                      onPressed: _login,
+                      onPressed: _loading
+                          ? null
+                          : () async {
+                              await _loginController.login(
+                                _identificadorController.text.trim(),
+                                _contrasenaController.text.trim(),
+                              );
+                            },
                       loading: _loading,
                     ),
                   ),
@@ -181,8 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text("¿No tienes una cuenta? ",
-                          style: AppTypography.body.copyWith(
-                                color: AppColors.blue)),
+                          style: AppTypography.body
+                              .copyWith(color: AppColors.blue)),
                       TextButton(
                         onPressed: () {
                           Navigator.push(

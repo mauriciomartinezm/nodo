@@ -22,7 +22,7 @@ import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart'
 import 'package:nodo/features/publicaciones/logic/publicaciones_service.dart';
 import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:nodo/features/trabajos/screens/trabajos5.dart';
-import 'package:nodo/services/notification_service.dart';
+import 'package:nodo/core/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';

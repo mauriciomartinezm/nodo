@@ -11,7 +11,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final user = userProvider.usuario;
+    final user = userProvider.user;
 
     if (user == null) {
       return Scaffold(
@@ -87,7 +87,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         child: Consumer<UserProvider>(
                           builder: (context, userProvider, child) {
-                            final fotoPerfil = userProvider.usuario?.fotoPerfil;
+                            final fotoPerfil = userProvider.user?.fotoPerfil;
                             return CircleAvatar(
                               radius: 60,
                               backgroundColor: AppColors.white,

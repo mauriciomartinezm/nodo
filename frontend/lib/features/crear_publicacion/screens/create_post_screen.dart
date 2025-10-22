@@ -59,7 +59,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
     if (!_validarCampos()) return;
 
     final datos = {
-      "id_cliente": userProvider.usuario!.id,
+      "id_cliente": userProvider.user!.id,
       "titulo": _tituloController.text,
       "id_categoria": _getIdCategoriaSeleccionada(),
       "ubicacion": _ubicacionController.text,

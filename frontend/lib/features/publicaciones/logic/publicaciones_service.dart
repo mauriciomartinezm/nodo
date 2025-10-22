@@ -32,7 +32,7 @@ class PublicacionesService {
   PublicacionesService(this.userProvider);
 
   Future<List<dynamic>> getPublicacionesByUserId() async {
-    final usuarioId = userProvider.usuario!.id;
+    final usuarioId = userProvider.user!.id;
     final response = await http.get(
       Uri.parse('${ApiConstants.baseUrl}/getPublicacionesByUserId/$usuarioId'),
     );

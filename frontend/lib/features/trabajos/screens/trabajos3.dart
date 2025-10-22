@@ -254,7 +254,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                                 context,
                                 listen: false);
                             // Verificamos que el usuario esté logueado
-                            if (userProvider.usuario == null) {
+                            if (userProvider.user == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text(
@@ -263,7 +263,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                               return;
                             }
                             // Asumiendo que tienes el ID del trabajador disponible (podría ser de tu sistema de autenticación)
-                            final trabajadorId = userProvider.usuario!.id;
+                            final trabajadorId = userProvider.user!.id;
                             final publicacionId = widget.job['id'];
 
                             await TrabajoService.postularse(
@@ -337,7 +337,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                             final userProvider = Provider.of<UserProvider>(
                                 context,
                                 listen: false);
-                            if (userProvider.usuario == null) {
+                            if (userProvider.user == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text(

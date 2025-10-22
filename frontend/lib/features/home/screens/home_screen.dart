@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
      final userProvider = Provider.of<UserProvider>(context);
-    final user = userProvider.usuario;
+    final user = userProvider.user;
 
     return Scaffold(
       body: IndexedStack(
@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Consumer<UserProvider>(
                       builder: (context, userProvider, child) {
-                        final fotoPerfil = userProvider.usuario?.fotoPerfil;
+                        final fotoPerfil = userProvider.user?.fotoPerfil;
 
                         return CircleAvatar(
                           radius: 30,

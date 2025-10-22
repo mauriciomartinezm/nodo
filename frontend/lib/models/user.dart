@@ -1,4 +1,4 @@
-class Usuario {
+class User {
   final String id;
   final String nombres;
   final String primerApellido;
@@ -17,7 +17,7 @@ class Usuario {
   final dynamic calificacionPromedio;
   final dynamic trabajosCompletados;
 
-  Usuario({
+  User({
     required this.id,
     required this.nombres,
     required this.primerApellido,
@@ -37,8 +37,8 @@ class Usuario {
     this.trabajosCompletados,
   });
 
-  factory Usuario.fromJson(Map<String, dynamic> json) {
-    return Usuario(
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
       id: json['id'],
       nombres: json['nombres'],
       primerApellido: json['primer_apellido'],

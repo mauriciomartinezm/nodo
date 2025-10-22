@@ -67,8 +67,8 @@ class Welcome3Screen extends StatelessWidget {
             child: IconButton(
               onPressed: () {
                 // Establece isWorker en false
-                Provider.of<UserProvider>(context, listen: false)
-                    .setIsWorker(false);
+                //Provider.of<UserProvider>(context, listen: false)
+                //    .setIsWorker(false);
 
                 Navigator.push(
                   context,
@@ -106,8 +106,8 @@ class Welcome3Screen extends StatelessWidget {
             child: IconButton(
               onPressed: () {
                 // Establece isWorker en true
-                Provider.of<UserProvider>(context, listen: false)
-                    .setIsWorker(true);
+                //Provider.of<UserProvider>(context, listen: false)
+                //    .setIsWorker(true);
 
                 Navigator.push(
                   context,

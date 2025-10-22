@@ -42,7 +42,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
 
   Future<void> _loadData() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final currentId = userProvider.usuario?.id; // o userProvider.cedula
+    final currentId = userProvider.user?.id; // o userProvider.cedula
     try {
       final publicaciones = await TrabajoService.fetchPublicaciones();
       final nombres = await TrabajoService.fetchNombresClientes(publicaciones);
@@ -64,7 +64,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
   Future<void> _loadPostulaciones() async {
     print("💬 Cargando Postulaciones");
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final currentId = userProvider.usuario?.id;
+    final currentId = userProvider.user?.id;
     if (currentId == null) return;
 
     try {
