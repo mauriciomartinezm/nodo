@@ -368,17 +368,4 @@ class ProfileScreen extends StatelessWidget {
       return dateString;
     }
   }
-
-  //Formato de fecha
-  String _formatDate(String dateString) {
-    try {
-      //Parseo de la fecha
-      final date = DateTime.parse(dateString);
-      //Formateo fecha español (día mes año)
-      return DateFormat('d MMMM y', 'es').format(date);
-    } catch (e) {
-      //Si hay error al parsear, devuelve la fecha original
-      return dateString;
-    }
-  }
 }
