@@ -20,6 +20,7 @@ import 'package:nodo/features/menu/settings/settings_screen.dart';
 import 'package:nodo/features/menu/work_wt_nodo_screen.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_service.dart';
+import 'package:nodo/features/register/logic/register_controller.dart';
 import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:nodo/features/trabajos/screens/trabajos5.dart';
 import 'package:nodo/core/services/notification_service.dart';
@@ -68,6 +69,9 @@ void main() async {
             ),
           ),
         ),
+        ChangeNotifierProvider(
+        create: (_) => RegisterController(),
+      ),
       ],
       child: MyApp(firstTime: firstTime),
     ),
@@ -75,7 +79,7 @@ void main() async {
 }
 
 Future<bool> isFirstTime() async {
-  return false; // Temporalmente siempre false para pruebas
+  return true; // Temporalmente para pruebas
   final prefs = await SharedPreferences.getInstance();
   return !(prefs.getBool('seen_welcome') ?? false);
 }

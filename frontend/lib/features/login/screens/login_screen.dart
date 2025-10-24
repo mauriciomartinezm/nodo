@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:nodo/features/login/logic/login_controller.dart';
+import 'package:nodo/features/register/screens/register_screen.dart';
 import 'package:nodo/features/welcome/widgets/welcome3.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/user_provider.dart';
@@ -142,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Welcome3Screen()),
+                                builder: (context) => const RegisterScreen()),
                           );
                         },
                         child: Text("Regístrate",

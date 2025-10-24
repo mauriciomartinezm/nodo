@@ -1,20 +1,19 @@
+/*
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:nodo/features/register/widgets/register_scaffold.dart';
-import 'registerclient4.dart';
-import 'register5.dart';
+import 'profile_picture_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/providers/user_provider.dart';
 
-class RegisterClient3 extends StatefulWidget {
-  const RegisterClient3({super.key});
+class ValidationWidget extends StatefulWidget {
+  const ValidationWidget({super.key});
 
   @override
-  State<RegisterClient3> createState() => _RegisterClient3State();
+  State<ValidationWidget> createState() => _ValidationWidgetState();
 }
 
-class _RegisterClient3State extends State<RegisterClient3> {
+class _ValidationWidgetState extends State<ValidationWidget> {
   final List<TextEditingController> _controllers =
       List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
@@ -69,17 +68,10 @@ class _RegisterClient3State extends State<RegisterClient3> {
     final isWorker = userProvider.isWorker;
 
     if (code.length == 6) {
-      if (isWorker) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Register5()),
-        );
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const RegisterClient4()),
-        );
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const RegisterClient4()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, completa los 6 dígitos.')),
@@ -91,9 +83,8 @@ class _RegisterClient3State extends State<RegisterClient3> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final horizontalPadding = screenWidth > 600 ? screenWidth * 0.1 : 16.0;
-  
 
-    final formContent = Center(
+    return Center(
       child: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -161,7 +152,10 @@ class _RegisterClient3State extends State<RegisterClient3> {
               const SizedBox(height: 16),
               RichText(
                 text: TextSpan(
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 13),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontSize: 13),
                   children: [
                     const TextSpan(text: '¿No recibiste el código? '),
                     _canResend
@@ -175,7 +169,8 @@ class _RegisterClient3State extends State<RegisterClient3> {
                               ..onTap = () {
                                 _startCountdown();
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Código reenviado.')),
+                                  const SnackBar(
+                                      content: Text('Código reenviado.')),
                                 );
                               },
                           )
@@ -191,13 +186,6 @@ class _RegisterClient3State extends State<RegisterClient3> {
         ),
       ),
     );
-
-    return RegisterScaffold(
-      title: 'Verificación',
-      stepIndex: 2,
-      formContent: formContent,
-      onNext: _verifyCode,
-      // isWorker lo maneja internamente RegisterScaffold para ProgressDots
-    );
   }
 }
+*/

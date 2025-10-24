@@ -1,3 +1,4 @@
+/*
 import 'dart:io';
 import 'dart:convert';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -5,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
-import 'package:nodo/features/register/widgets/register_scaffold.dart';
 //import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -14,14 +14,14 @@ import 'package:nodo/core/constants/api_constants.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class RegisterClient4 extends StatefulWidget {
-  const RegisterClient4({super.key});
+class ProfilePictureWidget extends StatefulWidget {
+  const ProfilePictureWidget({super.key});
 
   @override
-  State<RegisterClient4> createState() => _RegisterClient4State();
+  State<ProfilePictureWidget> createState() => _ProfilePictureWidgetState();
 }
 
-class _RegisterClient4State extends State<RegisterClient4> {
+class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
   bool _acceptedTerms = false;
   File? _imageFile;
   String? foto_perfil;
@@ -123,7 +123,7 @@ class _RegisterClient4State extends State<RegisterClient4> {
     final screenHeight = MediaQuery.of(context).size.height;
     final isWorker = Provider.of<UserProvider>(context).isWorker;
 
-    return RegisterScaffold(
+    return Column(
       title: 'Personalización y confirmación',
       stepIndex: isWorker ? 4 : 3, // 👈
       formContent: SizedBox(
@@ -266,3 +266,4 @@ class _RegisterClient4State extends State<RegisterClient4> {
   }
   
 }
+*/

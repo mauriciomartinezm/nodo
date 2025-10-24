@@ -1,5 +1,6 @@
 // welcome2.dart
 import 'package:flutter/material.dart';
+import 'package:nodo/features/register/screens/register_screen.dart';
 import 'welcome3.dart'; // Importa la tercera pantalla de bienvenida
 
 class Welcome2Screen extends StatefulWidget {
@@ -111,7 +112,7 @@ class _Welcome2ScreenState extends State<Welcome2Screen> {
                                           context,
                                           animation,
                                           secondaryAnimation,
-                                        ) => const Welcome3Screen(),
+                                        ) => const RegisterScreen(),
                                     transitionsBuilder: (
                                       context,
                                       animation,

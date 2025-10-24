@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-import 'package:nodo/features/register/widgets/register5.dart';
+import 'package:nodo/features/register/screens/register_screen.dart';
 
 class WorkWtNodo extends StatelessWidget {
   const WorkWtNodo({super.key});
@@ -99,7 +99,7 @@ class WorkWtNodo extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const Register5()),
+                              builder: (context) => const RegisterScreen()),
                         );
                       },
                       child: Text(

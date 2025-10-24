@@ -1,7 +1,8 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/providers/user_provider.dart';
-import 'package:nodo/features/register/widgets/registerclient1.dart';
+import 'package:nodo/features/register/widgets/form_widget.dart';
 
 class Welcome3Screen extends StatelessWidget {
   const Welcome3Screen({super.key});
@@ -157,3 +158,4 @@ class Welcome3Screen extends StatelessWidget {
     );
   }
 }
+*/
