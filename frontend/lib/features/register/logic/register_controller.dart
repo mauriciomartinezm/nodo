@@ -30,7 +30,10 @@ class RegisterController extends ChangeNotifier {
     if (!formKey.currentState!.validate()) return;
 
     _setLoading(true);
-
+    await Future.delayed(const Duration(milliseconds: 2000));
+    onContinue();
+    _setLoading(false);
+    return;
     try {
       final cedula = idController.text.trim();
       final nombres = nameController.text.trim();

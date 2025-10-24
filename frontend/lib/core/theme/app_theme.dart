@@ -49,10 +49,7 @@ final ThemeData appTheme = ThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.blue,
       foregroundColor: AppColors.white, // color del texto o íconos
-      textStyle: AppTypography.h2.copyWith(
-        //fontFamily: "GothamMedium",
-        fontSize: 12.sp,
-      ),
+      textStyle: AppTypography.h2,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(10),

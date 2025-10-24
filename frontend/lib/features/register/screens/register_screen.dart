@@ -14,7 +14,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  int currentStep = 0;
+  int currentStep = 1;
 
   void nextStep() {
     setState(() {
@@ -34,10 +34,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     switch (currentStep) {
       case 0:
         return FormWidget(onContinue: nextStep);
-      //case 1:
-      //  return ValidationWidget(onContinue: nextStep);
-      //case 2:
-      //  return ProfilePictureWidget(onContinue: nextStep);
+      case 1:
+        return ValidationWidget(onContinue: nextStep);
+      case 2:
+        return ProfilePictureWidget(onContinue: nextStep);
       default:
         return const SizedBox();
     }

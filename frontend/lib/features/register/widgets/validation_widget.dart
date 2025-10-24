@@ -1,86 +1,30 @@
-/*
-import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'profile_picture_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
+import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/features/register/logic/validation_controller.dart';
+import 'package:nodo/features/register/widgets/profile_picture_widget.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ValidationWidget extends StatefulWidget {
-  const ValidationWidget({super.key});
+  final VoidCallback onContinue;
+  const ValidationWidget({super.key, required this.onContinue});
 
   @override
   State<ValidationWidget> createState() => _ValidationWidgetState();
 }
 
 class _ValidationWidgetState extends State<ValidationWidget> {
-  final List<TextEditingController> _controllers =
-      List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-
-  int _secondsRemaining = 30;
-  late Timer _timer;
-  bool _canResend = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _startCountdown();
-  }
-
-  void _startCountdown() {
-    _canResend = false;
-    _secondsRemaining = 30;
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _secondsRemaining--;
-        if (_secondsRemaining == 0) {
-          _canResend = true;
-          _timer.cancel();
-        }
-      });
-    });
-  }
-
   @override
   void dispose() {
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
-    _timer.cancel();
+    context.read<ValidationController>().disposeResources();
     super.dispose();
-  }
-
-  void _onChanged(String value, int index) {
-    if (value.isNotEmpty && index < 5) {
-      _focusNodes[index + 1].requestFocus();
-    } else if (value.isEmpty && index > 0) {
-      _focusNodes[index - 1].requestFocus();
-    }
-  }
-
-  void _verifyCode() {
-    final code = _controllers.map((c) => c.text).join();
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final isWorker = userProvider.isWorker;
-
-    if (code.length == 6) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const RegisterClient4()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, completa los 6 dígitos.')),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<ValidationController>();
     final screenWidth = MediaQuery.of(context).size.width;
     final horizontalPadding = screenWidth > 600 ? screenWidth * 0.1 : 16.0;
 
@@ -93,21 +37,30 @@ class _ValidationWidgetState extends State<ValidationWidget> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 24),
-              const Text(
-                'Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación.',
+              Text(
+                'Verificación de identidad',
+                style: AppTypography.h1.copyWith(color: AppColors.blue),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 5.h),
+              Text(
+                'Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación.',
+                style: AppTypography.h3.copyWith(
+                    color: AppColors.blue, fontWeight: FontWeight.normal),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 24.h),
+
+              // 🔹 Campos de código
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(6, (index) {
                   return SizedBox(
-                    width: 45,
-                    height: 55,
+                    width: 45.w,
+                    height: 55.h,
                     child: TextField(
-                      controller: _controllers[index],
-                      focusNode: _focusNodes[index],
+                      controller: controller.controllers[index],
+                      focusNode: controller.focusNodes[index],
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       maxLength: 1,
@@ -123,61 +76,67 @@ class _ValidationWidgetState extends State<ValidationWidget> {
                           borderSide: const BorderSide(color: Colors.blueGrey),
                         ),
                       ),
-                      onChanged: (value) => _onChanged(value, index),
+                      onChanged: (value) => controller.onChanged(value, index),
                     ),
                   );
                 }),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
+
               SizedBox(
                 width: screenWidth * 0.85,
-                child: ElevatedButton(
-                  onPressed: _verifyCode,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A3557),
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    'Verificar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                child: CustomElevatedButton(
+                  text: "Verificar",
+                  onPressed: () {
+                    final code = controller.getEnteredCode();
+                    if (code.length == 6) {
+                      widget.onContinue();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Por favor, completa los 6 dígitos.')),
+                      );
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 16),
+
               RichText(
                 text: TextSpan(
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(fontSize: 13),
                   children: [
-                    const TextSpan(text: '¿No recibiste el código? '),
-                    _canResend
-                        ? TextSpan(
-                            text: 'Reenviar',
-                            style: const TextStyle(
-                              color: Colors.orange,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                _startCountdown();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Código reenviado.')),
-                                );
-                              },
-                          )
-                        : TextSpan(
-                            text: 'Reenviar en $_secondsRemaining s.',
-                            style: const TextStyle(color: Colors.black),
-                          ),
+                    TextSpan(
+                      text: '¿No recibiste el código? ',
+                      style: AppTypography.body2.copyWith(
+                        color: AppColors.blue,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Reenviar',
+                      style: AppTypography.body2.copyWith(
+                        color: AppColors.orange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      recognizer: controller.canResend
+                          ? (TapGestureRecognizer()
+                            ..onTap = () {
+                              controller.startCountdown();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Código reenviado')),
+                      );
+                            })
+                          : null, // 🔹 desactiva el gesto si aún no se puede reenviar
+                    ),
+                    if (!controller.canResend)
+                      TextSpan(
+                        text: ' en ${controller.secondsRemaining}s',
+                        style: AppTypography.body2.copyWith(
+                          color: AppColors.blue,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -188,4 +147,3 @@ class _ValidationWidgetState extends State<ValidationWidget> {
     );
   }
 }
-*/

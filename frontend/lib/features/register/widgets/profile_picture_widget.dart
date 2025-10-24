@@ -1,269 +1,148 @@
-/*
-import 'dart:io';
-import 'dart:convert';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:nodo/features/login/screens/login_screen.dart';
-//import 'package:nodo/features/trabajos/screens/trabajos2.dart';
-import 'package:http/http.dart' as http;
+import 'package:nodo/core/theme/app_theme.dart';
+import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:nodo/features/register/logic/profile_picture_controller.dart';
+import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/providers/user_provider.dart';
-import 'package:nodo/core/constants/api_constants.dart';
-import 'package:path/path.dart' as path;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class ProfilePictureWidget extends StatefulWidget {
-  const ProfilePictureWidget({super.key});
-
-  @override
-  State<ProfilePictureWidget> createState() => _ProfilePictureWidgetState();
-}
-
-class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
-  bool _acceptedTerms = false;
-  File? _imageFile;
-  String? foto_perfil;
-  bool _isLoading = false; // Nuevo estado para controlar la carga
-
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      final imageTemp = File(pickedFile.path);
-
-      setState(() {
-        _imageFile = imageTemp;
-      });
-    }
-  }
-
-  Future<String> _subirImagenAFirebase(File imagen, String cedula) async {
-    try {
-      final nombreArchivo = '${cedula}_${path.basename(imagen.path)}';
-      final ref =
-          FirebaseStorage.instance.ref().child('perfiles/$nombreArchivo');
-
-      final uploadTask = ref.putFile(imagen);
-      final snapshot = await uploadTask;
-      final url = await snapshot.ref.getDownloadURL();
-      return url;
-    } catch (e) {
-      print("Error al subir imagen a Firebase: $e");
-      rethrow;
-    }
-  }
-
-  Future<void> _enviarImagenAlBackend(String cedula, String urlFoto) async {
-    final String apiUrl = ApiConstants.updateUsuarioEndpoint(cedula);
-
-    try {
-      final response = await http.put(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'foto_perfil': urlFoto,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        print('Imagen actualizada correctamente');
-      } else {
-        print('Error al actualizar imagen: ${response.body}');
-      }
-    } catch (e) {
-      print('Excepción al enviar imagen: $e');
-    }
-  }
-
-  void _onConfirmar() async {
-    if (!_acceptedTerms || _isLoading) return; // Evitar múltiples clics
-
-    setState(() => _isLoading = true); // Activar estado de carga
-
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final cedula = userProvider.user?.id;
-    String urlImagen;
-
-    try {
-      if (_imageFile != null) {
-        urlImagen = await _subirImagenAFirebase(_imageFile!, cedula!);
-      } else {
-        urlImagen =
-            "https://firebasestorage.googleapis.com/v0/b/nodo-b1ff4.firebasestorage.app/o/perfiles%2FiconNodoBlue.png?alt=media&token=22b11580-c0ac-403e-89e3-5f09cc5cd25c";
-      }
-
-      await _enviarImagenAlBackend(cedula!, urlImagen);
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('seen_welcome', true);
-
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Hubo un problema al subir la imagen.')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false); // Desactivar carga al finalizar
-      }
-    }
-  }
+class ProfilePictureWidget extends StatelessWidget {
+  const ProfilePictureWidget({super.key, required this.onContinue});
+  final VoidCallback onContinue;
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final controller = Provider.of<ProfilePictureController>(context);
     final isWorker = Provider.of<UserProvider>(context).isWorker;
 
-    return Column(
-      title: 'Personalización y confirmación',
-      stepIndex: isWorker ? 4 : 3, // 👈
-      formContent: SizedBox(
-        height: screenHeight * 0.75,
-        child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: screenHeight * 0.75),
-            child: IntrinsicHeight(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Personaliza tu cuenta con una imagen. Esto ayudará a otros usuarios a reconocerte, '
-                    'pero puedes omitir este paso si lo deseas.',
-                    textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, // 🔹 Centra verticalmente
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'Personalización y Configuración',
+            style: AppTypography.h1.copyWith(color: AppColors.blue),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 5.h),
+          Text(
+            'Tu foto de perfil es importante para generar confianza con los clientes.'
+            'Asegúrate de subir una imagen clara y profesional.',
+            style: AppTypography.h3
+                .copyWith(color: AppColors.blue, fontWeight: FontWeight.normal),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: controller.pickImage,
+            child: Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                CircleAvatar(
+                  radius: 60,
+                  backgroundImage: controller.imageFile != null
+                      ? FileImage(controller.imageFile!)
+                      : const AssetImage('assets/icons/iconNodoBlue.png')
+                          as ImageProvider,
+                  backgroundColor: Colors.grey.shade400.withOpacity(0.4),
+                ),
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.edit,
+                        size: 18, color: Colors.orange.shade700),
                   ),
-                  const SizedBox(height: 24),
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        CircleAvatar(
-                          radius: 60,
-                          backgroundImage: _imageFile != null
-                              ? FileImage(_imageFile!)
-                              : const AssetImage(
-                                      'assets/icons/iconNodoBlue.png')
-                                  as ImageProvider,
-                          backgroundColor:
-                              Colors.grey.shade400.withOpacity(0.4),
-                        ),
-                        Positioned(
-                          bottom: 4,
-                          right: 4,
-                          child: CircleAvatar(
-                            radius: 16,
-                            backgroundColor: Colors.white,
-                            child: Icon(Icons.edit,
-                                size: 18, color: Colors.orange.shade700),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Checkbox(
+                value: controller.acceptedTerms,
+                onChanged: controller.toggleAccepted,
+              ),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontSize: 14),
                     children: [
-                      Checkbox(
-                        value: _acceptedTerms,
-                        onChanged: (value) {
-                          setState(() {
-                            _acceptedTerms = value ?? false;
-                          });
-                        },
+                      TextSpan(
+                          text: 'Acepto los ',
+                          style: AppTypography.body2.copyWith(
+                            color: AppColors.blue,
+                          )),
+                      TextSpan(
+                        text: 'Términos y Condiciones',
+                        style: AppTypography.body2.copyWith(
+                            color: AppColors.orange,
+                            fontWeight: FontWeight.bold),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Términos y Condiciones')),
+                            );
+                          },
                       ),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(fontSize: 14),
-                            children: [
-                              const TextSpan(text: 'Acepto los '),
-                              TextSpan(
-                                text: 'Términos y Condiciones',
-                                style: const TextStyle(
-                                    color: Colors.orange,
-                                    fontWeight: FontWeight.bold),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content:
-                                              Text('Términos y Condiciones')),
-                                    );
-                                  },
-                              ),
-                              const TextSpan(text: ' y la '),
-                              TextSpan(
-                                text: 'Política de Privacidad',
-                                style: const TextStyle(
-                                    color: Colors.orange,
-                                    fontWeight: FontWeight.bold),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content:
-                                              Text('Política de Privacidad')),
-                                    );
-                                  },
-                              ),
-                            ],
-                          ),
-                        ),
+                      TextSpan(
+                          text: ' y la ',
+                          style: AppTypography.body2.copyWith(
+                            color: AppColors.blue,
+                          )),
+                      TextSpan(
+                        text: 'Política de Privacidad',
+                        style: AppTypography.body2.copyWith(
+                            color: AppColors.orange,
+                            fontWeight: FontWeight.bold),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Política de Privacidad')),
+                            );
+                          },
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed:
-                        _acceptedTerms && !_isLoading ? _onConfirmar : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A3557),
-                      minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Aceptar y confirmar',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                  ),
-
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ),
+          const SizedBox(height: 16),
+          CustomElevatedButton(
+            text: 'Crear cuenta',
+            onPressed: controller.acceptedTerms && !controller.isLoading
+                ? () async {
+                    onContinue();
+
+                    final success = await controller.confirmar(context);
+                    if (success && context.mounted) {
+                      onContinue();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Hubo un problema al subir la imagen.')),
+                      );
+                    }
+                  }
+                : null,
+          ),
+        ],
       ),
-      onNext: () {}, // vacío porque no usamos botón siguiente aquí
-      showNextButton: false, // ocultamos botón siguiente
     );
   }
-  
 }
-*/

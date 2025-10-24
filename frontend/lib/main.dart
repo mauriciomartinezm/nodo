@@ -20,7 +20,9 @@ import 'package:nodo/features/menu/settings/settings_screen.dart';
 import 'package:nodo/features/menu/work_wt_nodo_screen.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart';
 import 'package:nodo/features/publicaciones/logic/publicaciones_service.dart';
+import 'package:nodo/features/register/logic/profile_picture_controller.dart';
 import 'package:nodo/features/register/logic/register_controller.dart';
+import 'package:nodo/features/register/logic/validation_controller.dart';
 import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:nodo/features/trabajos/screens/trabajos5.dart';
 import 'package:nodo/core/services/notification_service.dart';
@@ -33,7 +35,6 @@ import 'providers/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 
 // Configuración de rutas nombradas
 abstract class AppRoutes {
@@ -70,8 +71,11 @@ void main() async {
           ),
         ),
         ChangeNotifierProvider(
-        create: (_) => RegisterController(),
-      ),
+          create: (_) => RegisterController(),
+        ),
+        ChangeNotifierProvider(create: (_) => ValidationController()),
+        ChangeNotifierProvider(create: (_) => ProfilePictureController()),
+
       ],
       child: MyApp(firstTime: firstTime),
     ),
@@ -84,7 +88,6 @@ Future<bool> isFirstTime() async {
   return !(prefs.getBool('seen_welcome') ?? false);
 }
 
-
 class MyApp extends StatelessWidget {
   final bool firstTime;
   const MyApp({super.key, required this.firstTime});
@@ -92,7 +95,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return ScreenUtilInit(
       designSize: const Size(360, 690),
       builder: (context, child) {
@@ -100,7 +102,7 @@ class MyApp extends StatelessWidget {
           navigatorKey: NotificationService.navigatorKey, // Usa la misma clave
           debugShowCheckedModeBanner: false,
           title: 'Nodo App',
-          
+
           //idioma de la app
           locale: const Locale('es', 'ES'),
           supportedLocales: const [
@@ -118,7 +120,7 @@ class MyApp extends StatelessWidget {
                 ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
             useMaterial3: true,
           ),*/
-          appTheme,
+              appTheme,
           // home: const Welcome1Screen(),
           // Lógica firstTime mantenida
           initialRoute: firstTime ? AppRoutes.welcome : AppRoutes.login,
