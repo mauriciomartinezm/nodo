@@ -16,13 +16,12 @@ export default redis;
 console.log("Conectando a Redis Cloud");
 const redis = createClient({
     username: 'default',
-    password: 'x2Z0BYe6iyuJMQgKLWJCplAww2l1jg5X',
+    password: '9mzsPiko0MLfIfdp0540pWjtHJ3gmxWo',
     socket: {
-        host: 'redis-18985.c44.us-east-1-2.ec2.redns.redis-cloud.com',
-        port: 18985
+        host: 'redis-15876.c74.us-east-1-4.ec2.redns.redis-cloud.com',
+        port: 15876
     }
 });
-
 redis.on('error', err => console.log('Redis Client Error', err));
 
 await redis.connect();
