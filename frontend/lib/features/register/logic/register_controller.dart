@@ -25,18 +25,19 @@ class RegisterController extends ChangeNotifier {
     required TextEditingController passwordController,
     required TextEditingController confirmPasswordController,
     required String? selectedUserType,
-    required VoidCallback onContinue, 
-    required TextEditingController phoneController, 
-    required TextEditingController dateController, 
-    required TextEditingController locationController, 
+    required VoidCallback onContinue,
+    required TextEditingController phoneController,
+    required TextEditingController dateController,
+    required TextEditingController locationController,
     required List<String> selectedCategories,
-    required TextEditingController descriptionController, 
+    required TextEditingController descriptionController,
+    required TextEditingController emailController,
   }) async {
     if (!formKey.currentState!.validate()) return;
 
     _setLoading(true);
     try {
-      final cedula = idController.text.trim();
+      final id = idController.text.trim();
       final nombres = nameController.text.trim();
       final primerApellido = lastName1Controller.text.trim();
       final segundoApellido = lastName2Controller.text.trim();
@@ -44,10 +45,19 @@ class RegisterController extends ChangeNotifier {
       final contrasena = passwordController.text.trim();
       final confirmacionContrasena = confirmPasswordController.text.trim();
       final telefono = phoneController.text.trim();
-      final ubicacion = locationController.text.trim();
-      final descripcion = descriptionController.text.trim();
+      final ubicacion = selectedUserType == "trabajador" &&
+              locationController.text.trim().isNotEmpty
+          ? locationController.text.trim()
+          : null;
+
+      final descripcion = selectedUserType == "trabajador" &&
+              descriptionController.text.trim().isNotEmpty
+          ? descriptionController.text.trim()
+          : null;
+
       final categorias = selectedCategories;
-      
+      final email = emailController.text.trim();
+
       // Validar que las contraseñas coincidan
 
       if (contrasena != confirmacionContrasena) {
@@ -59,7 +69,7 @@ class RegisterController extends ChangeNotifier {
       }
 
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final tipoUsuario = selectedUserType ?? 
+      final tipoUsuario = selectedUserType ??
           (userProvider.isWorker ? "trabajador" : "cliente");
 
       final url = Uri.parse(ApiConstants.createUsuarioEndpoint);
@@ -68,18 +78,26 @@ class RegisterController extends ChangeNotifier {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          "id": cedula,
+          "id": id,
           "nombres": nombres,
           "primer_apellido": primerApellido,
           "segundo_apellido": segundoApellido,
-          "fecha_registro": DateTime.now().toUtc().toIso8601String(),
-          "verificado": false,
+          "email": email,
+          "telefono": telefono,
+          "fecha_nacimiento": fecha_nacimiento,
+          "contrasena": contrasena,
           "tipo_usuario": tipoUsuario,
+          "ubicacion": ubicacion,
+          "descripcion": descripcion,
         }),
       );
 
       if (response.statusCode == 200) {
         debugPrint("✅ Usuario agregado: ${response.body}");
+        // 🔹 Si el usuario es trabajador y seleccionó categorías, registrar relación
+        if (tipoUsuario == "trabajador" && categorias.isNotEmpty) {
+          await _crearUsuarioCategoria(id, categorias);
+        }
         onContinue();
       } else {
         debugPrint("❌ Error al registrar: ${response.body}");
@@ -95,5 +113,32 @@ class RegisterController extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  /// 🔹 Función privada para registrar categorías del usuario
+  Future<void> _crearUsuarioCategoria(
+      String idUsuario, List<String> categorias) async {
+    final url = Uri.parse(ApiConstants.createUsuarioCategoriaEndpoint);
+
+      try {
+        final response = await http.post(
+          Uri.parse(ApiConstants.createUsuarioCategoriaEndpoint),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            "id_usuario": idUsuario,
+            "id_categorias": categorias, // Lista de strings
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          debugPrint("✅ Usuario-Categorías registrada:");
+        } else {
+          debugPrint(
+              "⚠️ Error registrando usuario-categoría: ${response.body}");
+        }
+      } catch (e) {
+        debugPrint(
+            "⚠️ Error en conexión al registrar categorías: $e");
+      }
   }
 }

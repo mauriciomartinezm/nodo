@@ -28,7 +28,7 @@ class ApiConstants {
 
   static const String postularse = "$baseUrl/postularse"; // ← NUEVO
   static const String finalizarTrabajo = "$baseUrl/finalizarTrabajo"; // ← NUEVO
-
+  static const String createUsuarioCategoriaEndpoint = "$baseUrl/createUsuarioCategoria"; // ← NUEVO
   static String getPostulacionesByPostId(String id) =>
       "$baseUrl/getPostulacionesByPostId/$id"; // ← NUEVO
   static String getPostulacionesByUserId(String id) =>

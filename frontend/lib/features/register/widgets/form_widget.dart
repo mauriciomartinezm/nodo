@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/register/logic/register_controller.dart';
-import 'package:nodo/models/categorie.dart';
 import 'package:nodo/providers/categorie_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -33,6 +32,7 @@ class _FormWidgetState extends State<FormWidget> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
   /*final List<Categorie> availableCategories = [
     Categorie(id: '1', nombre: 'Carpintería', descripcion: ''),
@@ -187,6 +187,7 @@ class _FormWidgetState extends State<FormWidget> {
                     return null;
                   },
                 ),
+
                 SizedBox(height: categorySpacing),
 
                 // Datos de contacto
@@ -194,6 +195,24 @@ class _FormWidgetState extends State<FormWidget> {
                   "Datos de contacto y seguridad",
                   style: AppTypography.h2.copyWith(color: AppColors.blue),
                 ),
+                SizedBox(height: fieldSpacing),
+                TextFormField(
+                  controller: emailController,
+                  decoration:
+                      const InputDecoration(labelText: "Correo electrónico"),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Este campo es obligatorio';
+                    }
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
+                      return 'Ingresa un correo electrónico válido';
+                    }
+                    return null;
+                  },
+                ),
+
                 SizedBox(height: fieldSpacing),
 
                 TextFormField(
@@ -390,6 +409,21 @@ class _FormWidgetState extends State<FormWidget> {
                   onPressed: registerController.isLoading
                       ? null
                       : () async {
+                          // Validar formulario general
+                          if (!_formKey.currentState!.validate()) return;
+
+                          // Validar que seleccione al menos una categoría si es trabajador
+                          if (selectedUserType == "trabajador" &&
+                              selectedCategories.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Por favor selecciona al menos una categoría'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return; // 🚫 Detiene la ejecución
+                          }
                           await registerController.registerUser(
                             context: context,
                             formKey: _formKey,
@@ -406,6 +440,7 @@ class _FormWidgetState extends State<FormWidget> {
                             confirmPasswordController:
                                 confirmPasswordController,
                             selectedUserType: selectedUserType,
+                            emailController: emailController,
                             onContinue: widget.onContinue,
                           );
                         },
