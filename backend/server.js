@@ -30,5 +30,5 @@ app.use(trabajoRouter);
 
 // Inicia el servidor
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Server running on port ${PORT}`);
 });
