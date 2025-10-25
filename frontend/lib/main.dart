@@ -26,6 +26,7 @@ import 'package:nodo/features/register/logic/validation_controller.dart';
 import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:nodo/features/trabajos/screens/trabajos5.dart';
 import 'package:nodo/core/services/notification_service.dart';
+import 'package:nodo/providers/categorie_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
@@ -75,6 +76,7 @@ void main() async {
         ),
         ChangeNotifierProvider(create: (_) => ValidationController()),
         ChangeNotifierProvider(create: (_) => ProfilePictureController()),
+        ChangeNotifierProvider(create: (_) => CategorieProvider()),
 
       ],
       child: MyApp(firstTime: firstTime),
@@ -95,6 +97,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CategorieProvider>(context, listen: false).cargarCategorias();
+    });
+
     return ScreenUtilInit(
       designSize: const Size(360, 690),
       builder: (context, child) {

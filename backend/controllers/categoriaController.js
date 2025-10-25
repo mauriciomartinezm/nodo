@@ -96,20 +96,20 @@ export const createCategoria = async (req, res) => {
   console.log("Peticion recibida en /createCategoria. Cuerpo de la petición: ");
   console.log(req.body);
   try {
-    const { nombre_cat, descripcion } = req.body;
+    const { nombre, descripcion } = req.body;
     const id = uuidv4();
     const query = `
-      INSERT INTO Categoria (id, nombre_cat, descripcion)
+      INSERT INTO Categoria (id, nombre, descripcion)
       VALUES ($1, $2, $3)
     `;
 
-    await db.query(query, [id, nombre_cat, descripcion]);
+    await db.query(query, [id, nombre, descripcion]);
 
     res
       .status(200)
       .json({
         message: "Categoria registrada exitosamente",
-        categoria: { id, nombre_cat, descripcion },
+        categoria: { id, nombre, descripcion },
       });
   } catch (error) {
     console.error("Error al crear la categoria:", error);

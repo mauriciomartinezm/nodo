@@ -14,7 +14,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  int currentStep = 1;
+  int currentStep = 0;
 
   void nextStep() {
     setState(() {

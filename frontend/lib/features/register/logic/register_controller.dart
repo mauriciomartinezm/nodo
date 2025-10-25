@@ -25,22 +25,30 @@ class RegisterController extends ChangeNotifier {
     required TextEditingController passwordController,
     required TextEditingController confirmPasswordController,
     required String? selectedUserType,
-    required VoidCallback onContinue,
+    required VoidCallback onContinue, 
+    required TextEditingController phoneController, 
+    required TextEditingController dateController, 
+    required TextEditingController locationController, 
+    required List<String> selectedCategories,
+    required TextEditingController descriptionController, 
   }) async {
     if (!formKey.currentState!.validate()) return;
 
     _setLoading(true);
-    await Future.delayed(const Duration(milliseconds: 2000));
-    onContinue();
-    _setLoading(false);
-    return;
     try {
       final cedula = idController.text.trim();
       final nombres = nameController.text.trim();
       final primerApellido = lastName1Controller.text.trim();
       final segundoApellido = lastName2Controller.text.trim();
+      final fecha_nacimiento = dateController.text.trim();
       final contrasena = passwordController.text.trim();
       final confirmacionContrasena = confirmPasswordController.text.trim();
+      final telefono = phoneController.text.trim();
+      final ubicacion = locationController.text.trim();
+      final descripcion = descriptionController.text.trim();
+      final categorias = selectedCategories;
+      
+      // Validar que las contraseñas coincidan
 
       if (contrasena != confirmacionContrasena) {
         ScaffoldMessenger.of(context).showSnackBar(

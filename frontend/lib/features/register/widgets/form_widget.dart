@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/register/logic/register_controller.dart';
+import 'package:nodo/models/categorie.dart';
+import 'package:nodo/providers/categorie_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
@@ -25,14 +27,27 @@ class _FormWidgetState extends State<FormWidget> {
   final TextEditingController lastName2Controller = TextEditingController();
   final TextEditingController idController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
+  /*final List<Categorie> availableCategories = [
+    Categorie(id: '1', nombre: 'Carpintería', descripcion: ''),
+    Categorie(id: '2', nombre: 'Electricidad', descripcion: ''),
+    Categorie(id: '3', nombre: 'Fontanería', descripcion: ''),
+    Categorie(id: '4', nombre: 'Jardinería', descripcion: ''),
+  ];*/
+  List<String> selectedCategories = [];
+
   @override
   Widget build(BuildContext context) {
+    final categorieProvider = context.watch<CategorieProvider>();
+    if (categorieProvider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     final registerController = Provider.of<RegisterController>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final fieldSpacing = 10.h;
@@ -41,10 +56,7 @@ class _FormWidgetState extends State<FormWidget> {
     return Center(
       child: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 5.h,
-            vertical: 20.h
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 5.h, vertical: 20.h),
           constraints: BoxConstraints(maxWidth: screenWidth * 0.9),
           child: Form(
             key: _formKey,
@@ -203,6 +215,7 @@ class _FormWidgetState extends State<FormWidget> {
 
                 // Campo de fecha integrado en el Form para que su validator funcione
                 FormField<DateTime>(
+                  initialValue: selectedDate,
                   validator: (value) {
                     if (value == null) return 'Por favor selecciona una fecha';
                     return null;
@@ -215,12 +228,17 @@ class _FormWidgetState extends State<FormWidget> {
                       onTap: () async {
                         final picked = await showDatePicker(
                           context: field.context,
-                          initialDate: DateTime.now(),
+                          initialDate: field.value ?? DateTime.now(),
                           firstDate: DateTime(1900),
                           lastDate: DateTime(2100),
                         );
                         if (picked != null) {
                           field.didChange(picked); // actualiza el valor
+                          setState(() {
+                            selectedDate = picked;
+                            dateController.text =
+                                DateFormat('dd/MM/yyyy').format(picked);
+                          });
                         }
                       },
                       child: InputDecorator(
@@ -264,6 +282,50 @@ class _FormWidgetState extends State<FormWidget> {
                       }
                       return null;
                     },
+                  ),
+                  SizedBox(height: fieldSpacing),
+                  Text(
+                    "Categorías de trabajo",
+                    style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  ),
+                  SizedBox(height: textSpacing),
+                  Text(
+                    "Selecciona las áreas en las que tienes experiencia o deseas ofrecer tus servicios.",
+                    style: AppTypography.h3.copyWith(color: AppColors.blue),
+                  ),
+                  SizedBox(height: fieldSpacing),
+                  Wrap(
+                    spacing: 8.w,
+                    runSpacing: 8.h,
+                    children: categorieProvider.categories.map((categoria) {
+                      final isSelected =
+                          selectedCategories.contains(categoria.id);
+                      return ChoiceChip(
+                        label: Text(
+                          categoria.nombre,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppColors.blue,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        selected: isSelected,
+                        selectedColor: AppColors.orange,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.r),
+                          side: BorderSide(color: AppColors.orange),
+                        ),
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              selectedCategories.add(categoria.id);
+                            } else {
+                              selectedCategories.remove(categoria.id);
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
                   ),
                   SizedBox(height: fieldSpacing),
                   TextFormField(
@@ -322,7 +384,7 @@ class _FormWidgetState extends State<FormWidget> {
                     return null;
                   },
                 ),
-                SizedBox(height: categorySpacing*2),
+                SizedBox(height: categorySpacing * 2),
                 CustomElevatedButton(
                   text: "Continuar",
                   onPressed: registerController.isLoading
@@ -335,6 +397,11 @@ class _FormWidgetState extends State<FormWidget> {
                             lastName1Controller: lastName1Controller,
                             lastName2Controller: lastName2Controller,
                             idController: idController,
+                            phoneController: phoneController,
+                            dateController: dateController,
+                            locationController: locationController,
+                            selectedCategories: selectedCategories,
+                            descriptionController: descriptionController,
                             passwordController: passwordController,
                             confirmPasswordController:
                                 confirmPasswordController,
@@ -344,7 +411,6 @@ class _FormWidgetState extends State<FormWidget> {
                         },
                   loading: registerController.isLoading,
                 ),
-
               ],
             ),
           ),
