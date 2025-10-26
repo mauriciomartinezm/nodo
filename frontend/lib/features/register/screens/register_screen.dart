@@ -73,15 +73,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
-          color: AppColors.white, // color del contenido
+        decoration: const BoxDecoration(
+          color: AppColors.white,
           borderRadius: BorderRadius.only(
-            topRight: Radius.circular(30.r), // borde redondeado solo arriba a la derecha
+            topRight: Radius.circular(30),
           ),
         ),
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(child: getStepWidget()),
+            // 🔹 Fondo con el logo
+            Positioned.fill(
+              child: Opacity(
+                  opacity:
+                      0.08, // 🔸 Ajusta la transparencia (0 = invisible, 1 = opaco)
+                  child: Transform.scale(
+                    scale: 2.sp,
+                    child: Image.asset(
+                      'assets/icons/iconNodoBlue.png', // cambia por la ruta de tu logo
+                      fit: BoxFit.contain,
+                      //alignment: Alignment.center,
+                      height: 1800.h,
+                      width: 1800.w,
+                    ),
+                  )),
+            ),
+
+            // 🔹 Contenido principal
+            Column(
+              children: [
+                Expanded(
+                  child: getStepWidget(),
+                ),
+              ],
+            ),
           ],
         ),
       ),

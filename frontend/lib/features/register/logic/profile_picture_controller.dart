@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nodo/core/constants/api_constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:nodo/providers/register_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ class ProfilePictureController extends ChangeNotifier {
 
   /// Subir imagen a Firebase Storage
   Future<String> subirImagenAFirebase(File imagen, String cedula) async {
+    debugPrint("Subiendo imagen para el usuario: $cedula");
     try {
       final nombreArchivo = '${cedula}_${path.basename(imagen.path)}';
       final ref = FirebaseStorage.instance.ref().child('perfiles/$nombreArchivo');
@@ -41,8 +43,9 @@ class ProfilePictureController extends ChangeNotifier {
   }
 
   /// Enviar URL de la imagen al backend
-  Future<void> enviarImagenAlBackend(String cedula, String urlFoto) async {
-    final String apiUrl = ApiConstants.updateUsuarioEndpoint(cedula);
+  Future<void> enviarImagenAlBackend(String id, String urlFoto) async {
+    debugPrint("Enviando URL de imagen al backend para el usuario: $id");
+    final String apiUrl = ApiConstants.updateUsuarioEndpoint(id);
     try {
       final response = await http.put(
         Uri.parse(apiUrl),
@@ -66,16 +69,16 @@ class ProfilePictureController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final cedula = userProvider.user?.id;
+      final registerProvider = Provider.of<RegisterProvider>(context, listen: false);
+      final id = registerProvider.id;
 
-      if (cedula == null) throw Exception('ID de usuario no encontrado');
+      if (id == null) throw Exception('ID de usuario no encontrado');
 
       final urlImagen = imageFile != null
-          ? await subirImagenAFirebase(imageFile!, cedula)
+          ? await subirImagenAFirebase(imageFile!, id)
           : "https://firebasestorage.googleapis.com/v0/b/nodo-b1ff4.firebasestorage.app/o/perfiles%2FiconNodoBlue.png?alt=media&token=22b11580-c0ac-403e-89e3-5f09cc5cd25c";
 
-      await enviarImagenAlBackend(cedula, urlImagen);
+      await enviarImagenAlBackend(id, urlImagen);
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seen_welcome', true);

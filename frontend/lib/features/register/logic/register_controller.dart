@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nodo/core/constants/api_constants.dart';
 import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/providers/register_provider.dart';
+
 import 'package:provider/provider.dart';
 
 class RegisterController extends ChangeNotifier {
@@ -68,9 +70,7 @@ class RegisterController extends ChangeNotifier {
         return;
       }
 
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final tipoUsuario = selectedUserType ??
-          (userProvider.isWorker ? "trabajador" : "cliente");
+      final registerProvider = Provider.of<RegisterProvider>(context, listen: false);
 
       final url = Uri.parse(ApiConstants.createUsuarioEndpoint);
 
@@ -86,7 +86,7 @@ class RegisterController extends ChangeNotifier {
           "telefono": telefono,
           "fecha_nacimiento": fecha_nacimiento,
           "contrasena": contrasena,
-          "tipo_usuario": tipoUsuario,
+          "tipo_usuario": selectedUserType,
           "ubicacion": ubicacion,
           "descripcion": descripcion,
         }),
@@ -94,8 +94,9 @@ class RegisterController extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         debugPrint("✅ Usuario agregado: ${response.body}");
+        registerProvider.setRegisterData(id: id, email: email, password: contrasena);
         // 🔹 Si el usuario es trabajador y seleccionó categorías, registrar relación
-        if (tipoUsuario == "trabajador" && categorias.isNotEmpty) {
+        if (selectedUserType == "trabajador" && categorias.isNotEmpty) {
           await _crearUsuarioCategoria(id, categorias);
         }
         onContinue();

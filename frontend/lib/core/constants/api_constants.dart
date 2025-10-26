@@ -4,8 +4,8 @@ class ApiConstants {
   //static const String baseUrl = "https://nodo-unv8.onrender.com/api"; //ruta para api en la nube en render
   static const String baseUrl = "https://nodo-api-d39cbf97ce57.herokuapp.com/api"; //ruta para api en la nube en railway
   static const String loginEndpoint = "$baseUrl/loginUsuario";
-  static String updateUsuarioEndpoint(String cedula) =>
-      "$baseUrl/updateUsuario/$cedula";
+  static String updateUsuarioEndpoint(String id) =>
+      "$baseUrl/updateUsuario/$id";
   static String getUser(String id) => "$baseUrl/getUsuario/$id"; // ← NUEVO
   static String getClienteById(String id) =>
       "$baseUrl/getUsuario/$id"; // ← NUEVO
