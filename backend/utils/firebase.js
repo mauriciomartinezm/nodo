@@ -5,7 +5,7 @@ import serviceAccount from '../serviceAccount.js';
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: "gs://nodo-b1ff4.firebasestorage.app"
+    storageBucket: "nodo-b1ff4.firebasestorage.app"
 });
 const bucket = admin.storage().bucket();
 export default bucket;

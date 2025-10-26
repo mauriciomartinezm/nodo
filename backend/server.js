@@ -6,6 +6,7 @@ import postulacionRouter from "./routes/postulacionRoutes.js";
 import tokenRouter from "./routes/tokenRoutes.js";
 import reporteRouter from "./routes/reportesRoutes.js";
 import trabajoRouter from "./routes/trabajosRoutes.js";
+import storageRoutes from "./routes/storageRoutes.js";
 import express from "express";
 import cors from "cors";
 
@@ -26,7 +27,7 @@ app.use(postulacionRouter);
 app.use(tokenRouter);
 app.use(reporteRouter);
 app.use(trabajoRouter);
-
+app.use(storageRoutes);
 
 // Inicia el servidor
 app.listen(PORT, "0.0.0.0", () => {

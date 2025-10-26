@@ -1,8 +1,25 @@
-// upload.js
-const bucket = require('./firebase');
-const path = require('path');
-const fs = require('fs');
+// services/storageService.js
+import bucket from "../utils/firebase.js";
+import path from "path";
+import { lookup } from "mime-types";
 
+export async function generarUrlSubida(nombreArchivo) {
+  const file = bucket.file(`perfiles/${nombreArchivo.toLowerCase()}`);
+
+  const extension = path.extname(nombreArchivo).toLowerCase();
+  const contentType = lookup(extension) || "application/octet-stream";
+  // Generar URL firmada válida por 15 minutos
+  const [url] = await file.getSignedUrl({
+    version: "v4",
+    action: "write",
+    expires: Date.now() + 15 * 60 * 1000, // 15 minutos
+    contentType,
+  });
+
+  return url;
+}
+
+/// Función para subir un archivo al bucket de Firebase Storage
 async function uploadFile(localFilePath, destinationFileName) {
   await bucket.upload(localFilePath, {
     destination: destinationFileName,
@@ -14,11 +31,12 @@ async function uploadFile(localFilePath, destinationFileName) {
 
   const file = bucket.file(destinationFileName);
   const publicUrl = `https://storage.googleapis.com/${bucket.name}/${destinationFileName}`;
-  
+
   return publicUrl;
 }
-
+/*
 // Ejemplo de uso:
 uploadFile('./uploads/ejemplo.jpg', 'imagenes/ejemplo.jpg')
   .then(url => console.log('Archivo subido, URL pública:', url))
   .catch(err => console.error('Error al subir:', err));
+*/

@@ -10,27 +10,82 @@ import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/providers/user_provider.dart';
+import 'package:mime/mime.dart';
 
 class ProfilePictureController extends ChangeNotifier {
   bool acceptedTerms = false;
-  File? imageFile;
+  File imageFile = File('');
   bool isLoading = false;
 
   /// Seleccionar imagen desde galería
   Future<void> pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
       notifyListeners();
     }
   }
 
-  /// Subir imagen a Firebase Storage
-  Future<String> subirImagenAFirebase(File imagen, String cedula) async {
-    debugPrint("Subiendo imagen para el usuario: $cedula");
+  Future<void> subirImagenMedianteBackend(
+      String id, File imagen) async {
+      final nombreArchivo = '${id}_${path.basename(imagen.path)}';
+    debugPrint("Subiendo imagen mediante backend: $nombreArchivo");
+
     try {
-      final nombreArchivo = '${cedula}_${path.basename(imagen.path)}';
-      final ref = FirebaseStorage.instance.ref().child('perfiles/$nombreArchivo');
+      // Obtener URL firmada desde tu backend
+        final extension = path.extension(imagen.path).toLowerCase();
+
+      final mimeType = extension == '.png' ? 'image/png' :
+                 extension == '.heic' ? 'image/heic' : 'image/jpeg';
+      final response = await http.get(
+        Uri.parse(
+    'http://192.168.0.105:3001/api/generarUrlSubida?nombreArchivo=$nombreArchivo&contentType=$mimeType'
+  ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final uploadUrl = data['url'];
+        debugPrint("URL de subida obtenida: $uploadUrl");
+        // Subir imagen directamente a Firebase usando esa URL
+        // 2️⃣ Detectar tipo MIME automáticamente (jpg, png, etc.)
+        //final mimeType =
+        //    lookupMimeType(imagen.path) ?? 'application/octet-stream';
+
+        // 3️⃣ Subir imagen directamente a Firebase Storage mediante la URL firmada
+        final bytes = await imagen.readAsBytes();
+        final putResponse = await http.put(
+          Uri.parse(uploadUrl),
+          headers: {'Content-Type': mimeType},
+          body: bytes,
+        );
+
+        if (putResponse.statusCode != 200) {
+          throw Exception('Error subiendo imagen: ${putResponse.body}');
+        }
+
+        if (putResponse.statusCode == 200) {
+          print('✅ Imagen subida correctamente');
+        } else {
+          print('❌ Error subiendo imagen: ${putResponse.statusCode}');
+        }
+      } else {
+        print('❌ Error obteniendo URL firmada: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('⚠️ Error: $e');
+    }
+  }
+
+  /*
+  /// Subir imagen a Firebase Storage
+  Future<String> subirImagenAFirebase(File imagen, String id) async {
+    debugPrint("Subiendo imagen para el usuario: $id");
+    try {
+      final nombreArchivo = '${id}_${path.basename(imagen.path)}';
+      final ref =
+          FirebaseStorage.instance.ref().child('perfiles/$nombreArchivo');
 
       final uploadTask = ref.putFile(imagen);
       final snapshot = await uploadTask;
@@ -41,7 +96,7 @@ class ProfilePictureController extends ChangeNotifier {
       rethrow;
     }
   }
-
+  */
   /// Enviar URL de la imagen al backend
   Future<void> enviarImagenAlBackend(String id, String urlFoto) async {
     debugPrint("Enviando URL de imagen al backend para el usuario: $id");
@@ -69,17 +124,19 @@ class ProfilePictureController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final registerProvider = Provider.of<RegisterProvider>(context, listen: false);
-      final id = registerProvider.id;
-
+      final registerProvider =
+          Provider.of<RegisterProvider>(context, listen: false);
+      //final id = registerProvider.id;
+      final id = "1040350494"; //for debugging
       if (id == null) throw Exception('ID de usuario no encontrado');
-
+      subirImagenMedianteBackend(id, imageFile);
+      /*
       final urlImagen = imageFile != null
           ? await subirImagenAFirebase(imageFile!, id)
           : "https://firebasestorage.googleapis.com/v0/b/nodo-b1ff4.firebasestorage.app/o/perfiles%2FiconNodoBlue.png?alt=media&token=22b11580-c0ac-403e-89e3-5f09cc5cd25c";
 
       await enviarImagenAlBackend(id, urlImagen);
-
+      */
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seen_welcome', true);
 
