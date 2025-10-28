@@ -70,11 +70,14 @@ export const loginUsuario = async (req, res) => {
   console.log("Peticion recibida en /loginUsuario")
   const { identificador, contrasena } = req.body; // puede ser teléfono o email
 
+  console.log("Intentando iniciar sesión para:", identificador);
+  console.log("Contraseña recibida:", contrasena);
   try {
     const result = await db.query(
       "SELECT * FROM Usuario WHERE (telefono = $1 OR email = $1) AND contrasena = $2",
       [identificador, contrasena]
     );
+    console.log("Resultado de la consulta:", result.rows);
     if (result.rows.length === 1) {
       const usuario = result.rows[0];
       
