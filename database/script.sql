@@ -42,7 +42,6 @@ drop table if exists publicacion;
 CREATE TABLE public.publicacion (
     id character varying NOT NULL,
     id_cliente character varying,
-    id_categoria character varying,
     titulo character varying,
     descripcion_necesidad text,
     ubicacion character varying,
@@ -72,6 +71,7 @@ CREATE TABLE public.resena (
     CONSTRAINT resena_pkey PRIMARY KEY (id)
 );
 
+
 drop table if exists servicio;
 CREATE TABLE public.servicio (
     id character varying NOT NULL,
@@ -99,15 +99,21 @@ CREATE TABLE public.transaccion (
     codigo_transaccion character varying,
     CONSTRAINT transaccion_pkey PRIMARY KEY (id)
 );
+select * from usuario where email == 'mauromm1603@gmail.com';
 
-drop table if exists usuario;
+ALTER TABLE usuario
+ADD CONSTRAINT unique_email UNIQUE (email),
+ADD CONSTRAINT unique_telefono UNIQUE (telefono);
+
+
+alter table usuario modify 
 CREATE TABLE public.usuario (
     id character varying NOT NULL,
     nombres character varying,
     primer_apellido character varying,
     segundo_apellido character varying,
-    email character varying UNIQUE,
-    telefono character varying UNIQUE,
+    email character varying,
+    telefono character varying,
     fecha_nacimiento character varying,
     contrasena character varying,
     fecha_registro timestamp without time zone,
@@ -121,10 +127,19 @@ CREATE TABLE public.usuario (
     fcm_token character varying,
     CONSTRAINT usuario_pkey PRIMARY KEY (id)
 );
-
+select * from usuario_categoria;
+s
 drop table if exists usuario_categoria;
 CREATE TABLE usuario_categoria (
   id_usuario character varying NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
   id_categoria character varying NOT NULL REFERENCES categoria(id) ON DELETE CASCADE,
   PRIMARY KEY (id_usuario, id_categoria)
 );
+
+drop table if exists publicacion_categoria;
+CREATE TABLE publicacion_categoria (
+  id_publicacion character varying NOT NULL REFERENCES publicacion(id) ON DELETE CASCADE,
+  id_categoria character varying NOT NULL REFERENCES categoria(id) ON DELETE CASCADE,
+  PRIMARY KEY (id_publicacion, id_categoria)
+);
+
