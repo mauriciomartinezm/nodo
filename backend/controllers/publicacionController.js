@@ -2,7 +2,7 @@ import { db } from "../database/db.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { guardarNotificacion } from '../services/notificacionService.js';
-
+import { notificarTrabajadoresPorCategorias } from "../services/notificacionService.js";
 export const getPublicaciones = async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM publicacion");
@@ -60,23 +60,26 @@ export const getPublicacionesByUserId = async (req, res) => {
 export const createPublicacion = async (req, res) => {
   console.log("Petición en /createPublicacion. Cuerpo de la petición: ");
   console.log(req.body);
+
   try {
     const {
       id_cliente,
       titulo,
-      id_categoria,
+      id_categorias, // 👈 ahora es un arreglo de IDs
       ubicacion,
       presupuesto,
       fecha_limite,
       descripcion_necesidad,
-      fotos // Este parámetro puede ser undefined
+      fotos
     } = req.body;
-    // Asignar valor por defecto si no hay fotos
-    const fotosFinal = fotos || "sin fotos"; // Esto asigna "sin fotos" si fotos es falsy (undefined, null, etc.)
 
-    // Validación de campos obligatorios (quitamos fotos de la validación)
-    if (!id_cliente || !id_categoria || !titulo || !descripcion_necesidad || !ubicacion || !presupuesto || !fecha_limite) {
-      return res.status(400).json({ message: "Faltan campos obligatorios." });
+    // Valor por defecto para fotos
+    const fotosFinal = fotos || "sin fotos";
+
+    // Validar campos obligatorios
+    if (!id_cliente || !id_categorias || !Array.isArray(id_categorias) || id_categorias.length === 0 ||
+        !titulo || !descripcion_necesidad || !ubicacion || !presupuesto || !fecha_limite) {
+      return res.status(400).json({ message: "Faltan campos obligatorios o categorías inválidas." });
     }
 
     // Validar que el cliente exista
@@ -85,95 +88,67 @@ export const createPublicacion = async (req, res) => {
       return res.status(404).json({ message: "El Cliente no existe." });
     }
 
-    // Validar que la categoría exista
-    const categoriaCheck = await db.query("SELECT * FROM Categoria WHERE id = $1", [id_categoria]);
-    console.log("Categoria: ");
-    console.log(categoriaCheck);
+    // Validar que todas las categorías existan
+    const categoriasQuery = `
+      SELECT id, nombre FROM Categoria WHERE id = ANY($1)
+    `;
+    const categoriasResult = await db.query(categoriasQuery, [id_categorias]);
 
-    if (categoriaCheck.rowCount === 0) {
-      return res.status(404).json({ message: "La categoría no existe." });
+    if (categoriasResult.rowCount !== id_categorias.length) {
+      return res.status(404).json({ message: "Una o más categorías no existen." });
     }
 
-    // Guardar el nombre de la categoría
-    const nombreCategoria = categoriaCheck.rows[0].nombre_cat;
-
-    // Generar ID con uuidv4
+    // Generar ID para la publicación
     const id = uuidv4();
 
-    // Insertar la publicación
-    const query = `
+    // Insertar publicación (sin id_categoria)
+    const queryPublicacion = `
       INSERT INTO publicacion 
-      (id, id_cliente, id_categoria, titulo, descripcion_necesidad, ubicacion, presupuesto, fecha_publicacion, fecha_limite, estado, fotos)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pendiente', $10)
+      (id, id_cliente, titulo, descripcion_necesidad, ubicacion, presupuesto, fecha_publicacion, fecha_limite, estado, fotos)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pendiente', $9)
     `;
-
-    await db.query(query, [
+    await db.query(queryPublicacion, [
       id,
       id_cliente,
-      id_categoria,
       titulo,
       descripcion_necesidad,
       ubicacion,
       presupuesto,
-      new Date(), // fecha_publicacion
+      new Date(),
       fecha_limite,
-      fotosFinal // Usamos la variable con el valor por defecto
+      fotosFinal
     ]);
 
+    // Insertar las relaciones en publicacion_categoria
+    for (const idCat of id_categorias) {
+      await db.query(
+        "INSERT INTO publicacion_categoria (id_publicacion, id_categoria) VALUES ($1, $2)",
+        [id, idCat]
+      );
+    }
+
+    // --- LLAMAR SUBPROGRAMA DE NOTIFICACIONES ---
+    await notificarTrabajadoresPorCategorias(id, id_cliente, id_categorias, categoriasResult);
+
+    // --- RESPUESTA ---
     res.status(201).json({
       id,
       id_cliente,
-      id_categoria,
+      id_categorias,
       titulo,
       descripcion_necesidad,
       ubicacion,
       presupuesto,
       fecha_limite,
-      fotos: fotosFinal, // Enviamos el valor que se guardó
+      fotos: fotosFinal,
       mensaje: "Publicación creada exitosamente"
     });
-
-    // --- ENVIAR NOTIFICACIONES A TRABAJADORES ---
-    // 1. Buscar trabajadores con la misma id_categoria
-    const trabajadoresQuery = `
-      SELECT id FROM Usuario WHERE id_categoria = $1
-    `;
-    const trabajadoresResult = await db.query(trabajadoresQuery, [id_categoria]);
-    let trabajadoresIds = trabajadoresResult.rows.map(row => row.id);
-    console.log("Trabajadores IDs antes de filtrar: ", trabajadoresIds);
-
-    // 2. Filtrar el id_cliente (dueño de la publicación) de la lista de trabajadores
-    console.log(id_cliente);
-    trabajadoresIds = trabajadoresIds.filter(trabajadorId => trabajadorId !== id_cliente);
-
-    console.log("Trabajadores IDs después de filtrar (excluyendo al dueño): ", trabajadoresIds);
-    // 2. Enviar notificación a cada trabajador
-    for (const trabajadorId of trabajadoresIds) {
-      try {
-        await guardarNotificacion(
-          trabajadorId,
-          'oferta',
-          'Nueva oportunidad laboral',
-          `¡Se encuentra disponible una nueva oportunidad laboral en la categoría ${nombreCategoria}!`, // Customize the message
-          {
-            publicacionId: id.toString(),
-            trabajadorId: trabajadorId.toString()
-          }
-        );
-        console.log(`Notificación enviada al trabajador con ID: ${trabajadorId} para la publicación: ${id}`);
-      } catch (notificationError) {
-        console.error(`Error enviando notificación al trabajador ${trabajadorId}:`, notificationError);
-        // Decide how to handle individual notification failures (e.g., log, but continue to next worker)
-      }
-    }
-    // --- FIN DE NOTIFICACIONES ---
 
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error interno del servidor", error: error.message });
   }
 };
-
 
 
 export const updatePublicacion = async (req, res) => {

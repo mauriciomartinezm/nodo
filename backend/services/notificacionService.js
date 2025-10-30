@@ -46,3 +46,42 @@ export async function guardarNotificacion(
   return notificacion;
 }
 
+export const notificarTrabajadoresPorCategorias = async (idPublicacion, idCliente, idCategorias, categoriasResult) => {
+  try {
+    // Buscar trabajadores que pertenezcan a las categorías
+    const trabajadoresQuery = `
+      SELECT id, id_categoria FROM Usuario WHERE id_categoria = ANY($1)
+    `;
+    const trabajadoresResult = await db.query(trabajadoresQuery, [idCategorias]);
+
+    // Obtener IDs únicos y excluir al cliente
+    let trabajadoresIds = [...new Set(trabajadoresResult.rows.map(row => row.id))];
+    trabajadoresIds = trabajadoresIds.filter(trabajadorId => trabajadorId !== idCliente);
+
+    console.log("Trabajadores a notificar:", trabajadoresIds);
+
+    // Enviar notificaciones
+    for (const trabajador of trabajadoresResult.rows) {
+      if (trabajador.id === idCliente) continue;
+
+      const categoriaNombre = categoriasResult.rows.find(cat => cat.id === trabajador.id_categoria)?.nombre_cat;
+
+      await guardarNotificacion(
+        trabajador.id,
+        'oferta',
+        'Nueva oportunidad laboral',
+        `¡Se encuentra disponible una nueva oportunidad laboral en la categoría ${categoriaNombre}!`,
+        {
+          publicacionId: idPublicacion.toString(),
+          trabajadorId: trabajador.id.toString()
+        }
+      );
+
+      console.log(`Notificación enviada al trabajador ${trabajador.id}`);
+    }
+
+  } catch (notificationError) {
+    console.error("Error al enviar notificaciones:", notificationError);
+  }
+};
+
