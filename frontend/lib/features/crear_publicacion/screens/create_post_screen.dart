@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/features/crear_publicacion/logic/crear_publicacion_controller.dart';
+import 'package:nodo/features/crear_publicacion/logic/create_post_controller.dart';
 import 'package:nodo/features/crear_publicacion/widgets/date_picker_widget.dart';
 import 'package:nodo/features/crear_publicacion/widgets/descripcion_field_widget.dart';
 import 'package:nodo/features/crear_publicacion/widgets/header_info_widget.dart';
 import 'package:nodo/providers/categorie_provider.dart';
 import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../widgets/foto_widget.dart';
@@ -52,34 +53,44 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 25.w),
                   child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // 👈 agrega esto
                     children: [
                       // --- Campos del formulario ---
                       CustomTextField("Título", controller.tituloController),
                       SizedBox(height: 10.h),
-
+                      Text(
+                        "Seleccione la(s) categoría(s) de su servicio",
+                        style: AppTypography.h3.copyWith(color: AppColors.blue),
+                      ),
                       // --- Categorías dinámicas ---
                       Wrap(
                         spacing: 8.w,
-                        runSpacing: 8.h,
+                        //runSpacing: 4.h,
                         children: categorieProvider.categories.map((categoria) {
                           final isSelected = controller.selectedCategories
                               .contains(categoria.id);
                           return ChoiceChip(
                             label: Text(
                               categoria.nombre,
-                              style: TextStyle(
+                              style: AppTypography.body.copyWith(
                                 color: isSelected
-                                    ? Colors.white
+                                    ? AppColors.white
                                     : AppColors.blue,
-                                fontWeight: FontWeight.w500,
+
+                                ///fontWeight: FontWeight.w500,
                               ),
                             ),
                             selected: isSelected,
-                            selectedColor: AppColors.orange,
-                            backgroundColor: Colors.white,
+                            selectedColor: AppColors.blue,
+                            //backgroundColor: AppColors.white,
+                            checkmarkColor: AppColors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.r),
-                              side: BorderSide(color: AppColors.orange),
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(10),
+                                bottomLeft: Radius.circular(10),
+                              ),
+                              side: BorderSide(color: AppColors.blue),
                             ),
                             onSelected: (_) =>
                                 controller.toggleCategoria(categoria.id),
@@ -88,24 +99,28 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       ),
                       SizedBox(height: 10.h),
 
-                      CustomTextField("Ubicación", controller.ubicacionController),
+                      CustomTextField(
+                          "Ubicación", controller.ubicacionController),
                       SizedBox(height: 10.h),
 
-                      CustomTextField("Presupuesto", controller.presupuestoController,
+                      CustomTextField(
+                          "Presupuesto", controller.presupuestoController,
                           isNumber: true),
                       SizedBox(height: 10.h),
 
                       CustomDatePicker(
                         label: "Fecha límite",
                         controller: controller.fechaLimiteController,
-                        initialDate: DateTime.now().add(const Duration(days: 7)),
+                        initialDate:
+                            DateTime.now().add(const Duration(days: 7)),
                         firstDate: DateTime.now(),
                         lastDate: DateTime(2100),
                         emptyFocusNode: _emptyFocusNode,
                       ),
                       SizedBox(height: 10.h),
 
-                      DescripcionField(controller: controller.descripcionController),
+                      DescripcionField(
+                          controller: controller.descripcionController),
                       SizedBox(height: 10.h),
 
                       // --- Subida de fotos ---
@@ -130,37 +145,23 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       SizedBox(height: 15.h),
 
                       // --- Botón de enviar ---
-                      FractionallySizedBox(
-                        widthFactor: 0.5,
-                        child: ElevatedButton(
-                          onPressed: controller.isLoading
-                              ? null
-                              : () async {
-                                  final success = await controller
-                                      .crearPublicacion(context, userProvider);
-
-                                  if (success && mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              "¡Publicación creada con éxito!")),
-                                    );
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: controller.isLoading
-                              ? const CircularProgressIndicator(
-                                  color: AppColors.white)
-                              : Text("Publicar",
-                                  style: AppTypography.h2
-                                      .copyWith(color: AppColors.white)),
-                        ),
-                      ),
+                      CustomElevatedButton(
+                        text: "Publicar",
+                        onPressed: controller.isLoading
+                            ? null
+                            : () async {
+                                final success = await controller
+                                    .crearPublicacion(context, userProvider);
+                                if (success && mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "¡Publicación creada con éxito!")),
+                                  );
+                                }
+                              },
+                        loading: controller.isLoading,
+                      )
                     ],
                   ),
                 ),

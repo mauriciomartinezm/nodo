@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-import 'package:nodo/features/crear_publicacion/logic/crear_publicacion_controller.dart';
-import 'package:nodo/features/crear_publicacion/logic/crear_publicacion_service.dart';
+import 'package:nodo/features/crear_publicacion/logic/create_post_controller.dart';
+import 'package:nodo/features/crear_publicacion/logic/create_post_service.dart';
 import 'package:nodo/features/home/screens/home_screen.dart';
 import 'package:nodo/features/menu/about/about_screen.dart';
 import 'package:nodo/features/menu/about/credits_screen.dart';
