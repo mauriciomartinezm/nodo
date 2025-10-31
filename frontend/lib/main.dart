@@ -146,7 +146,7 @@ class MyApp extends StatelessWidget {
             '/SettingsScreen': (context) => const SettingsScreen(),
             '/AccountProfileScreen': (context) => const AccountProfileScreen(),
             '/PreferencesScreen': (context) => const PreferencesScreen(),
-            '/ProfileScreen': (context) => const ProfileScreen(),
+            //'/ProfileScreen': (context) => const ProfileScreen(),
             '/editProfile': (context) => const EditProfileScreen(),
             '/NotificationSettingsScreen': (context) =>
                 const NotificationSettingsScreen(),

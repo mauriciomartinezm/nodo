@@ -27,15 +27,16 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
 
   Future<void> _loadCategoria() async {
     final userProvider = context.read<UserProvider>();
-    final idCategoria = userProvider.user?.idCategoria;
+    final idCategoria = userProvider.user?.categorias;
 
     if (idCategoria == null || idCategoria.isEmpty) {
       return;
     }
 
     setState(() => _loadingCategoria = true);
-
+/*
     try {
+      
       final response = await http.get(
         Uri.parse(ApiConstants.getCategoriaEndpoint(idCategoria)),
       );
@@ -51,7 +52,7 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
       debugPrint('Error cargando categoría: $e');
     } finally {
       setState(() => _loadingCategoria = false);
-    }
+    }*/
   }
 
   @override
