@@ -15,4 +15,10 @@ class Categorie {
 
   @override
   String toString() => nombre;
+  
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'nombre': nombre,
+        'descripcion': descripcion,
+      };
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import 'package:nodo/core/services/auth_service.dart';
+import 'dart:convert';
+
 class UserProvider with ChangeNotifier {
   User? _user;
   bool _isLoading = false;
@@ -17,7 +19,11 @@ class UserProvider with ChangeNotifier {
 
     try {
       final user = await _authService.login(identificador, contrasena);
-      _user = user;
+      debugPrint("usuario devuelto de db: ");
+
+      debugPrint(const JsonEncoder.withIndent('  ').convert(user!.toJson()));
+
+      _user = user; 
     } catch (e) {
       rethrow;
     } finally {

@@ -1,3 +1,4 @@
+import 'package:nodo/models/categorie.dart';
 class User {
   final String id;
   final String nombres;
@@ -11,7 +12,7 @@ class User {
   final String fotoPerfil;
   final bool verificado;
   final String tipoUsuario;
-  final dynamic idCategoria;
+  final List<Categorie> categorias; // <-- Aquí el cambio
   final dynamic ubicacion;
   final dynamic descripcion;
   final dynamic calificacionPromedio;
@@ -30,7 +31,7 @@ class User {
     required this.fotoPerfil,
     required this.verificado,
     required this.tipoUsuario,
-    required this.idCategoria,
+    required this.categorias,
     required this.ubicacion,
     required this.descripcion,
     this.calificacionPromedio,
@@ -51,7 +52,10 @@ class User {
       fotoPerfil: json['foto_perfil'] ?? '',
       verificado: json['verificado'] ?? false,
       tipoUsuario: json['tipo_usuario'] ?? 'cliente',
-      idCategoria: json['id_categoria'],
+      categorias: (json['categorias'] as List?)
+              ?.map((e) => Categorie.fromJson(e))
+              .toList() ??
+          [], // ✅ Maneja [] o null sin errores
       ubicacion: json['ubicacion'],
       descripcion: json['descripcion'],
       calificacionPromedio: json['calificacion_promedio'],
@@ -72,7 +76,7 @@ class User {
         'foto_perfil': fotoPerfil,
         'verificado': verificado,
         'tipo_usuario': tipoUsuario,
-        'id_categoria': idCategoria,
+        'categorias': categorias.map((c) => c.toJson()).toList(),
         'ubicacion': ubicacion,
         'descripcion': descripcion,
         'calificacion_promedio': calificacionPromedio,
