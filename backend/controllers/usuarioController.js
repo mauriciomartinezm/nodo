@@ -67,33 +67,62 @@ export const createUsuario = async (req, res) => {
 
 
 export const loginUsuario = async (req, res) => {
-  console.log("Peticion recibida en /loginUsuario")
+  console.log("Petición recibida en /loginUsuario");
+
   const { identificador, contrasena } = req.body; // puede ser teléfono o email
 
   console.log("Intentando iniciar sesión para:", identificador);
   console.log("Contraseña recibida:", contrasena);
+
   try {
+    // 🔹 1. Buscar usuario por email o teléfono
     const result = await db.query(
-      "SELECT * FROM Usuario WHERE (telefono = $1 OR email = $1) AND contrasena = $2",
+      `SELECT * FROM Usuario 
+       WHERE (telefono = $1 OR email = $1) AND contrasena = $2`,
       [identificador, contrasena]
     );
+
     console.log("Resultado de la consulta:", result.rows);
-    if (result.rows.length === 1) {
-      const usuario = result.rows[0];
-      
-      console.log("Inicio de sesión exitoso");
-      return res.status(200).json({
-        messageSuccess: "Inicio de sesión exitoso",
-        usuario: usuario,
-      });
-    } else {
+
+    if (result.rows.length !== 1) {
       return res.status(401).json({ messageFail: "Credenciales inválidas" });
     }
+
+    const usuario = result.rows[0];
+    const usuarioId = usuario.id;
+
+    console.log("Inicio de sesión exitoso para:", usuarioId);
+
+    // 🔹 2. Consultar categorías asociadas al usuario
+    const categoriasQuery = `
+      SELECT c.id, c.nombre, c.descripcion
+      FROM usuario_categoria uc
+      JOIN categoria c ON uc.id_categoria = c.id
+      WHERE uc.id_usuario = $1
+    `;
+    const categoriasResult = await db.query(categoriasQuery, [usuarioId]);
+    const categorias = categoriasResult.rows;
+
+    console.log("Categorías del usuario:", categorias);
+
+    // 🔹 3. Devolver usuario + categorías
+    return res.status(200).json({
+      messageSuccess: "Inicio de sesión exitoso",
+      usuario: {
+        ...usuario,
+        categorias: categorias // ← se agregan aquí
+      }
+    });
+
   } catch (error) {
     console.error("Error en loginUsuario:", error);
-    return res.status(500).json({ messageFail: "Error en el servidor", error: error.message });
+    return res.status(500).json({
+      messageFail: "Error en el servidor",
+      error: error.message
+    });
   }
 };
+
 
 
 export const updateUsuario = async (req, res) => {
