@@ -48,23 +48,28 @@ export async function guardarNotificacion(
 
 export const notificarTrabajadoresPorCategorias = async (idPublicacion, idCliente, idCategorias, categoriasResult) => {
   try {
-    // Buscar trabajadores que pertenezcan a las categorías
+    // 🔹 Buscar trabajadores que pertenezcan a las categorías
     const trabajadoresQuery = `
-      SELECT id, id_categoria FROM Usuario WHERE id_categoria = ANY($1)
+      SELECT u.id, uc.id_categoria
+      FROM usuario u
+      JOIN usuario_categoria uc ON u.id = uc.id_usuario
+      WHERE uc.id_categoria = ANY($1)
     `;
     const trabajadoresResult = await db.query(trabajadoresQuery, [idCategorias]);
 
-    // Obtener IDs únicos y excluir al cliente
+    // 🔹 Obtener IDs únicos y excluir al cliente
     let trabajadoresIds = [...new Set(trabajadoresResult.rows.map(row => row.id))];
     trabajadoresIds = trabajadoresIds.filter(trabajadorId => trabajadorId !== idCliente);
 
     console.log("Trabajadores a notificar:", trabajadoresIds);
 
-    // Enviar notificaciones
+    // 🔹 Enviar notificaciones
     for (const trabajador of trabajadoresResult.rows) {
       if (trabajador.id === idCliente) continue;
 
-      const categoriaNombre = categoriasResult.rows.find(cat => cat.id === trabajador.id_categoria)?.nombre_cat;
+      const categoriaNombre = categoriasResult.rows.find(
+        cat => cat.id === trabajador.id_categoria
+      )?.nombre; // <-- asegúrate del nombre correcto
 
       await guardarNotificacion(
         trabajador.id,
@@ -84,4 +89,5 @@ export const notificarTrabajadoresPorCategorias = async (idPublicacion, idClient
     console.error("Error al enviar notificaciones:", notificationError);
   }
 };
+
 
