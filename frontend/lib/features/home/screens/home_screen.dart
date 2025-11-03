@@ -4,7 +4,7 @@ import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/shared/widgets/barra_navegacion_widget.dart';
 import 'package:nodo/features/create_post/screens/create_post_screen.dart';
 import 'package:nodo/features/notifications/screens/notifications_screen.dart';
-import 'package:nodo/features/posts/screens/publicaciones_screen.dart';
+import 'package:nodo/features/posts/screens/posts_screen.dart';
 import 'package:nodo/features/trabajos/screens/trabajos2.dart';
 import 'package:nodo/features/trabajos/screens/trabajos1.dart';
 import 'package:nodo/providers/user_provider.dart';

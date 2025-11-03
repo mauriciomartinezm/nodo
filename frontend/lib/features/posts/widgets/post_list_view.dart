@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../logic/publicaciones_controller.dart';
-import 'publicacion_card.dart';
-import 'publicacion_detail.dart';
-import 'publicacion_empty_state.dart';
+import 'post.dart';
+import 'post_detail.dart';
+import 'post_empty_state.dart';
 
 class PublicacionListView extends StatelessWidget {
   final int filter;

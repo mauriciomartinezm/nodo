@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../logic/publicaciones_controller.dart';
-import '../widgets/publicacion_empty_state.dart';
-import '../widgets/publicacion_tabs.dart';
-import '../widgets/publicacion_list_view.dart';
+import '../widgets/post_empty_state.dart';
+import '../widgets/post_tabs.dart';
+import '../widgets/post_list_view.dart';
 
 class PublicacionesScreen extends StatefulWidget {
   const PublicacionesScreen({super.key});
