@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/features/crear_publicacion/logic/create_post_service.dart';
+import 'package:nodo/features/create_post/logic/create_post_service.dart';
 import 'package:nodo/providers/categorie_provider.dart';
 import 'package:nodo/providers/user_provider.dart';
 

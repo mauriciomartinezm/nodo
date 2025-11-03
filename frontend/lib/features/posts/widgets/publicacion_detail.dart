@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:nodo/features/publicaciones/screens/postulaciones_screen.dart';
+import 'package:nodo/features/posts/screens/postulaciones_screen.dart';
 import '../../../core/theme/app_theme.dart';
-import 'package:nodo/features/publicaciones/logic/publicaciones_controller.dart';
+import 'package:nodo/features/posts/logic/publicaciones_controller.dart';
 
 class PublicacionDetail extends StatefulWidget {
   final dynamic publicacion;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/features/crear_publicacion/logic/create_post_controller.dart';
-import 'package:nodo/features/crear_publicacion/widgets/date_picker_widget.dart';
-import 'package:nodo/features/crear_publicacion/widgets/descripcion_field_widget.dart';
-import 'package:nodo/features/crear_publicacion/widgets/header_info_widget.dart';
+import 'package:nodo/features/create_post/logic/create_post_controller.dart';
+import 'package:nodo/features/create_post/widgets/date_picker_widget.dart';
+import 'package:nodo/features/create_post/widgets/descripcion_field_widget.dart';
+import 'package:nodo/features/create_post/widgets/header_info_widget.dart';
 import 'package:nodo/providers/categorie_provider.dart';
 import 'package:nodo/providers/user_provider.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
