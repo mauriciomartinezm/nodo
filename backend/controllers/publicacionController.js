@@ -126,10 +126,6 @@ export const createPublicacion = async (req, res) => {
         [id, idCat]
       );
     }
-
-    // --- LLAMAR SUBPROGRAMA DE NOTIFICACIONES ---
-    await notificarTrabajadoresPorCategorias(id, id_cliente, id_categorias, categoriasResult);
-
     // --- RESPUESTA ---
     res.status(201).json({
       id,
@@ -143,6 +139,10 @@ export const createPublicacion = async (req, res) => {
       fotos: fotosFinal,
       mensaje: "Publicación creada exitosamente"
     });
+
+    // --- LLAMAR SUBPROGRAMA DE NOTIFICACIONES ---
+    await notificarTrabajadoresPorCategorias(id, id_cliente, id_categorias, categoriasResult);
+
 
   } catch (error) {
     console.error(error);
@@ -203,25 +203,23 @@ export const updatePublicacion = async (req, res) => {
 
 
 export const deletePublicacion = async (req, res) => {
+  console.log("Petición en /deletePublicacion/:id");
   try {
-    const client = await db.connect(); // Inicia conexión manual si usas pool
+    //const client = await db.connect(); // Inicia conexión manual si usas pool
 
-    await client.query('BEGIN'); // Comienza transacción
+    //await client.query('BEGIN'); // Comienza transacción
 
     // 1. Eliminar las postulaciones asociadas
-    await client.query(
-      'DELETE FROM postulacion WHERE id_publicacion = $1',
-      [req.params.id]
-    );
-
+    //const result1 = await db.query(
+    //  'DELETE FROM postulacion WHERE id_publicacion = $1',
+    //  [req.params.id]
+    //);
+    //console.log(`Postulaciones eliminadas: ${result1.rowCount}`);
     // 2. Eliminar la publicación
-    const result = await client.query(
+    const result = await db.query(
       'DELETE FROM publicacion WHERE id = $1',
       [req.params.id]
     );
-
-    await client.query('COMMIT'); // Confirma transacción
-    client.release();
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'No se encuentra registrado' });
@@ -230,8 +228,7 @@ export const deletePublicacion = async (req, res) => {
     res.json({ message: 'Registro eliminado exitosamente' });
 
   } catch (error) {
-    await client.query('ROLLBACK'); // Revierte si hay error
-    client.release();
+    await db.query('ROLLBACK'); // Revierte si hay error
     res.status(500).json({ message: error.message });
   }
 };
