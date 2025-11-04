@@ -126,7 +126,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
   }
 
   Widget _buildImageCarousel() {
-      debugPrint("🍊🍊🍊🍊🍊 post detail");
+    debugPrint("🍊🍊🍊🍊🍊 post detail");
 
     if (imageList.isEmpty) {
       return Container(
@@ -248,8 +248,9 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
 
   Widget _buildActionButtons() {
     final estado = widget.publicacion['estado'];
-    return Column(children: [
-      Row(
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           if (estado != 'en proceso' && estado != 'finalizada')
@@ -263,8 +264,12 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               },
             ),
           if (estado != 'en proceso' && estado != 'finalizada')
-            TextButton.icon(
-              onPressed: () {
+            _buildActionButton(
+              Icons.person,
+              'Postulaciones',
+              AppColors.blue,
+              AppColors.blue.withOpacity(0.2),
+              () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -274,94 +279,62 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
                   ),
                 );
               },
-              icon: Icon(
-                Icons.delete_outline,
-                size: 20.sp,
-                color: AppColors.blue,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.blue.withOpacity(0.2),
-                padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 8.w),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    topRight: Radius.circular(5),
-                    bottomLeft: Radius.circular(5),
-                  ),
-                ),
-              ),
-              label: Text(
-                'Postulaciones',
-                style: AppTypography.h3.copyWith(color: AppColors.blue),
-              ),
             ),
           if (estado == 'en proceso' && estado != 'finalizada')
             _buildActionButton(
               Icons.check_circle_outline,
               'Completado',
-              AppColors.white,
-              AppColors.blue, // fondo azul
+              AppColors.blue,
+              AppColors.blue.withOpacity(0.2), // fondo azul
               () => _confirmarFinalizacion(widget.publicacion['id']),
             ),
           if (estado != 'en proceso' && estado != 'finalizada')
-            TextButton.icon(
-              onPressed: widget.onDelete,
-              icon: Icon(
-                Icons.delete_outline,
-                size: 20.sp,
-                color: AppColors.blue,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.blue.withOpacity(0.2),
-                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    topRight: Radius.circular(5),
-                    bottomLeft: Radius.circular(5),
-                  ),
-                ),
-              ),
-              label: Text(
-                'Eliminar',
-                style: AppTypography.h3.copyWith(color: AppColors.blue),
-              ),
+            _buildActionButton(
+              Icons.delete_outline,
+              'Eliminar',
+              AppColors.blue,
+              AppColors.blue.withOpacity(0.2), // fondo azul
+              () {
+                widget.onDelete();
+              },
             ),
         ],
       ),
-    ]);
+    );
   }
 
   Widget _buildActionButton(
-  IconData icon,
-  String text,
-  Color textColor,
-  Color backgroundColor,
-  VoidCallback onPressed,
-) {
-  return Flexible(
-    child: ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 20.sp, color: textColor),
-      label: Text(
-        text,
-        style: AppTypography.h3.copyWith(color: AppColors.white),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(5),
-            topRight: Radius.circular(5),
-            bottomLeft: Radius.circular(5),
+    IconData icon,
+    String text,
+    Color textColor,
+    Color backgroundColor,
+    VoidCallback onPressed,
+  ) {
+    return SizedBox(
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 20.sp, color: textColor),
+        label: Text(
+          text,
+          style: AppTypography.body.copyWith(color: textColor),
+        ),
+        style: ElevatedButton.styleFrom(
+          minimumSize: Size.zero,
+          tapTargetSize:
+              MaterialTapTargetSize.shrinkWrap, // 🔹 Compacta el espacio
+          backgroundColor: backgroundColor,
+          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(5),
+              topRight: Radius.circular(5),
+              bottomLeft: Radius.circular(5),
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   void _confirmarFinalizacion(String idPublicacion) async {
     final confirmado = await showDialog<bool>(
