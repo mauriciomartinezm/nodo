@@ -24,7 +24,7 @@ class PublicacionDetail extends StatefulWidget {
 class _PublicacionDetailState extends State<PublicacionDetail> {
   int _currentIndex = 0;
   late List<String> imageList;
-
+  final CarouselSliderController _carouselController = CarouselSliderController();
   @override
   void initState() {
     super.initState();
@@ -91,8 +91,6 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
             ),
           ),
           _buildImageCarousel(),
-          SizedBox(height: 8.h),
-          _buildCarouselIndicators(),
           Padding(
             padding: EdgeInsets.all(16.r),
             child: Column(
@@ -125,89 +123,62 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
     );
   }
 
-  Widget _buildImageCarousel() {
-    debugPrint("🍊🍊🍊🍊🍊 post detail");
-
-    if (imageList.isEmpty) {
-      return Container(
-        height: 150.h,
-        alignment: Alignment.center,
-        padding: EdgeInsets.all(16.r),
-        child: Text(
-          'No hay imágenes disponibles para esta publicación',
-          textAlign: TextAlign.center,
-          style: AppTypography.h2.copyWith(color: AppColors.blue),
+Widget _buildImageCarousel() {
+  return Stack(
+    alignment: Alignment.bottomCenter,
+    children: [
+      CarouselSlider(
+        carouselController: _carouselController, 
+        items: imageList.map((imageUrl) {
+          return ClipRRect(
+            //borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
+            ),
+          );
+        }).toList(),
+        options: CarouselOptions(
+          height: 180.h,
+          viewportFraction: 0.9,
+          enlargeCenterPage: true,
+          enableInfiniteScroll: false,
+          onPageChanged: (index, reason) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
         ),
-      );
-    }
-
-    return CarouselSlider(
-      items: imageList.map((imageUrl) {
-        return Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          width: 50,
-          errorBuilder: (context, error, stackTrace) {
-            // Mostrar el mensaje directamente, sin imagen ni efecto de carrusel
-            return Container(
-              height: 150.h,
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(16.r),
-              child: Text(
-                'No hay imágenes disponibles para esta publicación',
-                textAlign: TextAlign.center,
-                style: AppTypography.h2.copyWith(color: AppColors.blue),
-              ),
-            );
-          },
-          loadingBuilder: (BuildContext context, Widget child,
-              ImageChunkEvent? loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-              ),
-            );
-          },
-        );
-      }).toList(),
-      options: CarouselOptions(
-        height: 150.h,
-        enlargeCenterPage: true,
-        enableInfiniteScroll: false,
-        viewportFraction: 1.0,
-        scrollPhysics: imageList.length > 1
-            ? const BouncingScrollPhysics()
-            : const NeverScrollableScrollPhysics(), // <- desactiva movimiento si solo hay una imagen
-        onPageChanged: (index, reason) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
       ),
-    );
-  }
 
-  Widget _buildCarouselIndicators() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: imageList.asMap().entries.map((entry) {
-        return Container(
-          width: 8.w,
-          height: 8.w,
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color:
-                _currentIndex == entry.key ? AppColors.orange : AppColors.blue,
-          ),
-        );
-      }).toList(),
-    );
-  }
+      // Indicadores sobre la imagen
+      Positioned(
+        bottom: 10.h,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: imageList.asMap().entries.map((entry) {
+            final bool isActive = _currentIndex == entry.key;
+            return GestureDetector(
+              onTap: () => _carouselController.animateToPage(entry.key),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: isActive ? 7.w : 7.w, //cambiar el primer valor para ajustar tamaño
+                height: isActive ? 7.w : 7.w, //cambiar el primer valor para ajustar tamaño
+                margin: EdgeInsets.symmetric(horizontal: 2.w),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isActive ? AppColors.orange : AppColors.blue,
+                  border: Border.all(color: AppColors.white, width: 0.5),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    ],
+  );
+}
 
   Widget _buildDetailInfo(String texto, {bool isDescription = false}) {
     return Padding(
