@@ -53,20 +53,16 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 25.w),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // 👈 agrega esto
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // --- Campos del formulario ---
                       CustomTextField("Título", controller.tituloController),
                       SizedBox(height: 10.h),
                       Text(
                         "Seleccione la(s) categoría(s) de su servicio",
                         style: AppTypography.h3.copyWith(color: AppColors.blue),
                       ),
-                      // --- Categorías dinámicas ---
                       Wrap(
                         spacing: 8.w,
-                        //runSpacing: 4.h,
                         children: categorieProvider.categories.map((categoria) {
                           final isSelected = controller.selectedCategories
                               .contains(categoria.id);
@@ -77,13 +73,10 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                                 color: isSelected
                                     ? AppColors.white
                                     : AppColors.blue,
-
-                                ///fontWeight: FontWeight.w500,
                               ),
                             ),
                             selected: isSelected,
                             selectedColor: AppColors.blue,
-                            //backgroundColor: AppColors.white,
                             checkmarkColor: AppColors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.only(
@@ -123,14 +116,13 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                           controller: controller.descripcionController),
                       SizedBox(height: 10.h),
 
-                      // --- Subida de fotos ---
+                      // --- Subida de fotos (locales) ---
                       SubirFotoWidget(
-                        key: ValueKey(controller.urlsImagenes),
-                        onUploadComplete: controller.setUrlsImagenes,
-                        initialUrls: controller.urlsImagenes,
+                        key: ValueKey(controller.localImages),
+                        onImagesSelected: controller.setLocalImages,
+                        initialImages: controller.localImages,
                       ),
 
-                      // --- Mensaje de error ---
                       if (controller.errorMessage != null) ...[
                         SizedBox(height: 10.h),
                         Text(
@@ -144,21 +136,13 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
 
                       SizedBox(height: 15.h),
 
-                      // --- Botón de enviar ---
                       CustomElevatedButton(
                         text: "Publicar",
                         onPressed: controller.isLoading
                             ? null
                             : () async {
-                                final success = await controller
+                                await controller
                                     .crearPublicacion(context, userProvider);
-                                if (success && mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "¡Publicación creada con éxito!")),
-                                  );
-                                }
                               },
                         loading: controller.isLoading,
                       )

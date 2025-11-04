@@ -1,28 +1,27 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
-import 'package:nodo/providers/categorie_provider.dart';
 import 'package:nodo/providers/user_provider.dart';
 
 class CrearPublicacionController extends ChangeNotifier {
   final CrearPublicacionService _service;
 
   CrearPublicacionController(this._service);
-  // --- Estado general ---
+
   bool isLoading = false;
   String? errorMessage;
 
-  // --- Campos del formulario ---
+  // Campos
   final tituloController = TextEditingController();
   final ubicacionController = TextEditingController();
   final presupuestoController = TextEditingController();
   final fechaLimiteController = TextEditingController();
   final descripcionController = TextEditingController();
 
-  // --- Otros datos ---
   List<String> selectedCategories = [];
-  List<String> urlsImagenes = [];
+  List<File> localImages = []; // imágenes locales
+  List<String> urlsImagenes = []; // URLs tras subida
 
-  // --- Métodos de gestión del estado ---
   void setErrorMessage(String? message) {
     errorMessage = message;
     notifyListeners();
@@ -42,8 +41,8 @@ class CrearPublicacionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setUrlsImagenes(List<String> urls) {
-    urlsImagenes = urls;
+  void setLocalImages(List<File> files) {
+    localImages = files;
     notifyListeners();
   }
 
@@ -54,6 +53,7 @@ class CrearPublicacionController extends ChangeNotifier {
     fechaLimiteController.clear();
     descripcionController.clear();
     selectedCategories.clear();
+    localImages.clear();
     urlsImagenes.clear();
     errorMessage = null;
     notifyListeners();
@@ -73,37 +73,40 @@ class CrearPublicacionController extends ChangeNotifier {
     return true;
   }
 
-  // --- Ejemplo de creación de publicación ---
-  Future<bool> crearPublicacion(
+  Future<void> crearPublicacion(
     BuildContext context,
     UserProvider userProvider,
   ) async {
-    if (!validarCampos()) return false;
-
-    final datos = {
-      "id_cliente": userProvider.user?.id,
-      "titulo": tituloController.text,
-      "id_categorias": selectedCategories,
-      "ubicacion": ubicacionController.text,
-      "presupuesto": int.tryParse(presupuestoController.text) ?? 0,
-      "fecha_limite": fechaLimiteController.text,
-      "descripcion_necesidad": descripcionController.text,
-      "fotos": urlsImagenes,
-    };
+    if (!validarCampos()) return;
 
     try {
       setLoading(true);
-      
-      final success = await _service.crearPublicacion(datos);
-      setErrorMessage(success ? null : "Error al crear publicación");
 
-      setLoading(false);
+      final datos = {
+        "id_cliente": userProvider.user?.id,
+        "titulo": tituloController.text,
+        "id_categorias": selectedCategories,
+        "ubicacion": ubicacionController.text,
+        "presupuesto": int.tryParse(presupuestoController.text) ?? 0,
+        "fecha_limite": fechaLimiteController.text,
+        "descripcion_necesidad": descripcionController.text,
+      };
+
+      final id = await _service.crearPublicacion(datos);
+      // 🔹 Subir imágenes solo ahora
+      final urls = await _service.subirImagenesAFirebase(id!, localImages);
+      // 2️⃣ Actualizar con fotos si existen
+      if (urls.isNotEmpty) {
+        await _service.actualizarFotos(id, urls);
+      }
       limpiarFormulario();
-      return success;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Publicación creada correctamente')),
+      );
     } catch (e) {
+      setErrorMessage("Error al crear la publicación: $e");
+    } finally {
       setLoading(false);
-      setErrorMessage("Error al crear la publicación");
-      return false;
     }
   }
 
