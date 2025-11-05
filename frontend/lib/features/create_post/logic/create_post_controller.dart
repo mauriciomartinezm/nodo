@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
-import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 
 class CrearPublicacionController extends ChangeNotifier {
   final CrearPublicacionService _service;

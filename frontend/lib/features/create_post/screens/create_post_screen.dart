@@ -3,12 +3,12 @@ import 'package:nodo/features/create_post/logic/create_post_controller.dart';
 import 'package:nodo/features/create_post/widgets/date_picker_widget.dart';
 import 'package:nodo/features/create_post/widgets/descripcion_field_widget.dart';
 import 'package:nodo/features/create_post/widgets/header_info_widget.dart';
-import 'package:nodo/providers/categorie_provider.dart';
-import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/shared/providers/categorie_provider.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../widgets/foto_widget.dart';
+import '../../../shared/widgets/foto_widget.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import '../widgets/text_field_widget.dart';
 

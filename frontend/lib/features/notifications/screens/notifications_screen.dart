@@ -5,7 +5,7 @@ import 'package:nodo/core/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../widgets/notifications_settings.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/user_provider.dart';
+import '../../../shared/providers/user_provider.dart';
 import '../../../core/constants/api_constants.dart';
 
 class NotificacionesScreen extends StatefulWidget {

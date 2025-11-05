@@ -3,7 +3,7 @@ import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/chat/screens/Chat1.dart';
 import 'package:nodo/features/trabajos/logic/TrabajoService.dart';
 import 'package:nodo/features/trabajos/screens/trabajos4.dart';
-import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class DetalleTrabajoScreen extends StatefulWidget {

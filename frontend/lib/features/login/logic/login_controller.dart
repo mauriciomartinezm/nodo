@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 
 class LoginController {
   final BuildContext context;

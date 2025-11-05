@@ -5,7 +5,7 @@ import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/features/register/logic/profile_picture_controller.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
-import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfilePictureWidget extends StatelessWidget {

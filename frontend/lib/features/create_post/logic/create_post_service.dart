@@ -4,7 +4,7 @@ import '../../../core/constants/api_constants.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+import '../../../core/utils/image_utils.dart';
 
 class CrearPublicacionService {
   // Crear la publicación y devolver el ID
@@ -39,35 +39,13 @@ class CrearPublicacionService {
     }
   }
 
-  // 🔹 Subprograma: Convertir imágenes a WebP antes de subir
-  Future<File> convertirAWebP(File original) async {
-    final nuevoPath = original.path.replaceAll(
-      basename(original.path),
-      '${basenameWithoutExtension(original.path)}_compressed.webp',
-    );
-
-    final result = await FlutterImageCompress.compressAndGetFile(
-      original.absolute.path,
-      nuevoPath,
-      quality: 80, // puedes ajustar la calidad (0-100)
-      format: CompressFormat.webp,
-    );
-
-    if (result == null) {
-      throw Exception('No se pudo convertir la imagen a WebP');
-    }
-
-    // Convertimos el XFile a File
-    return File(result.path);
-  }
-
   Future<List<String>> subirImagenesAFirebase(
       String publicacionId, List<File> localImages) async {
     List<String> urls = [];
 
     for (final imagen in localImages) {
       // Convertir a WebP antes de subir
-      final imagenWebP = await convertirAWebP(imagen);
+      final imagenWebP = await ImageUtils.convertToAWebP(imagen);
 
       final nombreArchivo = basename(imagenWebP.path);
       final ref = FirebaseStorage.instance

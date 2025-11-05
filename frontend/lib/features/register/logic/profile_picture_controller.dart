@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nodo/core/constants/api_constants.dart';
 import 'package:http/http.dart' as http;
-import 'package:nodo/providers/register_provider.dart';
+import 'package:nodo/shared/providers/register_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/providers/user_provider.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:mime/mime.dart';
 
 class ProfilePictureController extends ChangeNotifier {

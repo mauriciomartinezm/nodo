@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/user.dart';
+import '../../models/user.dart';
 import 'package:nodo/core/services/auth_service.dart';
 import 'dart:convert';
 

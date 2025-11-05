@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/register/logic/register_controller.dart';
-import 'package:nodo/providers/categorie_provider.dart';
+import 'package:nodo/shared/providers/categorie_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';

@@ -6,7 +6,7 @@ import 'package:nodo/features/login/logic/login_controller.dart';
 import 'package:nodo/features/register/screens/register_screen.dart';
 import 'package:nodo/features/welcome/widgets/welcome3.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/user_provider.dart';
+import '../../../shared/providers/user_provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 
