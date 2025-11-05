@@ -14,7 +14,7 @@ class PublicacionDetail extends StatefulWidget {
     super.key,
     required this.publicacion,
     required this.onDelete,
-    required this.publicacionesController, // 👈
+    required this.publicacionesController,
   });
 
   @override
@@ -24,22 +24,18 @@ class PublicacionDetail extends StatefulWidget {
 class _PublicacionDetailState extends State<PublicacionDetail> {
   int _currentIndex = 0;
   late List<String> imageList;
-  final CarouselSliderController _carouselController = CarouselSliderController();
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
   @override
   void initState() {
     super.initState();
     // Parsear las imágenes de la publicación
     imageList = _parseImages(widget.publicacion['fotos']);
-    if (imageList.isEmpty) {
-      // Si no hay imágenes, puedes mostrar una imagen por defecto
-      imageList = ['assets/images/diomedes_joven.jpg'];
-    }
   }
 
   List<String> _parseImages(String fotosString) {
     // Caso cuando no hay fotos
     if (fotosString.isEmpty || fotosString == 'sin fotos') {
-      print("NO HAY FOTOS");
       return [];
     }
 
@@ -123,62 +119,78 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
     );
   }
 
-Widget _buildImageCarousel() {
-  return Stack(
-    alignment: Alignment.bottomCenter,
-    children: [
-      CarouselSlider(
-        carouselController: _carouselController, 
-        items: imageList.map((imageUrl) {
-          return ClipRRect(
-            //borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-          );
-        }).toList(),
-        options: CarouselOptions(
-          height: 180.h,
-          viewportFraction: 0.9,
-          enlargeCenterPage: true,
-          enableInfiniteScroll: false,
-          onPageChanged: (index, reason) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
+  Widget _buildImageCarousel() {
+    if (imageList.isEmpty) {
+      return Container(
+        height: 180.h,
+        width: double.infinity,
+        alignment: Alignment.center,
+        child: Text(
+          'Esta publicación no tiene imágenes',
+          style: AppTypography.h2.copyWith(color: AppColors.blue),
+          textAlign: TextAlign.center,
         ),
-      ),
-
-      // Indicadores sobre la imagen
-      Positioned(
-        bottom: 10.h,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: imageList.asMap().entries.map((entry) {
-            final bool isActive = _currentIndex == entry.key;
-            return GestureDetector(
-              onTap: () => _carouselController.animateToPage(entry.key),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: isActive ? 7.w : 7.w, //cambiar el primer valor para ajustar tamaño
-                height: isActive ? 7.w : 7.w, //cambiar el primer valor para ajustar tamaño
-                margin: EdgeInsets.symmetric(horizontal: 2.w),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isActive ? AppColors.orange : AppColors.blue,
-                  border: Border.all(color: AppColors.white, width: 0.5),
-                ),
+      );
+    }
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        CarouselSlider(
+          carouselController: _carouselController,
+          items: imageList.map((imageUrl) {
+            return ClipRRect(
+              //borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                width: double.infinity,
               ),
             );
           }).toList(),
+          options: CarouselOptions(
+            height: 180.h,
+            viewportFraction: 0.9,
+            enlargeCenterPage: true,
+            enableInfiniteScroll: false,
+            onPageChanged: (index, reason) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+          ),
         ),
-      ),
-    ],
-  );
-}
+
+        // Indicadores sobre la imagen
+        Positioned(
+          bottom: 10.h,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: imageList.asMap().entries.map((entry) {
+              final bool isActive = _currentIndex == entry.key;
+              return GestureDetector(
+                onTap: () => _carouselController.animateToPage(entry.key),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: isActive
+                      ? 7.w
+                      : 7.w, //cambiar el primer valor para ajustar tamaño
+                  height: isActive
+                      ? 7.w
+                      : 7.w, //cambiar el primer valor para ajustar tamaño
+                  margin: EdgeInsets.symmetric(horizontal: 2.w),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isActive ? AppColors.orange : AppColors.blue,
+                    border: Border.all(color: AppColors.white, width: 0.5),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildDetailInfo(String texto, {bool isDescription = false}) {
     return Padding(

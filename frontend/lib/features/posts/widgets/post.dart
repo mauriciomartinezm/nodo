@@ -14,7 +14,6 @@ class PublicacionCard extends StatelessWidget {
     required this.onDelete,
   });
 
-  // Método para parsear las imágenes (similar al que ya tienes)
   List<String> _parseImages(String fotosString) {
     if (fotosString.isEmpty || fotosString == 'sin fotos') {
       return [];
