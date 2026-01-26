@@ -1,4 +1,5 @@
 drop table if exists categoria;
+
 CREATE TABLE public.categoria (
     id character varying NOT NULL,
     nombre character varying,
@@ -85,7 +86,7 @@ CREATE TABLE public.servicio (
     CONSTRAINT servicio_pkey PRIMARY KEY (id)
 );
 
-drop table if exists transaccion;
+drop table if exists public.transaccion;
 CREATE TABLE public.transaccion (
     id character varying NOT NULL,
     id_cliente character varying,
@@ -99,21 +100,15 @@ CREATE TABLE public.transaccion (
     codigo_transaccion character varying,
     CONSTRAINT transaccion_pkey PRIMARY KEY (id)
 );
-select * from usuario where email == 'mauromm1603@gmail.com';
 
-ALTER TABLE usuario
-ADD CONSTRAINT unique_email UNIQUE (email),
-ADD CONSTRAINT unique_telefono UNIQUE (telefono);
-
-
-alter table usuario modify 
+drop table if exists usuario;
 CREATE TABLE public.usuario (
     id character varying NOT NULL,
     nombres character varying,
     primer_apellido character varying,
     segundo_apellido character varying,
-    email character varying,
-    telefono character varying,
+    email character varying unique,
+    telefono character varying unique,
     fecha_nacimiento character varying,
     contrasena character varying,
     fecha_registro timestamp without time zone,
@@ -127,8 +122,7 @@ CREATE TABLE public.usuario (
     fcm_token character varying,
     CONSTRAINT usuario_pkey PRIMARY KEY (id)
 );
-select * from usuario_categoria;
-s
+
 drop table if exists usuario_categoria;
 CREATE TABLE usuario_categoria (
   id_usuario character varying NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
@@ -142,4 +136,3 @@ CREATE TABLE publicacion_categoria (
   id_categoria character varying NOT NULL REFERENCES categoria(id) ON DELETE CASCADE,
   PRIMARY KEY (id_publicacion, id_categoria)
 );
-
