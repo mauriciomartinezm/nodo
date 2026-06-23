@@ -37,7 +37,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
       children: [
         Text(
           "Fotos (Máximo 10)",
-          style: TextStyle(fontSize: 10.sp, color: AppColors.whiteT),
+          style: TextStyle(fontSize: 10.sp, color: AppColors.slateGrey),
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -46,7 +46,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
             width: double.infinity,
             height: 50.h,
             decoration: BoxDecoration(
-              border: Border.all(width: 2.r, color: AppColors.whiteT),
+              border: Border.all(width: 2.r, color: AppColors.slateGrey),
               borderRadius: BorderRadius.circular(12),
             ),
             child: _fotos.isEmpty

@@ -94,7 +94,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
               children: [
                 Text(
                   widget.publicacion['titulo'] ?? 'Sin título',
-                  style: AppTypography.h3.copyWith(color: AppColors.blue),
+                  style: AppTypography.label.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: 8.h),
                 _buildDetailInfo(
@@ -127,7 +127,7 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
         alignment: Alignment.center,
         child: Text(
           'Esta publicación no tiene imágenes',
-          style: AppTypography.h2.copyWith(color: AppColors.blue),
+          style: AppTypography.subtitle.copyWith(color: AppColors.blue),
           textAlign: TextAlign.center,
         ),
       );

@@ -52,7 +52,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: AppColors.white,
       appBar: AppBar(
         title: Text('Editar Perfil',
-            style: AppTypography.h1.copyWith(color: AppColors.blue)),
+            style: AppTypography.title.copyWith(color: AppColors.blue)),
         backgroundColor: AppColors.white,
         surfaceTintColor: AppColors.white,
         iconTheme: IconThemeData(color: AppColors.blue),
@@ -75,7 +75,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   maxLines: 4),
               const SizedBox(height: 10),
               Text('Categorías',
-                  style: AppTypography.h3.copyWith(color: AppColors.blue)),
+                  style: AppTypography.label.copyWith(color: AppColors.blue)),
               const SizedBox(height: 0),
               Wrap(
                 spacing: 6,
@@ -111,7 +111,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.save, color: Colors.white),
                   label: Text('Guardar',
-                      style: AppTypography.h2.copyWith(color: AppColors.white)),
+                      style: AppTypography.subtitle.copyWith(color: AppColors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.orange,
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -137,7 +137,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTypography.h3.copyWith(color: AppColors.blue)),
+          Text(label, style: AppTypography.label.copyWith(color: AppColors.blue)),
           TextFormField(
             controller: controller,
             keyboardType: keyboardType,

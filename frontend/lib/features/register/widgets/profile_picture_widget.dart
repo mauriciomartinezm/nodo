@@ -25,14 +25,14 @@ class ProfilePictureWidget extends StatelessWidget {
         children: [
           Text(
             'Personalización y Configuración',
-            style: AppTypography.h1.copyWith(color: AppColors.blue),
+            style: AppTypography.title.copyWith(color: AppColors.blue),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 5.h),
           Text(
             'Tu foto de perfil es importante para generar confianza con los clientes.'
             'Asegúrate de subir una imagen clara y profesional.',
-            style: AppTypography.h3
+            style: AppTypography.label
                 .copyWith(color: AppColors.blue, fontWeight: FontWeight.normal),
             textAlign: TextAlign.center,
           ),
@@ -81,12 +81,12 @@ class ProfilePictureWidget extends StatelessWidget {
                     children: [
                       TextSpan(
                           text: 'Acepto los ',
-                          style: AppTypography.body2.copyWith(
+                          style: AppTypography.caption.copyWith(
                             color: AppColors.blue,
                           )),
                       TextSpan(
                         text: 'Términos y Condiciones',
-                        style: AppTypography.body2.copyWith(
+                        style: AppTypography.caption.copyWith(
                             color: AppColors.orange,
                             fontWeight: FontWeight.bold),
                         recognizer: TapGestureRecognizer()
@@ -99,12 +99,12 @@ class ProfilePictureWidget extends StatelessWidget {
                       ),
                       TextSpan(
                           text: ' y la ',
-                          style: AppTypography.body2.copyWith(
+                          style: AppTypography.caption.copyWith(
                             color: AppColors.blue,
                           )),
                       TextSpan(
                         text: 'Política de Privacidad',
-                        style: AppTypography.body2.copyWith(
+                        style: AppTypography.caption.copyWith(
                             color: AppColors.orange,
                             fontWeight: FontWeight.bold),
                         recognizer: TapGestureRecognizer()

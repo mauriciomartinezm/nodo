@@ -73,7 +73,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
               height: 5,
               margin: const EdgeInsets.only(top: 12, bottom: 12),
               decoration: BoxDecoration(
-                color: AppColors.whiteT,
+                color: AppColors.slateGrey,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),

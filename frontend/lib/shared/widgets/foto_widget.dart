@@ -56,7 +56,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
             width: double.infinity,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.whiteT, width: 2.r),
+              border: Border.all(color: AppColors.slateGrey, width: 2.r),
               borderRadius: BorderRadius.circular(10),
             ),
             child: _imagenes.isEmpty
@@ -64,7 +64,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
                     child: Text(
                       'Seleccionar imágenes',
                       style: AppTypography.body
-                          .copyWith(color: AppColors.whiteT),
+                          .copyWith(color: AppColors.slateGrey),
                     ),
                   )
                 : Wrap(

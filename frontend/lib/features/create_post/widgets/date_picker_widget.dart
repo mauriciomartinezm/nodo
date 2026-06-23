@@ -37,29 +37,29 @@ class CustomDatePicker extends StatelessWidget {
                 data: Theme.of(context).copyWith(
                   // Estilo del calendario
                   colorScheme: ColorScheme.light(
-                    primary: AppColors.whiteT, // Color del header
+                    primary: AppColors.slateGrey, // Color del header
                     onPrimary: Colors.white, // Texto del header
                     onSurface: Colors.black, // Texto de los días
                   ),
                   textButtonTheme: TextButtonThemeData(
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.whiteT, // Botones de acción
+                      foregroundColor: AppColors.slateGrey, // Botones de acción
                     ),
                   ),
                   // Estilo del campo de fecha
                   inputDecorationTheme: InputDecorationTheme(
-                    labelStyle: AppTypography.body.copyWith(color: AppColors.whiteT),
+                    labelStyle: AppTypography.body.copyWith(color: AppColors.slateGrey),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+                      borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+                      borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+                      borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
                     ),
                     contentPadding: EdgeInsets.symmetric(
                       vertical: 6.h,
@@ -83,14 +83,14 @@ class CustomDatePicker extends StatelessWidget {
             style: AppTypography.body,
             decoration: InputDecoration(
               labelText: label,
-              labelStyle: AppTypography.body.copyWith(color: AppColors.whiteT),
+              labelStyle: AppTypography.body.copyWith(color: AppColors.slateGrey),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+                borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+                borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
               ),
               contentPadding: EdgeInsets.symmetric(
                 vertical: 6.h,
@@ -99,7 +99,7 @@ class CustomDatePicker extends StatelessWidget {
               suffixIcon: Icon(
                 Icons.calendar_today,
                 size: 16.r,
-                color: AppColors.whiteT,
+                color: AppColors.slateGrey,
               ),
             ),
           ),

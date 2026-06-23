@@ -59,7 +59,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       SizedBox(height: 10.h),
                       Text(
                         "Seleccione la(s) categoría(s) de su servicio",
-                        style: AppTypography.h3.copyWith(color: AppColors.blue),
+                        style: AppTypography.label.copyWith(color: AppColors.blue),
                       ),
                       Wrap(
                         spacing: 8.w,

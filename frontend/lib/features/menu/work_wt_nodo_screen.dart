@@ -14,7 +14,7 @@ class WorkWtNodo extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           '¿Quieres ofrecer tus servicios?',
-          style: AppTypography.h1,
+          style: AppTypography.title,
         ),
         backgroundColor: AppColors.blue,
         foregroundColor: AppColors.white,
@@ -52,7 +52,7 @@ class WorkWtNodo extends StatelessWidget {
 
                   Text(
                     'Únete a la creciente comunidad de trabajadores que ya están generando ingresos con NODO y empieza tú también.',
-                    style: AppTypography.h3.copyWith(color: AppColors.white),
+                    style: AppTypography.label.copyWith(color: AppColors.white),
                     textAlign: TextAlign.justify,
                   ),
 
@@ -62,7 +62,7 @@ class WorkWtNodo extends StatelessWidget {
 
                   Text(
                     '¿Cómo funciona?',
-                    style: AppTypography.h2.copyWith(color: AppColors.white),
+                    style: AppTypography.subtitle.copyWith(color: AppColors.white),
                   ),
                   const SizedBox(height: 8),
 
@@ -77,7 +77,7 @@ class WorkWtNodo extends StatelessWidget {
 
                   Text(
                     'Nodo cobra una comisión justa solo cuando completas un trabajo. No pagas por usar la plataforma ni por postularte.',
-                    style: AppTypography.body2.copyWith(color: AppColors.white),
+                    style: AppTypography.caption.copyWith(color: AppColors.white),
                     textAlign: TextAlign.justify,
                   ),
 
@@ -104,7 +104,7 @@ class WorkWtNodo extends StatelessWidget {
                       },
                       child: Text(
                         'Activar mi perfil como trabajador',
-                        style: AppTypography.h2.copyWith(color: AppColors.orange),
+                        style: AppTypography.subtitle.copyWith(color: AppColors.orange),
                       ),
                     ),
                   ),
@@ -156,7 +156,7 @@ class WorkWtNodo extends StatelessWidget {
               children: [
                 Text(
                   item['title']!,
-                  style: AppTypography.h2.copyWith(color: AppColors.white),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.white),
                 ),
                 const SizedBox(height: 6),
                 Padding(

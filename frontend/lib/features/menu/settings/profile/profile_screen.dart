@@ -115,7 +115,7 @@ class ProfileScreen extends StatelessWidget {
                           icon: const Icon(Icons.edit_outlined,
                               color: AppColors.blue),
                           label: Text('Editar',
-                              style: AppTypography.h3
+                              style: AppTypography.label
                                   .copyWith(color: AppColors.blue)),
                           onPressed: () {
                             Navigator.pushNamed(context, '/editProfile');
@@ -136,13 +136,13 @@ class ProfileScreen extends StatelessWidget {
                       Row(
                         children: [
                           Text(user.nombres,
-                              style: AppTypography.h2
+                              style: AppTypography.subtitle
                                   .copyWith(color: AppColors.blue)),
                           Text(' ${user.primerApellido}',
-                              style: AppTypography.h2
+                              style: AppTypography.subtitle
                                   .copyWith(color: AppColors.blue)),
                           Text(' ${user.segundoApellido}',
-                              style: AppTypography.h2
+                              style: AppTypography.subtitle
                                   .copyWith(color: AppColors.blue)),
                         ],
                       ),
@@ -151,7 +151,7 @@ class ProfileScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
                         child: Text(user.tipoUsuario,
-                            style: AppTypography.h3
+                            style: AppTypography.label
                                 .copyWith(color: AppColors.blue)),
                       ),
 
@@ -160,13 +160,13 @@ class ProfileScreen extends StatelessWidget {
                         child: Row(
                           children: [
                             Text('Calificación promedio: ',
-                                style: AppTypography.h3
+                                style: AppTypography.label
                                     .copyWith(color: AppColors.blue)),
                             const SizedBox(width: 4),
                             Text(
                               user.calificacionPromedio?.toStringAsFixed(1) ??
                                   'Sin calificación',
-                              style: AppTypography.h3
+                              style: AppTypography.label
                                   .copyWith(color: AppColors.orange),
                             ),
                           ],
@@ -203,7 +203,7 @@ class ProfileScreen extends StatelessWidget {
                               user.descripcion?.isNotEmpty == true
                                   ? user.descripcion!
                                   : "No hay descripción disponible",
-                              style: AppTypography.h3
+                              style: AppTypography.label
                                   .copyWith(color: AppColors.blue),
                               textAlign: TextAlign.justify,
                             ),
@@ -261,13 +261,13 @@ class ProfileScreen extends StatelessWidget {
                       //Estadísticas
                       Text("Estadísticas",
                           style:
-                              AppTypography.h2.copyWith(color: AppColors.blue)),
+                              AppTypography.subtitle.copyWith(color: AppColors.blue)),
 
                       if (user.tipoUsuario == 'trabajador') ...[
                         ListTile(
                           title: Text(
                             "Publicaciones en las que te has postulado",
-                            style: AppTypography.h3
+                            style: AppTypography.label
                                 .copyWith(color: AppColors.blue),
                           ),
                           onTap: () {
@@ -281,7 +281,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         ListTile(
                           title: Text("Trabajos completados",
-                              style: AppTypography.h3
+                              style: AppTypography.label
                                   .copyWith(color: AppColors.blue)),
                           subtitle: Padding(
                             padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
@@ -298,7 +298,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         ListTile(
                           title: Text("Total ganado",
-                              style: AppTypography.h3
+                              style: AppTypography.label
                                   .copyWith(color: AppColors.blue)),
                           subtitle: Padding(
                             padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
@@ -311,7 +311,7 @@ class ProfileScreen extends StatelessWidget {
 
                       ListTile(
                         title: Text("Miembro desde",
-                            style: AppTypography.h3
+                            style: AppTypography.label
                                 .copyWith(color: AppColors.blue)),
                         subtitle: Padding(
                           padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
@@ -324,7 +324,7 @@ class ProfileScreen extends StatelessWidget {
 
                       // Insignias
                       Text("Insignias",
-                          style: AppTypography.h2
+                          style: AppTypography.subtitle
                               .copyWith(color: AppColors.blue)),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
@@ -353,7 +353,7 @@ class ProfileScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
           child: Text(content,
-              style: AppTypography.h3.copyWith(color: AppColors.blue)),
+              style: AppTypography.label.copyWith(color: AppColors.blue)),
         ),
         const SizedBox(height: 12),
       ],

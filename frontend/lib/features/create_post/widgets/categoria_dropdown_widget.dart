@@ -21,14 +21,14 @@ class CategoriaDropdown extends StatelessWidget {
       child: DropdownButtonFormField<String>(
         decoration: InputDecoration(
           labelText: "Categoría",
-          labelStyle: AppTypography.body.copyWith(color: AppColors.whiteT),
+          labelStyle: AppTypography.body.copyWith(color: AppColors.slateGrey),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+            borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+            borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
           ),
           contentPadding: EdgeInsets.symmetric(
             vertical: 6.h,

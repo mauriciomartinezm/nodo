@@ -39,13 +39,13 @@ class _ValidationWidgetState extends State<ValidationWidget> {
             children: [
               Text(
                 'Verificación de identidad',
-                style: AppTypography.h1.copyWith(color: AppColors.blue),
+                style: AppTypography.title.copyWith(color: AppColors.blue),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 5.h),
               Text(
                 'Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación.',
-                style: AppTypography.h3.copyWith(
+                style: AppTypography.label.copyWith(
                     color: AppColors.blue, fontWeight: FontWeight.normal),
                 textAlign: TextAlign.center,
               ),
@@ -108,13 +108,13 @@ class _ValidationWidgetState extends State<ValidationWidget> {
                   children: [
                     TextSpan(
                       text: '¿No recibiste el código? ',
-                      style: AppTypography.body2.copyWith(
+                      style: AppTypography.caption.copyWith(
                         color: AppColors.blue,
                       ),
                     ),
                     TextSpan(
                       text: 'Reenviar',
-                      style: AppTypography.body2.copyWith(
+                      style: AppTypography.caption.copyWith(
                         color: AppColors.orange,
                         fontWeight: FontWeight.bold,
                       ),
@@ -133,7 +133,7 @@ class _ValidationWidgetState extends State<ValidationWidget> {
                     if (!controller.canResend)
                       TextSpan(
                         text: ' en ${controller.secondsRemaining}s',
-                        style: AppTypography.body2.copyWith(
+                        style: AppTypography.caption.copyWith(
                           color: AppColors.blue,
                         ),
                       ),

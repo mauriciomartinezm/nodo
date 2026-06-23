@@ -13,7 +13,7 @@ class PaymentsBillings extends StatelessWidget {
         elevation: 0,
         title: Text(
           'Pagos y facturación',
-          style: AppTypography.h1,
+          style: AppTypography.title,
         ),
       ),
       backgroundColor: AppColors.white,
@@ -23,14 +23,14 @@ class PaymentsBillings extends StatelessWidget {
           children: [
             ListTile(
               title: Text('Métodos de pagos registrados',
-                  style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: () {
                 Navigator.pushNamed(context, '/PaymentsMethods');
               },
             ),
             ListTile(
               title: Text('Historial de transaccciones',
-                  style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: () {
                 // Navigator.pushNamed(context, '/editProfile');
               },
@@ -38,7 +38,7 @@ class PaymentsBillings extends StatelessWidget {
 
             ListTile(
               title: Text('Comisiones y tarifas',
-                  style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: () {
                 Navigator.pushNamed(context, '/CommissionsFeesScreen');
               },
@@ -46,7 +46,7 @@ class PaymentsBillings extends StatelessWidget {
 
             ListTile(
               title: Text('Ingresos obtenidos',
-                  style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: () {
                 Navigator.pushNamed(context, '/YourIncome');
               },
@@ -54,7 +54,7 @@ class PaymentsBillings extends StatelessWidget {
 
             ListTile(
               title: Text('Caluladora de ganancias',
-                  style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: () {
                 Navigator.pushNamed(context, '/CommissionCalculatorScreen');
               },

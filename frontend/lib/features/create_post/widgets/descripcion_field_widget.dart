@@ -19,14 +19,14 @@ class DescripcionField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: "Descripción",
         alignLabelWithHint: true,
-        labelStyle: AppTypography.body.copyWith(color: AppColors.whiteT),
+        labelStyle: AppTypography.body.copyWith(color: AppColors.slateGrey),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+          borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
+          borderSide: BorderSide(width: 2.r, color: AppColors.slateGrey),
         ),
       ),
     );

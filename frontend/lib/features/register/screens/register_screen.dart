@@ -62,7 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             SizedBox(width: 12.w),
             Text(
               'Registro',
-              style: AppTypography.h2.copyWith(
+              style: AppTypography.subtitle.copyWith(
                 color: AppColors.white,
                 fontFamily: 'GothamBook',
               ),

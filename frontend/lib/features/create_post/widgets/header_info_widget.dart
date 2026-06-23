@@ -80,7 +80,7 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
                 children: [
                   Text(
                     nombre,
-                    style: AppTypography.h2.copyWith(color: AppColors.blue),
+                    style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
                   if (_loadingCategoria)
                     SizedBox(
@@ -94,7 +94,7 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
                   else if (_profesion.isNotEmpty)
                     Text(
                       _profesion,
-                      style: AppTypography.h3.copyWith(color: AppColors.blue, fontWeight: FontWeight.w100,),
+                      style: AppTypography.label.copyWith(color: AppColors.blue, fontWeight: FontWeight.w100,),
                     ),
                 ],
               ),
@@ -103,11 +103,11 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
           SizedBox(height: 10.h),
           Text(
             "Publica tu solicitud y encuentra al profesional ideal",
-            style: AppTypography.h2.copyWith(color: AppColors.blue),
+            style: AppTypography.subtitle.copyWith(color: AppColors.blue),
           ),
           Text(
             "Describe lo que necesitas y deja que los mejores trabajadores te contacten",
-            style: AppTypography.h3.copyWith(color: AppColors.orange),
+            style: AppTypography.label.copyWith(color: AppColors.orange),
           ),
         ],
       ),

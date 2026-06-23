@@ -30,7 +30,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Preferencias',
-            style: AppTypography.h1.copyWith(color: AppColors.blue)),
+            style: AppTypography.title.copyWith(color: AppColors.blue)),
         leading: const BackButton(color: AppColors.blue),
       ),
       body: Padding(
@@ -40,7 +40,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             ListTile(
               title: Text('Idioma',
                   style:
-                      AppTypography.h2.copyWith(color: AppColors.blue)),
+                      AppTypography.subtitle.copyWith(color: AppColors.blue)),
               subtitle: Text(idioma,
                   style: AppTypography.body.copyWith(color: AppColors.blue)),
               onTap: _editLanguaje,
@@ -48,7 +48,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             ListTile(
               title: Text('Ubicación Preferida',
                   style:
-                      AppTypography.h2.copyWith(color: AppColors.blue)),
+                      AppTypography.subtitle.copyWith(color: AppColors.blue)),
               subtitle: Text(ubicacion,
                   style: AppTypography.body.copyWith(color: AppColors.blue)),
               onTap: _editUbicacion,
@@ -66,7 +66,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       builder: (_) => AlertDialog(
         title: Text('Idioma',
             textAlign: TextAlign.center,
-            style: AppTypography.h1.copyWith(color: AppColors.blue)),
+            style: AppTypography.title.copyWith(color: AppColors.blue)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -81,7 +81,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               onPressed: () => Navigator.pop(context),
               child: Text('Ok, bro',
                   style:
-                      AppTypography.h2.copyWith(color: AppColors.blue)),
+                      AppTypography.subtitle.copyWith(color: AppColors.blue)),
             ),
           ],
         ),
@@ -95,7 +95,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text('Selecciona tu ubicación',
-            style: AppTypography.h1.copyWith(color: AppColors.blue)),
+            style: AppTypography.title.copyWith(color: AppColors.blue)),
         content: StatefulBuilder(
           builder: (context, setStateDialog) => DropdownButton<String>(
             value: municipiosUraba.contains(seleccionTemporal)
@@ -130,7 +130,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               Navigator.pop(context);
             },
             child: Text('Guardar',
-                style: AppTypography.h2.copyWith(color: AppColors.orange)),
+                style: AppTypography.subtitle.copyWith(color: AppColors.orange)),
           ),
         ],
       ),

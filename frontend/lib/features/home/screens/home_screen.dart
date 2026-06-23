@@ -134,23 +134,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           Row( 
                             children: [
                               Text("${user?.nombres.split(' ').first}",
-                                  style: AppTypography.h2
+                                  style: AppTypography.subtitle
                                       .copyWith(color: AppColors.white)),
                               
                               Text(
                                   ' ${user?.primerApellido}' ,
-                                  style: AppTypography.h2
+                                  style: AppTypography.subtitle
                                       .copyWith(color: AppColors.white)),
                             ],
                           ),
                           Text(user?.tipoUsuario ?? "Sin tipo",
-                              style: AppTypography.h3
+                              style: AppTypography.label
                                   .copyWith(color: AppColors.white)),
                           const SizedBox(height: 4),
                           if (user?.tipoUsuario == 'trabajador')
                             Text(
                                 "${user?.trabajosCompletados ?? 0} trabajos completados",
-                                style: AppTypography.h3
+                                style: AppTypography.label
                                     .copyWith(color: AppColors.white)),
                         ],
                       ),

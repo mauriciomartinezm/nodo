@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: AutoSizeText(
                       'Inicia sesión y descubre nuevas oportunidades de trabajo y servicios en un solo lugar',
                       textAlign: TextAlign.center,
-                      style: AppTypography.h2.copyWith(color: AppColors.white),
+                      style: AppTypography.title.copyWith(color: AppColors.white),
                       maxLines: 3,
                       minFontSize: 5,
                       maxFontSize: 22,
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                         child: Text("Regístrate",
                             style: AppTypography.body.copyWith(
-                                fontFamily: 'GothamMedium',
+                                // fontFamily: 'GothamMedium',
                                 color: AppColors.orange)),
                       ),
                     ],

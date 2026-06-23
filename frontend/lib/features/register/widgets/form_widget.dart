@@ -66,20 +66,20 @@ class _FormWidgetState extends State<FormWidget> {
                 // Texto introductorio
                 Text(
                   "En NODO creemos en el poder de unir necesidades con talentos. Regístrate y sé parte de una red que impulsa el trabajo real.",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 ),
 
                 SizedBox(height: categorySpacing),
 
                 Text(
                   "¿Cómo quieres comenzar en Nodo?",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: textSpacing),
 
                 Text(
                   "Elige si deseas buscar servicios como cliente o empezar a trabajar ofreciendo tu talento.",
-                  style: AppTypography.h3.copyWith(color: AppColors.blue),
+                  style: AppTypography.label.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: textSpacing),
 
@@ -117,7 +117,7 @@ class _FormWidgetState extends State<FormWidget> {
                 // Información básica
                 Text(
                   "Información básica",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: fieldSpacing),
 
@@ -193,7 +193,7 @@ class _FormWidgetState extends State<FormWidget> {
                 // Datos de contacto
                 Text(
                   "Datos de contacto y seguridad",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: fieldSpacing),
                 TextFormField(
@@ -288,7 +288,7 @@ class _FormWidgetState extends State<FormWidget> {
                 if (selectedUserType == "trabajador") ...[
                   Text(
                     "Datos adicionales",
-                    style: AppTypography.h2.copyWith(color: AppColors.blue),
+                    style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: fieldSpacing),
                   TextFormField(
@@ -305,12 +305,12 @@ class _FormWidgetState extends State<FormWidget> {
                   SizedBox(height: fieldSpacing),
                   Text(
                     "Categorías de trabajo",
-                    style: AppTypography.h2.copyWith(color: AppColors.blue),
+                    style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: textSpacing),
                   Text(
                     "Selecciona las áreas en las que tienes experiencia o deseas ofrecer tus servicios.",
-                    style: AppTypography.h3.copyWith(color: AppColors.blue),
+                    style: AppTypography.label.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: fieldSpacing),
                   Wrap(
@@ -365,7 +365,7 @@ class _FormWidgetState extends State<FormWidget> {
                 // Crear contraseña
                 Text(
                   "Crea una contraseña",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: textSpacing),
 

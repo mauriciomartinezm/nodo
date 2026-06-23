@@ -11,7 +11,7 @@ class Credits extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
-        title: Text('Créditos / equipo de trabajo', style: AppTypography.h1),
+        title: Text('Créditos / equipo de trabajo', style: AppTypography.title),
         // leading: Icon(Icons.arrow_back),
       ),
       body: SingleChildScrollView(
@@ -20,7 +20,7 @@ class Credits extends StatelessWidget {
           children: [
             Text(
               'Conoce al equipo detrás de NODO',
-              style: AppTypography.h2.copyWith(color: AppColors.blue),
+              style: AppTypography.subtitle.copyWith(color: AppColors.blue),
               textAlign: TextAlign.justify,
             ),
             SizedBox(height: 8),
@@ -36,7 +36,7 @@ class Credits extends StatelessWidget {
 
             Text(
               'Agradecimientos especiales a todas las personas que han probado, aportado ideas y creído en Nodo desde el inicio.',
-              style: AppTypography.h2.copyWith(color: AppColors.blue),
+              style: AppTypography.subtitle.copyWith(color: AppColors.blue),
               textAlign: TextAlign.center,
             ),
 
@@ -44,18 +44,18 @@ class Credits extends StatelessWidget {
 
             Text(
               'Hecho con 🧡 desde las bananeras de Urabá',
-              style: AppTypography.h3.copyWith(color: AppColors.blue),
+              style: AppTypography.label.copyWith(color: AppColors.blue),
             ),
 
             SizedBox(height: 80),
 
             Text(
               'Versión Nodo 2025',
-              style: AppTypography.body2.copyWith(color: AppColors.blue),
+              style: AppTypography.caption.copyWith(color: AppColors.blue),
             ),
             Text(
               'Todos los derechos reservados.',
-              style: AppTypography.body2.copyWith(color: AppColors.blue),
+              style: AppTypography.caption.copyWith(color: AppColors.blue),
             ),
           ],
         ),

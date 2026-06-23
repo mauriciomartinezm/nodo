@@ -1,7 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = "http://192.168.0.105:3001/api"; //descomenta esto y cambia la ip por localhost si la api la abriste localmente
-  //static const String baseUrl = "http://10.0.2.2:3000/api"; //descomenta esto y cambia la ip por localhost si la api la abriste localmente
-  //static const String baseUrl = "https://nodo-unv8.onrender.com/api"; //ruta para api en la nube en render
+  static const String baseUrl = "http://localhost:3001/api"; //descomenta esto y cambia la ip por localhost si la api la abriste localmente
   //static const String baseUrl = "https://nodo-api-d39cbf97ce57.herokuapp.com/api"; //ruta para api en la nube en railway
   static const String loginEndpoint = "$baseUrl/loginUsuario";
   static String updateUsuarioEndpoint(String id) =>
