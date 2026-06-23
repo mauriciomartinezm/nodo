@@ -23,7 +23,11 @@ export async function guardarNotificacion(
     fecha: new Date().toISOString()
   };
 
-  await redis.lPush(`notificaciones:${usuarioId}`, JSON.stringify(notificacion));
+  try {
+    await redis.lPush(`notificaciones:${usuarioId}`, JSON.stringify(notificacion));
+  } catch (err) {
+    console.log('No se pudo guardar notificación en Redis, continuando sin ella:', err.message);
+  }
 
   const result = await db.query(
     'SELECT fcm_token FROM Usuario WHERE id = $1',

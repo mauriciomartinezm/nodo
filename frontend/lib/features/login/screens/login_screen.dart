@@ -176,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: MediaQuery.of(context).size.height * 0.03),
                       InkWell(
                         onTap: () {},
-                        child: Icon(
+                        child: FaIcon(
                           FontAwesomeIcons.google,
                           size: MediaQuery.of(context).size.height * 0.03,
                           color: AppColors.blue,
@@ -186,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: MediaQuery.of(context).size.height * 0.03),
                       InkWell(
                         onTap: () {},
-                        child: Icon(
+                        child: FaIcon(
                           FontAwesomeIcons.linkedin,
                           size: MediaQuery.of(context).size.height * 0.03,
                           color: AppColors.blue,
