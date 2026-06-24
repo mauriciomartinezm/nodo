@@ -11,7 +11,7 @@ class CrearPublicacionService {
   Future<String?> crearPublicacion(
       Map<String, dynamic> datosPublicacion) async {
     final response = await http.post(
-      Uri.parse(ApiConstants.createPublicacionEndpoint),
+      Uri.parse(ApiConstants.createPublicacion),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(datosPublicacion),
     );
@@ -27,7 +27,7 @@ class CrearPublicacionService {
   // Actualizar las URLs de las fotos
   Future<bool> actualizarFotos(String idPublicacion, List<String> urls) async {
     final response = await http.put(
-      Uri.parse(ApiConstants.updatePublicacionEndpoint(idPublicacion)),
+      Uri.parse(ApiConstants.updatePublicacion(idPublicacion)),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"fotos": urls}),
     );

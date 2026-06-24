@@ -35,7 +35,7 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
 
       for (var post in data) {
         final userResponse = await http.get(
-          Uri.parse(ApiConstants.getUser(post['id_trabajador'])),
+          Uri.parse(ApiConstants.getUsuario(post['id_trabajador'])),
         );
 
         if (userResponse.statusCode == 200) {
@@ -44,7 +44,7 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
           // Obtener el nombre de la categoría
           String nombreCategoria = "Sin categoría";
           final categoriaResponse = await http.get(
-            Uri.parse(ApiConstants.getCategoriaEndpoint(user['id_categoria'])),
+            Uri.parse(ApiConstants.getCategoria(user['id_categoria'])),
           );
           print("Usuario: ");
           print(user);
@@ -103,7 +103,7 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
   Future<void> actualizarEstadoPostulacion(
       String idPostulacion, String nuevoEstado) async {
     final url =
-        Uri.parse(ApiConstants.updatePostulacionEndpoint(idPostulacion));
+        Uri.parse(ApiConstants.updatePostulacion(idPostulacion));
 
     final response = await http.put(
       url,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/create_post/logic/create_post_controller.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
@@ -46,6 +47,7 @@ abstract class AppRoutes {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

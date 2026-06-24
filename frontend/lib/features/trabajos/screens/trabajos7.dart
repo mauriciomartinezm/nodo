@@ -26,7 +26,7 @@ class _FiltroCategoriaDetalleScreenState extends State<FiltroCategoriaDetalleScr
   Future<void> _fetchCategorias() async {
     try {
       final response = await http.get(
-        Uri.parse(ApiConstants.getCategoriasEndpoint),
+        Uri.parse(ApiConstants.getCategorias),
         headers: {'Content-Type': 'application/json'},
       );
 

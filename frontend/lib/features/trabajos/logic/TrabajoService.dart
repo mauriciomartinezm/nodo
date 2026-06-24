@@ -41,7 +41,7 @@ class TrabajoService {
     print("💬Eliminando postulación...");
     try {
       final response = await http.delete(
-        Uri.parse(ApiConstants.deletePostulacionEndpoint(postulacionId)),
+        Uri.parse(ApiConstants.deletePostulacion(postulacionId)),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -66,7 +66,7 @@ class TrabajoService {
   static Future<void> aceptarPostulacion(
       String idPostulacion, String nuevoEstado) async {
     final url =
-        Uri.parse(ApiConstants.updatePostulacionEndpoint(idPostulacion));
+        Uri.parse(ApiConstants.updatePostulacion(idPostulacion));
 
     final response = await http.put(
       url,
@@ -84,7 +84,7 @@ class TrabajoService {
   static Future<List<dynamic>> fetchPublicaciones() async {
     print("💬 Haciendo fetch a publicaciones");
     final response = await http.get(
-      Uri.parse(ApiConstants.getPublicacionesEndpoint),
+      Uri.parse(ApiConstants.getPublicaciones),
       headers: {'Content-Type': 'application/json'},
     );
     print("💬 PubLicaciones: ");
@@ -106,7 +106,7 @@ class TrabajoService {
         publicaciones.map((p) => p['id_cliente']).toSet().toList();
     for (final clientId in clientIds) {
       final response = await http.get(
-        Uri.parse(ApiConstants.getClienteById(clientId)),
+        Uri.parse(ApiConstants.getUsuario(clientId)),
         headers: {'Content-Type': 'application/json'},
       );
       print("Usuario");

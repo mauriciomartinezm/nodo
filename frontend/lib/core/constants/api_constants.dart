@@ -1,44 +1,44 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiConstants {
-  static const String baseUrl = "http://localhost:3001/api"; //descomenta esto y cambia la ip por localhost si la api la abriste localmente
-  //static const String baseUrl = "https://nodo-api-d39cbf97ce57.herokuapp.com/api"; //ruta para api en la nube en railway
-  static const String loginEndpoint = "$baseUrl/loginUsuario";
-  static String updateUsuarioEndpoint(String id) =>
-      "$baseUrl/updateUsuario/$id";
-  static String getUser(String id) => "$baseUrl/getUsuario/$id"; // ← NUEVO
-  static String getClienteById(String id) =>
-      "$baseUrl/getUsuario/$id"; // ← NUEVO
-  static const String createUsuarioEndpoint = "$baseUrl/createUsuario";
-  static const String getTrabajadorByUerId = "$baseUrl/getTrabajadorByUserId";
+  static String get baseUrl => dotenv.env['API_BASE_URL']!;
 
-  static String deletePublicacionEndpoint(String id) =>
-      "$baseUrl/deletePublicacion/$id";
-      static String updatePublicacionEndpoint(String id) =>
-      "$baseUrl/updatePublicacion/$id";
-  static const String createPublicacionEndpoint = "$baseUrl/createPublicacion";
-  static const String getPublicacionesByUserId =
+  static String get login => "$baseUrl/loginUsuario";
+  static String get createUsuario => "$baseUrl/createUsuario";
+  static String updateUsuario(String id) => "$baseUrl/updateUsuario/$id";
+  static String getUsuario(String id) => "$baseUrl/getUsuario/$id";
+  static String get getTrabajadorByUserId =>
+      "$baseUrl/getTrabajadorByUserId";
+
+  static String get createPublicacion => "$baseUrl/createPublicacion";
+  static String get getPublicaciones => "$baseUrl/getPublicaciones";
+  static String get getPublicacionesByUserId =>
       "$baseUrl/getPublicacionesByUserId";
-  static const String getPublicacionesEndpoint =
-      "$baseUrl/getPublicaciones"; // ← NUEVO
+  static String updatePublicacion(String id) =>
+      "$baseUrl/updatePublicacion/$id";
+  static String deletePublicacion(String id) =>
+      "$baseUrl/deletePublicacion/$id";
 
-  static String getCategoriaEndpoint(String id) =>
-      "$baseUrl/getCategoria/$id"; // ← NUEVO
-  static const String getCategoriasEndpoint = "$baseUrl/getCategorias";
+  static String get getCategorias => "$baseUrl/getCategorias";
+  static String getCategoria(String id) => "$baseUrl/getCategoria/$id";
+  static String get createUsuarioCategoria =>
+      "$baseUrl/createUsuarioCategoria";
 
-  static const String postularse = "$baseUrl/postularse"; // ← NUEVO
-  static const String finalizarTrabajo = "$baseUrl/finalizarTrabajo"; // ← NUEVO
-  static const String createUsuarioCategoriaEndpoint = "$baseUrl/createUsuarioCategoria"; // ← NUEVO
+  static String get postularse => "$baseUrl/postularse";
+  static String get finalizarTrabajo => "$baseUrl/finalizarTrabajo";
   static String getPostulacionesByPostId(String id) =>
-      "$baseUrl/getPostulacionesByPostId/$id"; // ← NUEVO
+      "$baseUrl/getPostulacionesByPostId/$id";
   static String getPostulacionesByUserId(String id) =>
-      "$baseUrl/getPostulacionesByUserId/$id"; // ← NUEVO
-  static String updatePostulacionEndpoint(String id) =>
+      "$baseUrl/getPostulacionesByUserId/$id";
+  static String updatePostulacion(String id) =>
       "$baseUrl/updatePostulacion/$id";
-  static String deletePostulacionEndpoint(String id) =>
+  static String deletePostulacion(String id) =>
       "$baseUrl/deletePostulacion/$id";
-  static String getNotificacionesByUserId(String id) =>
-      "$baseUrl/getNotificacionesByUserId/$id"; // ← NUEVO
-  static const String saveToken = "$baseUrl/saveToken"; // ← NUEVO
-  static const String deleteToken = "$baseUrl/deleteToken"; // ← NUEVO
 
-  static const String createReporte = "$baseUrl/createReporte"; // ← NUEVO
+  static String getNotificacionesByUserId(String id) =>
+      "$baseUrl/getNotificacionesByUserId/$id";
+  static String get saveToken => "$baseUrl/saveToken";
+  static String get deleteToken => "$baseUrl/deleteToken";
+
+  static String get createReporte => "$baseUrl/createReporte";
 }

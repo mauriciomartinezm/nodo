@@ -72,7 +72,7 @@ class RegisterController extends ChangeNotifier {
 
       final registerProvider = Provider.of<RegisterProvider>(context, listen: false);
 
-      final url = Uri.parse(ApiConstants.createUsuarioEndpoint);
+      final url = Uri.parse(ApiConstants.createUsuario);
 
       final response = await http.post(
         url,
@@ -119,11 +119,11 @@ class RegisterController extends ChangeNotifier {
   /// 🔹 Función privada para registrar categorías del usuario
   Future<void> _crearUsuarioCategoria(
       String idUsuario, List<String> categorias) async {
-    final url = Uri.parse(ApiConstants.createUsuarioCategoriaEndpoint);
+    final url = Uri.parse(ApiConstants.createUsuarioCategoria);
 
       try {
         final response = await http.post(
-          Uri.parse(ApiConstants.createUsuarioCategoriaEndpoint),
+          Uri.parse(ApiConstants.createUsuarioCategoria),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             "id_usuario": idUsuario,

@@ -95,7 +95,7 @@ export const loginUsuario = async (req, res) => {
 
     // 🔹 2. Consultar categorías asociadas al usuario
     const categoriasQuery = `
-      SELECT c.id, c.nombre, c.descripcion
+      SELECT c.id, c.nombre_categoria, c.descripcion
       FROM usuario_categoria uc
       JOIN categoria c ON uc.id_categoria = c.id
       WHERE uc.id_usuario = $1

@@ -9,7 +9,7 @@ class AuthService {
   Future<User?> login(String identificador, String contrasena) async {
     try {
       final response = await http.post(
-        Uri.parse(ApiConstants.loginEndpoint),
+        Uri.parse(ApiConstants.login),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'identificador': identificador,

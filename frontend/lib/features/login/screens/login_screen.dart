@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SingleChildScrollView(
         child: Column(children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.3,
+            height: 207.h,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               alignment: Alignment.center,
@@ -57,8 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 55.h,
                   ),
                   ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.15),
+                    constraints: BoxConstraints(maxHeight: 103.5.h),
                     child: AutoSizeText(
                       'Inicia sesión y descubre nuevas oportunidades de trabajo y servicios en un solo lugar',
                       textAlign: TextAlign.center,
@@ -73,17 +72,17 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.7,
+            height: 483.h,
             child: Container(
               margin: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * 0.085,
+                horizontal: 30.6.w,
               ).copyWith(
-                top: MediaQuery.of(context).size.height * 0.15,
+                top: 103.5.h,
               ),
               child: Column(
                 children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.05,
+                    height: 34.5.h,
                     child: TextField(
                       controller: _identificadorController,
                       decoration: InputDecoration(
@@ -93,9 +92,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.015,
+                      top: 10.35.h,
                     ),
-                    height: MediaQuery.of(context).size.height * 0.05,
+                    height: 34.5.h,
                     child: TextField(
                       controller: _contrasenaController,
                       obscureText: true,
@@ -117,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.025,
+                      top: 17.25.h,
                     ),
                     child: CustomElevatedButton(
                       text: "Iniciar sesión",
@@ -155,8 +154,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.09,
-                        bottom: MediaQuery.of(context).size.height * 0.015),
+                        top: 62.1.h,
+                        bottom: 10.35.h),
                     child: Text("O continua con: ",
                         style: AppTypography.body.copyWith(
                             fontFamily: 'GothamMedium', color: AppColors.blue)),
@@ -168,27 +167,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         onTap: () {},
                         child: Icon(
                           Icons.facebook,
-                          size: MediaQuery.of(context).size.height * 0.03,
+                          size: 20.7.h,
                           color: AppColors.blue,
                         ),
                       ),
-                      SizedBox(
-                          width: MediaQuery.of(context).size.height * 0.03),
+                      SizedBox(width: 20.7.h),
                       InkWell(
                         onTap: () {},
                         child: FaIcon(
                           FontAwesomeIcons.google,
-                          size: MediaQuery.of(context).size.height * 0.03,
+                          size: 20.7.h,
                           color: AppColors.blue,
                         ),
                       ),
-                      SizedBox(
-                          width: MediaQuery.of(context).size.height * 0.03),
+                      SizedBox(width: 20.7.h),
                       InkWell(
                         onTap: () {},
                         child: FaIcon(
                           FontAwesomeIcons.linkedin,
-                          size: MediaQuery.of(context).size.height * 0.03,
+                          size: 20.7.h,
                           color: AppColors.blue,
                         ),
                       ),

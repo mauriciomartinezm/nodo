@@ -38,7 +38,7 @@ class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
     try {
       
       final response = await http.get(
-        Uri.parse(ApiConstants.getCategoriaEndpoint(idCategoria)),
+        Uri.parse(ApiConstants.getCategoria(idCategoria)),
       );
 
       if (response.statusCode == 200) {
