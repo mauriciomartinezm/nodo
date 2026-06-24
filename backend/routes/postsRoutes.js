@@ -6,7 +6,7 @@ import {
     createPost,
     deletePost,
     updatePost
-} from '../controllers/publicacionController.js';
+} from '../controllers/postController.js';
 
 const postRouter = Router ();
 

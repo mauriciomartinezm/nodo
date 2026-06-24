@@ -5,7 +5,7 @@ import {
     createCategory,
     createUserCategory,
     getUserCategories
-} from '../controllers/categoriaController.js';
+} from '../controllers/categoryController.js';
 
 const categoryRouter = Router ();
 

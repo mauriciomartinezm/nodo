@@ -1,4 +1,4 @@
-// notificacionService.js
+// notificationService.js
 import { v4 as uuidv4 } from 'uuid';
 import redis from '../database/redisClient.js';
 import { db } from '../database/db.js';

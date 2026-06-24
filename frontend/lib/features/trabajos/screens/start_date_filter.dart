@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class FiltroFechaInicio extends StatefulWidget {
-  const FiltroFechaInicio({super.key});
+class StartDateFilter extends StatefulWidget {
+  const StartDateFilter({super.key});
 
   @override
-  State<FiltroFechaInicio> createState() => _FiltroFechaInicioState();
+  State<StartDateFilter> createState() => _StartDateFilterState();
 }
 
-class _FiltroFechaInicioState extends State<FiltroFechaInicio> {
+class _StartDateFilterState extends State<StartDateFilter> {
   DateTimeRange? selectedRange;
 
   Future<void> _selectDateRange() async {

@@ -1,7 +1,7 @@
 import { db } from '../database/db.js';
 import { sendNotificationToUser } from '../utils/firebase.js';
-import { createNotification } from './notificacionController.js';
-import { saveNotification } from '../services/notificacionService.js';
+import { createNotification } from './notificationController.js';
+import { saveNotification } from '../services/notificationService.js';
 import { v4 as uuidv4 } from "uuid";
 
 export const apply = async (req, res) => {

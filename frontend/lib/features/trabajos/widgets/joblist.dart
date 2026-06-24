@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'package:nodo/features/trabajos/screens/trabajos6.dart';
+//import 'package:nodo/features/trabajos/screens/category_filter_screen.dart';
 import 'package:nodo/features/trabajos/logic/job_service.dart';
 
 class JobList extends StatelessWidget {

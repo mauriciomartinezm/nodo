@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class FiltroPrecio extends StatelessWidget {
-  const FiltroPrecio({super.key});
+class PriceFilter extends StatelessWidget {
+  const PriceFilter({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,15 +11,15 @@ class FiltroPrecio extends StatelessWidget {
       minChildSize: 0.3,
       expand: false,
       builder: (context, scrollController) {
-        return FiltroPrecioScreen(scrollController: scrollController);
+        return PriceFilterScreen(scrollController: scrollController);
       },
     );
   }
 }
-class FiltroPrecioScreen extends StatelessWidget {
+class PriceFilterScreen extends StatelessWidget {
   final ScrollController scrollController;
 
-  const FiltroPrecioScreen({super.key, required this.scrollController});
+  const PriceFilterScreen({super.key, required this.scrollController});
 
   @override
   Widget build(BuildContext context) {

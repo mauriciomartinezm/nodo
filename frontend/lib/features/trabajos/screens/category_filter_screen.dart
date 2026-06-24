@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/features/trabajos/screens/trabajos7.dart';
-import 'package:nodo/features/trabajos/screens/trabajos8.dart';
-import 'package:nodo/features/trabajos/screens/trabajos9.dart';
-import 'package:nodo/features/trabajos/screens/trabajos10.dart';
-import 'package:nodo/features/trabajos/screens/trabajos11.dart';
+import 'package:nodo/features/trabajos/screens/category_filter_detail_screen.dart';
+import 'package:nodo/features/trabajos/screens/location_filter_screen.dart';
+import 'package:nodo/features/trabajos/screens/price_filter_screen.dart';
+import 'package:nodo/features/trabajos/screens/post_time_screen.dart';
+import 'package:nodo/features/trabajos/screens/start_date_filter.dart';
 
 
 class CategoryFilterScreen extends StatelessWidget {
@@ -140,7 +140,7 @@ class _FilterItem extends StatelessWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) => const FiltroUbicacionScreen(),
+            builder: (_) => const LocationFilterScreen(),
           );
 
           if (resultado != null) {
@@ -151,7 +151,7 @@ class _FilterItem extends StatelessWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) => const FiltroPrecio(),
+            builder: (_) => const PriceFilter(),
           );
 
           if (resultado != null) {
@@ -173,7 +173,7 @@ class _FilterItem extends StatelessWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) => const FiltroFechaInicio(),
+            builder: (_) => const StartDateFilter(),
           );
 
           if (resultado != null) {

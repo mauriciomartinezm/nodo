@@ -1,11 +1,11 @@
-import userRouter from "./routes/usuariosRoutes.js";
-import postRouter from "./routes/publicacionesRoutes.js";
-import categoryRouter from "./routes/categoriasRoutes.js";
-import notificationRouter from "./routes/notificacionesRoutes.js"; //Con redis
-import applicationRouter from "./routes/postulacionRoutes.js";
+import userRouter from "./routes/usersRoutes.js";
+import postRouter from "./routes/postsRoutes.js";
+import categoryRouter from "./routes/categoriesRoutes.js";
+import notificationRouter from "./routes/notificationsRoutes.js"; //Con redis
+import applicationRouter from "./routes/applicationsRoutes.js";
 import tokenRouter from "./routes/tokenRoutes.js";
-import reportRouter from "./routes/reportesRoutes.js";
-import jobRouter from "./routes/trabajosRoutes.js";
+import reportRouter from "./routes/reportsRoutes.js";
+import jobRouter from "./routes/jobsRoutes.js";
 import storageRoutes from "./routes/storageRoutes.js";
 import express from "express";
 import cors from "cors";

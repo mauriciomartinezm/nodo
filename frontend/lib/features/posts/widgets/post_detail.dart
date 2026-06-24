@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nodo/features/posts/screens/applications_screen.dart';
 import '../../../core/theme/app_theme.dart';
-import 'package:nodo/features/posts/logic/publicaciones_controller.dart';
+import 'package:nodo/features/posts/logic/posts_controller.dart';
 
 class PostDetail extends StatefulWidget {
   final dynamic publicacion;

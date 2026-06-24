@@ -1,8 +1,8 @@
 import { db } from "../database/db.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import { saveNotification } from '../services/notificacionService.js';
-import { notifyWorkersByCategories } from "../services/notificacionService.js";
+import { saveNotification } from '../services/notificationService.js';
+import { notifyWorkersByCategories } from "../services/notificationService.js";
 export const getPosts = async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM publicacion");

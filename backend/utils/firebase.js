@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import { saveNotification } from '../services/notificacionService.js';
+import { saveNotification } from '../services/notificationService.js';
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
 import serviceAccount from '../serviceAccount.js';
 

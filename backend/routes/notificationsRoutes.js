@@ -3,7 +3,7 @@ import {
     createNotification,
     getNotificationsByUserId,
     getNotifications
-} from '../controllers/notificacionController.js';
+} from '../controllers/notificationController.js';
 
 const notificationRouter = express.Router();
 

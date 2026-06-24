@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:nodo/core/constants/api_constants.dart';
-import 'publicaciones_service.dart';
+import 'posts_service.dart';
 import 'package:http/http.dart' as http;
 
 class PostsController extends ChangeNotifier {

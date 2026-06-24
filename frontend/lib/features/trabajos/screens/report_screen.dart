@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/constants/api_constants.dart';
-import 'package:nodo/features/trabajos/screens/trabajos5.dart';
+import 'package:nodo/features/trabajos/screens/thanks_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class ReportarScreen extends StatefulWidget {
+class ReportScreen extends StatefulWidget {
   final String jobId; // UUID como String
 
-  const ReportarScreen({super.key, required this.jobId});
+  const ReportScreen({super.key, required this.jobId});
 
   @override
-  State<ReportarScreen> createState() => _ReportarScreenState();
+  State<ReportScreen> createState() => _ReportScreenState();
 }
 
-class _ReportarScreenState extends State<ReportarScreen> {
+class _ReportScreenState extends State<ReportScreen> {
   String? selectedOption;
 
   final List<Map<String, String>> motivos = [
@@ -71,7 +71,7 @@ class _ReportarScreenState extends State<ReportarScreen> {
       if (response.statusCode == 201) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const GraciasScreen()),
+          MaterialPageRoute(builder: (_) => const ThanksScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

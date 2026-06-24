@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../logic/publicaciones_controller.dart';
+import '../logic/posts_controller.dart';
 import '../widgets/post_empty_state.dart';
 import '../widgets/post_tabs.dart';
 import '../widgets/post_list_view.dart';

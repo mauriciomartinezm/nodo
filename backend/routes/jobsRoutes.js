@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import {
     finishJob,
-} from '../controllers/trabajoController.js';
+} from '../controllers/jobController.js';
 
 const jobRouter = Router ();
 

@@ -3,7 +3,7 @@ import redis from '../database/redisClient.js'; // tu cliente de Redis
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../database/db.js';
 import { sendNotificationToUser } from '../utils/firebase.js';
-import { saveNotification } from '../services/notificacionService.js';
+import { saveNotification } from '../services/notificationService.js';
 
 export async function createNotification(req, res) {
   const { usuarioId, tipo, titulo, mensaje, data } = req.body;

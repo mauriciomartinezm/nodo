@@ -1,7 +1,7 @@
 import { db } from "../database/db.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import { saveNotification } from '../services/notificacionService.js';
+import { saveNotification } from '../services/notificationService.js';
 
 
 export const finishJob = async (req, res) => {

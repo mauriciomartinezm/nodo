@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class FiltroUbicacionScreen extends StatefulWidget {
-  const FiltroUbicacionScreen({super.key});
+class LocationFilterScreen extends StatefulWidget {
+  const LocationFilterScreen({super.key});
 
   @override
-  State<FiltroUbicacionScreen> createState() => _FiltroUbicacionScreenState();
+  State<LocationFilterScreen> createState() => _LocationFilterScreenState();
 }
 
-class _FiltroUbicacionScreenState extends State<FiltroUbicacionScreen> {
+class _LocationFilterScreenState extends State<LocationFilterScreen> {
   bool soloCercaDeMi = false;
   String? ciudadSeleccionada;
 

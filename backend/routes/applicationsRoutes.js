@@ -7,7 +7,7 @@ import {
     getApplicationsByPostId,
     updateApplication,
     deleteApplication
-} from '../controllers/postulacionController.js';
+} from '../controllers/applicationController.js';
 
 const applicationRouter = Router ();
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-import 'package:nodo/features/trabajos/screens/trabajos3.dart';
-import 'package:nodo/features/trabajos/screens/trabajos6.dart';
+import 'package:nodo/features/trabajos/screens/job_detail_screen.dart';
+import 'package:nodo/features/trabajos/screens/category_filter_screen.dart';
 import 'package:nodo/features/trabajos/logic/job_service.dart'; // Asegúrate de importar aquí
 import 'package:nodo/features/trabajos/widgets/joblist.dart';
 import 'package:nodo/shared/providers/user_provider.dart';

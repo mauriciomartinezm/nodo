@@ -4,7 +4,7 @@ import {
     getReport,
     getReportByPostId,
     createReport
-} from '../controllers/reporteController.js';
+} from '../controllers/reportController.js';
 
 const reportRouter = Router ();
 
