@@ -47,10 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
 */
   /*void _initializeScreens() {
     _screens = [
-      const PublicacionesScreen(),
+      const PostsScreen(),
       trabajosScreen,
-      const CrearPublicacionScreen(),
-      const NotificacionesScreen(),
+      const CreatePostScreen(),
+      const NotificationsScreen(),
       const ChatScreen(),
     ];
   }*/
@@ -59,15 +59,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     final Widget trabajosScreen = userProvider.isWorker
-        ? const TrabajosScreen2()
-        : const TrabajosScreen1();
+        ? const JobsScreen2()
+        : const JobsScreen1();
 
     _screens = [
-      const PublicacionesScreen(),
+      const PostsScreen(),
       trabajosScreen,
-      const CrearPublicacionScreen(),
-      const NotificacionesScreen(),
-      //const CrearPublicacionScreen(),
+      const CreatePostScreen(),
+      const NotificationsScreen(),
+      //const CreatePostScreen(),
     ];
   }
 

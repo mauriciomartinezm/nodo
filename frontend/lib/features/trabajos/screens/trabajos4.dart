@@ -56,7 +56,7 @@ class _ReportarScreenState extends State<ReportarScreen> {
   Future<void> enviarReporte() async {
     if (selectedOption == null || selectedOption!.isEmpty) return;
 
-    final url = Uri.parse(ApiConstants.createReporte);
+    final url = Uri.parse(ApiConstants.createReport);
 
     try {
       final response = await http.post(

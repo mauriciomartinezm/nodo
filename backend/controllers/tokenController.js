@@ -1,5 +1,5 @@
 import { db } from '../database/db.js';
-import { enviarNotificacionAUsuario } from '../utils/firebase.js';
+import { sendNotificationToUser } from '../utils/firebase.js';
 
 export const saveToken = async (req, res) => {
     const { id_usuario, token } = req.body;
@@ -14,7 +14,7 @@ export const saveToken = async (req, res) => {
             [token, id_usuario]
         );
 
-        await enviarNotificacionAUsuario(token, "Token registrado", "El token FCM fue guardado correctamente", { tipo: "sistema" });
+        await sendNotificationToUser(token, "Token registrado", "El token FCM fue guardado correctamente", { tipo: "sistema" });
 
         if (result.rowCount === 0) {
             return res.status(200).json({ message: 'El token ya estaba actualizado. No se realizaron cambios.' });

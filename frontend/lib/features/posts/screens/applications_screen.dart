@@ -4,29 +4,29 @@ import 'package:http/http.dart' as http;
 import 'package:nodo/core/constants/api_constants.dart';
 import 'package:nodo/features/chat/screens/Chat1.dart';
 
-class PostulacionesScreen extends StatefulWidget {
-  final String idPublicacion;
-  const PostulacionesScreen({super.key, required this.idPublicacion});
+class ApplicationsScreen extends StatefulWidget {
+  final String postId;
+  const ApplicationsScreen({super.key, required this.postId});
 
   @override
-  State<PostulacionesScreen> createState() => _PostulacionesScreenState();
+  State<ApplicationsScreen> createState() => _ApplicationsScreenState();
 }
 
-class _PostulacionesScreenState extends State<PostulacionesScreen> {
-  List<Map<String, dynamic>> postulaciones = [];
+class _ApplicationsScreenState extends State<ApplicationsScreen> {
+  List<Map<String, dynamic>> applications = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchPostulaciones();
+    fetchApplications();
   }
 
-  Future<void> fetchPostulaciones() async {
+  Future<void> fetchApplications() async {
     print("Fetch postulaciones, id publicacion: ");
-    print(widget.idPublicacion);
+    print(widget.postId);
     final response = await http.get(
-      Uri.parse(ApiConstants.getPostulacionesByPostId(widget.idPublicacion)),
+      Uri.parse(ApiConstants.getApplicationsByPostId(widget.postId)),
     );
 
     if (response.statusCode == 200) {
@@ -35,22 +35,22 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
 
       for (var post in data) {
         final userResponse = await http.get(
-          Uri.parse(ApiConstants.getUsuario(post['id_trabajador'])),
+          Uri.parse(ApiConstants.getUser(post['id_trabajador'])),
         );
 
         if (userResponse.statusCode == 200) {
           final user = jsonDecode(userResponse.body);
 
           // Obtener el nombre de la categoría
-          String nombreCategoria = "Sin categoría";
-          final categoriaResponse = await http.get(
-            Uri.parse(ApiConstants.getCategoria(user['id_categoria'])),
+          String categoryName = "Sin categoría";
+          final categoryResponse = await http.get(
+            Uri.parse(ApiConstants.getCategory(user['id_categoria'])),
           );
           print("Usuario: ");
           print(user);
-          if (categoriaResponse.statusCode == 200) {
-            final categoria = jsonDecode(categoriaResponse.body);
-            nombreCategoria = categoria['nombre_cat'] ?? "Sin categoría";
+          if (categoryResponse.statusCode == 200) {
+            final category = jsonDecode(categoryResponse.body);
+            categoryName = category['nombre_cat'] ?? "Sin categoría";
           }
           tempList.add({
             'id_postulacion': post['id'],
@@ -62,13 +62,13 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
             'correo': user['email'],
             'foto': user['foto_perfil'],
             'descripcion': user['descripcion'],
-            'categoria': nombreCategoria,
+            'categoria': categoryName,
           });
         }
       }
 
       setState(() {
-        postulaciones = tempList;
+        applications = tempList;
         isLoading = false;
       });
     } else {
@@ -79,45 +79,45 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
     }
   }
 
-  void aceptarPostulacion(String idPostulacion) {
-    actualizarEstadoPostulacion(idPostulacion, "considerado");
-    
+  void acceptApplication(String applicationId) {
+    updateApplicationStatus(applicationId, "considerado");
+
   }
 
-  void rechazarPostulacion(String idPostulacion) {
-    actualizarEstadoPostulacion(idPostulacion, "rechazado");
+  void rejectApplication(String applicationId) {
+    updateApplicationStatus(applicationId, "rechazado");
   }
 
-  void irAlChat(String idTrabajador, String nombre) {
+  void goToChat(String workerId, String name) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ChatScreen(
-            //receptorId: idTrabajador,
-            //receptorNombre: nombre,
+            //receptorId: workerId,
+            //receptorNombre: name,
             ),
       ),
     );
   }
 
-  Future<void> actualizarEstadoPostulacion(
-      String idPostulacion, String nuevoEstado) async {
+  Future<void> updateApplicationStatus(
+      String applicationId, String newStatus) async {
     final url =
-        Uri.parse(ApiConstants.updatePostulacion(idPostulacion));
+        Uri.parse(ApiConstants.updateApplication(applicationId));
 
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'estado': nuevoEstado}),
+      body: jsonEncode({'estado': newStatus}),
     );
 
     if (response.statusCode == 200) {
       // Opcional: mostrar snackbar o recargar datos
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Estado actualizado a "$nuevoEstado"')),
+        SnackBar(content: Text('Estado actualizado a "$newStatus"')),
       );
       // Vuelve a cargar la lista
-      fetchPostulaciones();
+      fetchApplications();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al actualizar la postulación')),
@@ -125,8 +125,8 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
     }
   }
 
-  bool yaHayUnaAceptada() {
-    return postulaciones.any((p) => p['estado'] == 'aceptado');
+  bool hasAcceptedApplication() {
+    return applications.any((p) => p['estado'] == 'aceptado');
   }
 
   @override
@@ -136,9 +136,9 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: postulaciones.length,
+              itemCount: applications.length,
               itemBuilder: (context, index) {
-                final post = postulaciones[index];
+                final post = applications[index];
                 return Card(
                   margin: const EdgeInsets.all(10),
                   child: ListTile(
@@ -184,11 +184,11 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
                             ),
                           );
                         } else if (value == 'aceptar') {
-                          aceptarPostulacion(post['id_postulacion']);
+                          acceptApplication(post['id_postulacion']);
                         } else if (value == 'rechazar') {
-                          rechazarPostulacion(post['id_postulacion']);
+                          rejectApplication(post['id_postulacion']);
                         } else if (value == 'chat') {
-                          irAlChat(post['id_trabajador'], post['nombre']);
+                          goToChat(post['id_trabajador'], post['nombre']);
                         }
                       },
                       itemBuilder: (_) => [
@@ -197,7 +197,7 @@ class _PostulacionesScreenState extends State<PostulacionesScreen> {
                         PopupMenuItem(
                           value: 'aceptar',
                           enabled: post['estado'] == 'pendiente' &&
-                              !yaHayUnaAceptada(),
+                              !hasAcceptedApplication(),
                           child: Text("Aceptar"),
                         ),
                         PopupMenuItem(

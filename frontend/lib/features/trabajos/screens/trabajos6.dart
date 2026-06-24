@@ -6,8 +6,8 @@ import 'package:nodo/features/trabajos/screens/trabajos10.dart';
 import 'package:nodo/features/trabajos/screens/trabajos11.dart';
 
 
-class FiltroCategoriaScreen extends StatelessWidget {
-  const FiltroCategoriaScreen({super.key});
+class CategoryFilterScreen extends StatelessWidget {
+  const CategoryFilterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -60,23 +60,23 @@ class FiltroCategoriaScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Lista de filtros
-              const _FiltroItem(
+              const _FilterItem(
                 icon: Icons.grid_view_rounded,
                 label: 'Categoría',
               ),
-              const _FiltroItem(
+              const _FilterItem(
                 icon: Icons.location_on_outlined,
                 label: 'Ubicación',
               ),
-              const _FiltroItem(
+              const _FilterItem(
                 icon: Icons.attach_money,
                 label: 'Rango de Precio',
               ),
-              const _FiltroItem(
+              const _FilterItem(
                 icon: Icons.access_time,
                 label: 'Tiempo de Publicación',
               ),
-              const _FiltroItem(
+              const _FilterItem(
                 icon: Icons.calendar_today,
                 label: 'Fecha de Inicio',
               ),
@@ -105,11 +105,11 @@ class FiltroCategoriaScreen extends StatelessWidget {
     );
   }
 }
-class _FiltroItem extends StatelessWidget {
+class _FilterItem extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _FiltroItem({required this.icon, required this.label});
+  const _FilterItem({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +129,7 @@ class _FiltroItem extends StatelessWidget {
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            builder: (context) => const FiltroCategoriaDetalleScreen(),
+            builder: (context) => const CategoryFilterDetailScreen(),
           );
 
           if (resultado != null) {
@@ -162,7 +162,7 @@ class _FiltroItem extends StatelessWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) => const FiltroTiempoPublicacion(),
+            builder: (_) => const PostTimeFilter(),
           );
 
           if (resultado != null) {

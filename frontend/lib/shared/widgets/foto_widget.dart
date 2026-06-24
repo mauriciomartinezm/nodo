@@ -4,43 +4,43 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-class SubirFotoWidget extends StatefulWidget {
+class UploadPhotoWidget extends StatefulWidget {
   final Function(List<File>) onImagesSelected;
   final List<File> initialImages;
 
-  const SubirFotoWidget({
+  const UploadPhotoWidget({
     super.key,
     required this.onImagesSelected,
     this.initialImages = const [],
   });
 
   @override
-  State<SubirFotoWidget> createState() => _SubirFotoWidgetState();
+  State<UploadPhotoWidget> createState() => _UploadPhotoWidgetState();
 }
 
-class _SubirFotoWidgetState extends State<SubirFotoWidget> {
+class _UploadPhotoWidgetState extends State<UploadPhotoWidget> {
   final ImagePicker _picker = ImagePicker();
-  List<File> _imagenes = [];
+  List<File> _images = [];
 
   @override
   void initState() {
     super.initState();
-    _imagenes = widget.initialImages;
+    _images = widget.initialImages;
   }
 
-  Future<void> _seleccionarImagenes() async {
-    final seleccionadas = await _picker.pickMultiImage();
-    if (seleccionadas.isNotEmpty) {
-      final nuevas = seleccionadas.map((x) => File(x.path)).toList();
-      setState(() => _imagenes = [..._imagenes, ...nuevas]);
-      widget.onImagesSelected(_imagenes);
+  Future<void> _selectImages() async {
+    final selected = await _picker.pickMultiImage();
+    if (selected.isNotEmpty) {
+      final newImages = selected.map((x) => File(x.path)).toList();
+      setState(() => _images = [..._images, ...newImages]);
+      widget.onImagesSelected(_images);
     }
   }
 
-  void _eliminarImagen(int index) {
+  void _removeImage(int index) {
     setState(() {
-      _imagenes.removeAt(index);
-      widget.onImagesSelected(_imagenes);
+      _images.removeAt(index);
+      widget.onImagesSelected(_images);
     });
   }
 
@@ -50,7 +50,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: _seleccionarImagenes,
+          onTap: _selectImages,
           child: Container(
             height: 100.h,
             width: double.infinity,
@@ -59,7 +59,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
               border: Border.all(color: AppColors.slateGrey, width: 2.r),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: _imagenes.isEmpty
+            child: _images.isEmpty
                 ? Center(
                     child: Text(
                       'Seleccionar imágenes',
@@ -70,7 +70,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
                 : Wrap(
                     spacing: 8.w,
                     runSpacing: 8.h,
-                    children: _imagenes.asMap().entries.map((entry) {
+                    children: _images.asMap().entries.map((entry) {
                       final index = entry.key;
                       final imagen = entry.value;
                       return Stack(
@@ -88,7 +88,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
                             top: 0,
                             right: 0,
                             child: GestureDetector(
-                              onTap: () => _eliminarImagen(index),
+                              onTap: () => _removeImage(index),
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.black.withOpacity(0.6),

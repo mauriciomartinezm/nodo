@@ -27,10 +27,10 @@ class ProfilePictureController extends ChangeNotifier {
     }
   }
 
-  Future<void> subirImagenMedianteBackend(
+  Future<void> uploadImageViaBackend(
       String id, File imagen) async {
-      final nombreArchivo = '${id}_${path.basename(imagen.path)}';
-    debugPrint("Subiendo imagen mediante backend: $nombreArchivo");
+      final fileName = '${id}_${path.basename(imagen.path)}';
+    debugPrint("Subiendo imagen mediante backend: $fileName");
 
     try {
       // Obtener URL firmada desde tu backend
@@ -39,9 +39,7 @@ class ProfilePictureController extends ChangeNotifier {
       final mimeType = extension == '.png' ? 'image/png' :
                  extension == '.heic' ? 'image/heic' : 'image/jpeg';
       final response = await http.get(
-        Uri.parse(
-    'http://192.168.0.105:3001/api/generarUrlSubida?nombreArchivo=$nombreArchivo&contentType=$mimeType'
-  ),
+        Uri.parse(ApiConstants.generateUploadUrl(fileName, mimeType)),
       );
 
       if (response.statusCode == 200) {
@@ -98,9 +96,9 @@ class ProfilePictureController extends ChangeNotifier {
   }
   */
   /// Enviar URL de la imagen al backend
-  Future<void> enviarImagenAlBackend(String id, String urlFoto) async {
+  Future<void> sendImageToBackend(String id, String urlFoto) async {
     debugPrint("Enviando URL de imagen al backend para el usuario: $id");
-    final String apiUrl = ApiConstants.updateUsuario(id);
+    final String apiUrl = ApiConstants.updateUser(id);
     try {
       final response = await http.put(
         Uri.parse(apiUrl),
@@ -117,7 +115,7 @@ class ProfilePictureController extends ChangeNotifier {
   }
 
   /// Confirmar acción final del registro
-  Future<bool> confirmar(BuildContext context) async {
+  Future<bool> confirm(BuildContext context) async {
     if (!acceptedTerms || isLoading) return false;
 
     isLoading = true;
@@ -129,7 +127,7 @@ class ProfilePictureController extends ChangeNotifier {
       //final id = registerProvider.id;
       final id = "1040350494"; //for debugging
       if (id == null) throw Exception('ID de usuario no encontrado');
-      subirImagenMedianteBackend(id, imageFile);
+      uploadImageViaBackend(id, imageFile);
       /*
       final urlImagen = imageFile != null
           ? await subirImagenAFirebase(imageFile!, id)

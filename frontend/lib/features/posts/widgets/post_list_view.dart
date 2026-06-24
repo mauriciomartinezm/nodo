@@ -6,10 +6,10 @@ import 'post.dart';
 import 'post_detail.dart';
 import 'post_empty_state.dart';
 
-class PublicacionListView extends StatelessWidget {
+class PostListView extends StatelessWidget {
   final int filter;
 
-  const PublicacionListView({
+  const PostListView({
     super.key,
     required this.filter,
   });
@@ -41,7 +41,7 @@ class PublicacionListView extends StatelessWidget {
   }
 
   Future<void> _showPublicationDetail(
-    BuildContext context, dynamic item, PublicacionesController controller) async {
+    BuildContext context, dynamic item, PostsController controller) async {
   // Cerrar el teclado antes de abrir el modal
   FocusManager.instance.primaryFocus?.unfocus();
   
@@ -54,9 +54,9 @@ class PublicacionListView extends StatelessWidget {
       return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         behavior: HitTestBehavior.opaque,
-        child: PublicacionDetail(
+        child: PostDetail(
           publicacion: item,
-          publicacionesController: controller,
+          postsController: controller,
           onDelete: () => _confirmDelete(context, item, controller),
         ),
       );
@@ -68,7 +68,7 @@ class PublicacionListView extends StatelessWidget {
 }
 
   Future<void> _confirmDelete(
-      BuildContext context, dynamic item, PublicacionesController controller) async {
+      BuildContext context, dynamic item, PostsController controller) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -82,7 +82,7 @@ class PublicacionListView extends StatelessWidget {
           TextButton(
             onPressed: () async {
               try {
-                final success = await controller.deletePublicacion(item['id']);
+                final success = await controller.deletePost(item['id']);
                 Navigator.of(context).pop(success);
               } catch (e) {
                 Navigator.of(context).pop(false);
@@ -101,19 +101,19 @@ class PublicacionListView extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Publicación eliminada')),
       );
-      await controller.loadPublicaciones();
+      await controller.loadPosts();
       Navigator.of(context).pop(); // Cierra el modal de detalle
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<PublicacionesController>(context);
+    final controller = Provider.of<PostsController>(context);
     final estado = _getEstadoForFilter(filter);
-    final items = controller.filterPublicaciones(estado);
+    final items = controller.filterPosts(estado);
 
     if (items.isEmpty) {
-      return PublicacionEmptyState.forFilter(_getFilterName(filter));
+      return PostEmptyState.forFilter(_getFilterName(filter));
     }
 
     return Padding(
@@ -123,7 +123,7 @@ class PublicacionListView extends StatelessWidget {
         crossAxisSpacing: 20.w,
         mainAxisSpacing: 10.h,
         children: items.map((item) {
-          return PublicacionCard(
+          return PostCard(
             item: item,
             onTap: () => _showPublicationDetail(context, item, controller),
             onDelete: () => _confirmDelete(context, item, controller),

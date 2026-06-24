@@ -275,7 +275,7 @@ class ProfileScreen extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const PublicacionesScreen()),
+                                      const PostsScreen()),
                             );
                           },
                         ),

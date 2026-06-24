@@ -5,39 +5,39 @@ import 'package:nodo/core/constants/api_constants.dart';
 import 'publicaciones_service.dart';
 import 'package:http/http.dart' as http;
 
-class PublicacionesController extends ChangeNotifier {
-  final PublicacionesService _service;
-  List<dynamic> _publicaciones = [];
+class PostsController extends ChangeNotifier {
+  final PostsService _service;
+  List<dynamic> _posts = [];
   bool _isLoading = true;
   String _errorMessage = '';
   int _selectedIndex = 0;
 
-  PublicacionesController(this._service);
+  PostsController(this._service);
 
-  List<dynamic> get publicaciones => _publicaciones;
+  List<dynamic> get posts => _posts;
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
   int get selectedIndex => _selectedIndex;
 
-  Future<void> loadPublicaciones() async {
+  Future<void> loadPosts() async {
     try {
       _setLoading(true);
-      _publicaciones = await _service.getPublicacionesByUserId();
+      _posts = await _service.getPostsByUserId();
       _errorMessage = '';
     } catch (e) {
       _errorMessage = e.toString();
-      _publicaciones = [];
+      _posts = [];
     } finally {
       _setLoading(false);
     }
   }
 
-  Future<bool> deletePublicacion(String publicacionId) async {
+  Future<bool> deletePost(String postId) async {
     try {
       _setLoading(true);
-      final success = await _service.deletePublicacion(publicacionId);
+      final success = await _service.deletePost(postId);
       if (success) {
-        await loadPublicaciones(); // Recargar la lista después de eliminar
+        await loadPosts(); // Recargar la lista después de eliminar
       }
       return success;
     } catch (e) {
@@ -49,17 +49,17 @@ class PublicacionesController extends ChangeNotifier {
   }
 
   //Sí debería exister pero para el editar - falta modificarlo
-  Future<bool> updatePublicacion(
-      String publicacionId, Map<String, dynamic> camposActualizados) async {
+  Future<bool> updatePost(
+      String postId, Map<String, dynamic> updatedFields) async {
     print("❕❕❕❕Publicacion id");
-    print(publicacionId);
+    print(postId);
     try {
       _setLoading(true);
       final success =
-          await _service.updatePublicacion(publicacionId, camposActualizados);
+          await _service.updatePost(postId, updatedFields);
 
       if (success) {
-        await loadPublicaciones(); // Refresca la lista
+        await loadPosts(); // Refresca la lista
       }
       return success;
     } catch (e) {
@@ -70,12 +70,12 @@ class PublicacionesController extends ChangeNotifier {
     }
   }
 
-  Future<bool> finalizarTrabajo(String id_publicacion) async {
+  Future<bool> finishJob(String id_publicacion) async {
     print("❕❕❕❕Finalizando trabajo");
 
     try {
       _setLoading(true);
-      final url = Uri.parse(ApiConstants.finalizarTrabajo);
+      final url = Uri.parse(ApiConstants.finishJob);
 
       final response = await http.put(
         url,
@@ -86,17 +86,9 @@ class PublicacionesController extends ChangeNotifier {
       );
       print("STATUS CODE: ");
       print(response.statusCode);
-      //final resultadoPublicacion = await updatePublicacion(publicacionId, {
-      //  'estado': 'finalizada',
-      //});
-//
-//      //final resultadoPostulacion =
-      //    await _service.updatePostulacion(postulacionId, {
-      //  'estado': 'finalizada',
-      //});
 
       if (response.statusCode == 200) {
-        await loadPublicaciones(); // Recarga la lista si todo va bien
+        await loadPosts(); // Recarga la lista si todo va bien
         return true;
       } else {
         _errorMessage = 'No se pudo finalizar el trabajo o la postulación.';
@@ -115,13 +107,13 @@ class PublicacionesController extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<dynamic> filterPublicaciones(String estado) {
-    return _publicaciones
+  List<dynamic> filterPosts(String estado) {
+    return _posts
         .where((pub) => pub['estado'] == estado.toLowerCase())
         .toList();
   }
 
-  bool get hasPublications => _publicaciones.isNotEmpty;
+  bool get hasPublications => _posts.isNotEmpty;
 
   void _setLoading(bool loading) {
     _isLoading = loading;

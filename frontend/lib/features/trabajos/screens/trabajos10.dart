@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class FiltroTiempoPublicacion extends StatelessWidget {
-  const FiltroTiempoPublicacion({super.key});
+class PostTimeFilter extends StatelessWidget {
+  const PostTimeFilter({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,22 +11,22 @@ class FiltroTiempoPublicacion extends StatelessWidget {
       minChildSize: 0.3,
       expand: false,
       builder: (context, scrollController) {
-        return TiempoPublicacionScreen(scrollController: scrollController);
+        return PostTimeScreen(scrollController: scrollController);
       },
     );
   }
 }
 
-class TiempoPublicacionScreen extends StatefulWidget {
+class PostTimeScreen extends StatefulWidget {
   final ScrollController scrollController;
 
-  const TiempoPublicacionScreen({super.key, required this.scrollController});
+  const PostTimeScreen({super.key, required this.scrollController});
 
   @override
-  State<TiempoPublicacionScreen> createState() => _TiempoPublicacionScreenState();
+  State<PostTimeScreen> createState() => _PostTimeScreenState();
 }
 
-class _TiempoPublicacionScreenState extends State<TiempoPublicacionScreen> {
+class _PostTimeScreenState extends State<PostTimeScreen> {
   String? _seleccion;
 
   final List<String> opciones = [

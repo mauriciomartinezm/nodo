@@ -2,7 +2,7 @@ import { db } from "../database/db.js";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 //
-export const getUsuarios = async (req, res) => {
+export const getUsers = async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM Usuario");
     res.json(result.rows);
@@ -13,7 +13,7 @@ export const getUsuarios = async (req, res) => {
   }
 };
 
-export const getUsuario = async (req, res) => {
+export const getUser = async (req, res) => {
   try {
     const result = await db.query(
       "SELECT * FROM Usuario WHERE id = $1",
@@ -32,10 +32,10 @@ export const getUsuario = async (req, res) => {
   }
 };
 
-//Este createUsuario es dinámico. Este subprograma recibe los datos que se envía desde
+//Este createUser es dinámico. Este subprograma recibe los datos que se envía desde
 //el frontend y va creando el query automáticamente
 //El id se crea desde el backend con uuidv4
-export const createUsuario = async (req, res) => {
+export const createUser = async (req, res) => {
   try {
     const data = req.body;
     //console.log(data);
@@ -47,16 +47,16 @@ export const createUsuario = async (req, res) => {
       return res.status(400).json({ message: "El campo 'id' es obligatorio" });
     }
     // Obtener columnas y valores dinámicamente
-    const columnas = Object.keys(data);                    // ["id", "nombre", "fecha_registro", ...]
-    const valores = Object.values(data);                   // [123, "Juan", Date, false, ...]
-    const placeholders = columnas.map((_, i) => `$${i + 1}`); // ["$1", "$2", "$3", ...]
+    const columns = Object.keys(data);                    // ["id", "nombre", "fecha_registro", ...]
+    const values = Object.values(data);                   // [123, "Juan", Date, false, ...]
+    const placeholders = columns.map((_, i) => `$${i + 1}`); // ["$1", "$2", "$3", ...]
 
     const query = `
-      INSERT INTO Usuario (${columnas.join(', ')})
+      INSERT INTO Usuario (${columns.join(', ')})
       VALUES (${placeholders.join(', ')})
     `;
 
-    await db.query(query, valores);
+    await db.query(query, values);
 
     res.status(200).json({ message: "Usuario registrado exitosamente", usuario: data });
   } catch (error) {
@@ -66,8 +66,8 @@ export const createUsuario = async (req, res) => {
 };
 
 
-export const loginUsuario = async (req, res) => {
-  console.log("Petición recibida en /loginUsuario");
+export const login = async (req, res) => {
+  console.log("Petición recibida en /login");
 
   const { identificador, contrasena } = req.body; // puede ser teléfono o email
 
@@ -77,7 +77,7 @@ export const loginUsuario = async (req, res) => {
   try {
     // 🔹 1. Buscar usuario por email o teléfono
     const result = await db.query(
-      `SELECT * FROM Usuario 
+      `SELECT * FROM Usuario
        WHERE (telefono = $1 OR email = $1) AND contrasena = $2`,
       [identificador, contrasena]
     );
@@ -88,34 +88,34 @@ export const loginUsuario = async (req, res) => {
       return res.status(401).json({ messageFail: "Credenciales inválidas" });
     }
 
-    const usuario = result.rows[0];
-    const usuarioId = usuario.id;
+    const user = result.rows[0];
+    const userId = user.id;
 
-    console.log("Inicio de sesión exitoso para:", usuarioId);
+    console.log("Inicio de sesión exitoso para:", userId);
 
     // 🔹 2. Consultar categorías asociadas al usuario
-    const categoriasQuery = `
+    const categoriesQuery = `
       SELECT c.id, c.nombre_categoria, c.descripcion
       FROM usuario_categoria uc
       JOIN categoria c ON uc.id_categoria = c.id
       WHERE uc.id_usuario = $1
     `;
-    const categoriasResult = await db.query(categoriasQuery, [usuarioId]);
-    const categorias = categoriasResult.rows;
+    const categoriesResult = await db.query(categoriesQuery, [userId]);
+    const categories = categoriesResult.rows;
 
-    console.log("Categorías del usuario:", categorias);
+    console.log("Categorías del usuario:", categories);
 
     // 🔹 3. Devolver usuario + categorías
     return res.status(200).json({
       messageSuccess: "Inicio de sesión exitoso",
       usuario: {
-        ...usuario,
-        categorias: categorias // ← se agregan aquí
+        ...user,
+        categorias: categories // ← se agregan aquí
       }
     });
 
   } catch (error) {
-    console.error("Error en loginUsuario:", error);
+    console.error("Error en login:", error);
     return res.status(500).json({
       messageFail: "Error en el servidor",
       error: error.message
@@ -125,7 +125,7 @@ export const loginUsuario = async (req, res) => {
 
 
 
-export const updateUsuario = async (req, res) => {
+export const updateUser = async (req, res) => {
   try {
     const keys = Object.keys(req.body);
     const values = Object.values(req.body);
@@ -149,7 +149,7 @@ export const updateUsuario = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-export const deleteUsuario = async (req, res) => {
+export const deleteUser = async (req, res) => {
   try {
     const result = await db.query(
       "DELETE FROM Usuario WHERE id = $1",

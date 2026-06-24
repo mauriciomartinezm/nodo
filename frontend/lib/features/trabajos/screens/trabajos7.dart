@@ -3,14 +3,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:nodo/core/constants/api_constants.dart';
 
-class FiltroCategoriaDetalleScreen extends StatefulWidget {
-  const FiltroCategoriaDetalleScreen({super.key});
+class CategoryFilterDetailScreen extends StatefulWidget {
+  const CategoryFilterDetailScreen({super.key});
 
   @override
-  State<FiltroCategoriaDetalleScreen> createState() => _FiltroCategoriaDetalleScreenState();
+  State<CategoryFilterDetailScreen> createState() => _CategoryFilterDetailScreenState();
 }
 
-class _FiltroCategoriaDetalleScreenState extends State<FiltroCategoriaDetalleScreen> {
+class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen> {
   List<Map<String, dynamic>> categorias = [];// Lista para almacenar las categorías obtenidas
   // Usamos Map<String, dynamic> para manejar categorías con id y nombre_cat
   Set<String> categoriasSeleccionadas = {};// Conjunto para almacenar las categorías seleccionadas por su id
@@ -26,7 +26,7 @@ class _FiltroCategoriaDetalleScreenState extends State<FiltroCategoriaDetalleScr
   Future<void> _fetchCategorias() async {
     try {
       final response = await http.get(
-        Uri.parse(ApiConstants.getCategorias),
+        Uri.parse(ApiConstants.getCategories),
         headers: {'Content-Type': 'application/json'},
       );
 

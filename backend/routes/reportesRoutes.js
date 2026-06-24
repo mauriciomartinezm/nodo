@@ -1,16 +1,16 @@
 import {Router} from 'express';
 import {
-    getReportes,
-    getReporte,
-    getReporteByPublicacionId,
-    createReporte
+    getReports,
+    getReport,
+    getReportByPostId,
+    createReport
 } from '../controllers/reporteController.js';
 
-const reporteRouter = Router ();
+const reportRouter = Router ();
 
-reporteRouter.get('/api/getReportes', getReportes);
-reporteRouter.get('/api/getReporte/:id', getReporte);
-reporteRouter.get('/api/getReporteByPublicacionId/:id', getReporteByPublicacionId);
-reporteRouter.post('/api/createReporte', createReporte);
+reportRouter.get('/api/getReports', getReports);
+reportRouter.get('/api/getReport/:id', getReport);
+reportRouter.get('/api/getReportByPostId/:id', getReportByPostId);
+reportRouter.post('/api/createReport', createReport);
 
-export default reporteRouter;
+export default reportRouter;

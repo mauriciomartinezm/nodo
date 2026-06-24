@@ -1,27 +1,22 @@
 import {Router} from 'express';
 import {
-    postularse,
-    getPostulacion,
-    getPostulaciones,
-    getPostulacionesByUserId,
-    getPostulacionesByPostId,
-    updatePostulacion,
-    deletePostulacion
+    apply,
+    getApplication,
+    getApplications,
+    getApplicationsByUserId,
+    getApplicationsByPostId,
+    updateApplication,
+    deleteApplication
 } from '../controllers/postulacionController.js';
 
-const postulacionRouter = Router ();
+const applicationRouter = Router ();
 
-postulacionRouter.post('/api/postularse', postularse);
-postulacionRouter.get('/api/getPostulacion/:id', getPostulacion);
-postulacionRouter.get('/api/getPostulaciones', getPostulaciones);
-postulacionRouter.get('/api/getPostulacionesByUserId/:id', getPostulacionesByUserId);
-postulacionRouter.get('/api/getPostulacionesByPostId/:id', getPostulacionesByPostId);
-postulacionRouter.put('/api/updatePostulacion/:id', updatePostulacion);
-postulacionRouter.delete('/api/deletePostulacion/:id', deletePostulacion);
+applicationRouter.post('/api/apply', apply);
+applicationRouter.get('/api/getApplication/:id', getApplication);
+applicationRouter.get('/api/getApplications', getApplications);
+applicationRouter.get('/api/getApplicationsByUserId/:id', getApplicationsByUserId);
+applicationRouter.get('/api/getApplicationsByPostId/:id', getApplicationsByPostId);
+applicationRouter.put('/api/updateApplication/:id', updateApplication);
+applicationRouter.delete('/api/deleteApplication/:id', deleteApplication);
 
-
-
-
-
-
-export default postulacionRouter;
+export default applicationRouter;

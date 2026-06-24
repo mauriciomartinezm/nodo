@@ -2,14 +2,14 @@
 import redis from '../database/redisClient.js'; // tu cliente de Redis
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../database/db.js';
-import { enviarNotificacionAUsuario } from '../utils/firebase.js';
-import { guardarNotificacion } from '../services/notificacionService.js';
+import { sendNotificationToUser } from '../utils/firebase.js';
+import { saveNotification } from '../services/notificacionService.js';
 
-export async function createNotificacion(req, res) {
+export async function createNotification(req, res) {
   const { usuarioId, tipo, titulo, mensaje, data } = req.body;
 
   try {
-    await guardarNotificacion(usuarioId, tipo, titulo, mensaje, data);
+    await saveNotification(usuarioId, tipo, titulo, mensaje, data);
     res.json({ mensaje: 'Notificación agregada correctamente' });
   } catch (error) {
     console.error('Error al crear notificación:', error);
@@ -19,7 +19,7 @@ export async function createNotificacion(req, res) {
 
 
 
-export async function getNotificacionesByUserId(req, res) {
+export async function getNotificationsByUserId(req, res) {
   const { usuarioId } = req.params;
 
   if (!usuarioId) {
@@ -29,31 +29,31 @@ export async function getNotificacionesByUserId(req, res) {
   const redisKey = `notificaciones:${usuarioId}`;
 
   try {
-    const notificaciones = await redis.lRange(redisKey, 0, -1);
-    const resultado = notificaciones.map(n => JSON.parse(n));
+    const notifications = await redis.lRange(redisKey, 0, -1);
+    const result = notifications.map(n => JSON.parse(n));
     console.log("notificaciones");
-    console.log(notificaciones);
-    return res.status(200).json(resultado);
+    console.log(notifications);
+    return res.status(200).json(result);
   } catch (error) {
     console.error('Error obteniendo notificaciones:', error);
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 }
 
-export async function getNotificaciones(req, res) {
+export async function getNotifications(req, res) {
   try {
     const keys = await redis.keys('notificaciones:*');
 
-    const resultado = [];
+    const result = [];
 
     for (const key of keys) {
       const usuarioId = key.split(':')[1]; // Extraemos el ID del usuario
-      const notificaciones = await redis.lRange(key, 0, -1);
-      const parsed = notificaciones.map(n => JSON.parse(n));
-      resultado.push({ usuarioId, notificaciones: parsed });
+      const notifications = await redis.lRange(key, 0, -1);
+      const parsed = notifications.map(n => JSON.parse(n));
+      result.push({ usuarioId, notificaciones: parsed });
     }
 
-    return res.status(200).json(resultado);
+    return res.status(200).json(result);
   } catch (error) {
     console.error('Error obteniendo todas las notificaciones:', error);
     return res.status(500).json({ error: 'Error interno del servidor' });

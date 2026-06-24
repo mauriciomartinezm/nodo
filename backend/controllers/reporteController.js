@@ -2,8 +2,8 @@ import { db } from "../database/db.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 
-export const getReportes = async (req, res) => {
-    console.log("Peticion recibida en /getReportes");
+export const getReports = async (req, res) => {
+    console.log("Peticion recibida en /getReports");
 
     try {
         const result = await db.query("SELECT * FROM reporte");
@@ -15,8 +15,8 @@ export const getReportes = async (req, res) => {
     }
 };
 
-export const getReporte = async (req, res) => {
-    console.log("Peticion recibida en /getReporte");
+export const getReport = async (req, res) => {
+    console.log("Peticion recibida en /getReport");
 
     try {
         console.log(req.params.id);
@@ -37,8 +37,8 @@ export const getReporte = async (req, res) => {
         }
     }
 };
-export const getReporteByPublicacionId = async (req, res) => {
-    console.log("Peticion recibida en /getReporteByPublicacionId");
+export const getReportByPostId = async (req, res) => {
+    console.log("Peticion recibida en /getReportByPostId");
 
     try {
         console.log(req.params.id);
@@ -60,8 +60,8 @@ export const getReporteByPublicacionId = async (req, res) => {
     }
 };
 //
-export const createReporte = async (req, res) => {
-    console.log("Peticion recibida en /createReporte, cuerpo de la peticion: ");
+export const createReport = async (req, res) => {
+    console.log("Peticion recibida en /createReport, cuerpo de la peticion: ");
     console.log(req.body);
     try {
         const {
@@ -75,8 +75,8 @@ export const createReporte = async (req, res) => {
         }
 
         // Validar que la publicacion exista
-        const publicacionCheck = await db.query("SELECT id FROM publicacion WHERE id = $1", [id_publicacion]);
-        if (publicacionCheck.rowCount === 0) {
+        const postCheck = await db.query("SELECT id FROM publicacion WHERE id = $1", [id_publicacion]);
+        if (postCheck.rowCount === 0) {
             return res.status(404).json({ message: "La publicacion no existe." });
         }
 
@@ -85,7 +85,7 @@ export const createReporte = async (req, res) => {
 
         // Insertar la publicación
         const query = `
-      INSERT INTO reporte 
+      INSERT INTO reporte
       (id, id_publicacion, razon)
       VALUES ($1, $2, $3)
     `;

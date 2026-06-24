@@ -1,52 +1,52 @@
 import { db } from '../database/db.js';
-import { enviarNotificacionAUsuario } from '../utils/firebase.js';
-import { createNotificacion } from './notificacionController.js';
-import { guardarNotificacion } from '../services/notificacionService.js';
+import { sendNotificationToUser } from '../utils/firebase.js';
+import { createNotification } from './notificacionController.js';
+import { saveNotification } from '../services/notificacionService.js';
 import { v4 as uuidv4 } from "uuid";
 
-export const postularse = async (req, res) => {
-    console.log("Petición recibida en /postularse. Cuerpo de la petición: ");
+export const apply = async (req, res) => {
+    console.log("Petición recibida en /apply. Cuerpo de la petición: ");
     console.log(req.body);
     const { publicacionId, trabajadorId } = req.body;
 
     try {
         //Se verifica que la publicacion exista en la base de datos.
-        const publicacion = await db.query(
+        const post = await db.query(
             'SELECT * FROM publicacion WHERE id = $1',
             [publicacionId]
         );
 
-        if (publicacion.rows.length === 0) {
+        if (post.rows.length === 0) {
             return res.status(404).json({ message: 'Publicación no encontrada' });
         }
 
-        const idCliente = publicacion.rows[0].id_cliente;
+        const clientId = post.rows[0].id_cliente;
 
-        const resultUsuario = await db.query(
+        const userResult = await db.query(
             'SELECT * FROM Usuario WHERE id = $1',
-            [idCliente]
+            [clientId]
         );
 
-        if (resultUsuario.rows.length === 0) {
+        if (userResult.rows.length === 0) {
             return res.status(404).json({ message: 'Cliente no encontrado' });
         }
 
-        const cliente = resultUsuario.rows[0];
-        const fcmToken = cliente.fcm_token;
+        const client = userResult.rows[0];
+        const fcmToken = client.fcm_token;
 
         //Se inserta postulacion en la tabla
-        const idPostulacion = uuidv4();
-        const fechaPostulacion = new Date();
+        const applicationId = uuidv4();
+        const applicationDate = new Date();
 
         await db.query(`
             INSERT INTO Postulacion (
                 id, id_publicacion, id_trabajador, fecha_postulacion, estado
             ) VALUES ($1, $2, $3, $4, $5)
         `, [
-            idPostulacion,
+            applicationId,
             publicacionId,
             trabajadorId,
-            fechaPostulacion,
+            applicationDate,
             'pendiente'
         ]);
 
@@ -55,8 +55,8 @@ export const postularse = async (req, res) => {
         }
 
         //Se verifica que el cliente exista
-        await guardarNotificacion(
-            idCliente,
+        await saveNotification(
+            clientId,
             'solicitud',
             'Nueva postulación',
             'Un trabajador se ha postulado a tu publicación',
@@ -73,8 +73,8 @@ export const postularse = async (req, res) => {
     }
 };
 
-export const getPostulaciones = async (req, res) => {
-    console.log("Petición recibida en /getPostulaciones");
+export const getApplications = async (req, res) => {
+    console.log("Petición recibida en /getApplications");
     try {
         const result = await db.query("SELECT * FROM Postulacion");
         res.json(result.rows);
@@ -85,8 +85,8 @@ export const getPostulaciones = async (req, res) => {
     }
 };
 
-export const getPostulacion = async (req, res) => {
-    console.log("Petición recibida en /getPostulacion");
+export const getApplication = async (req, res) => {
+    console.log("Petición recibida en /getApplication");
 
     try {
         const result = await db.query(
@@ -107,8 +107,8 @@ export const getPostulacion = async (req, res) => {
     }
 };
 
-export const getPostulacionesByUserId = async (req, res) => {
-    console.log("Peetición recibida en /getPostulacionesByUserId");
+export const getApplicationsByUserId = async (req, res) => {
+    console.log("Petición recibida en /getApplicationsByUserId");
 
     try {
         console.log(req.params.id);
@@ -130,8 +130,8 @@ export const getPostulacionesByUserId = async (req, res) => {
     }
 };
 
-export const getPostulacionesByPostId = async (req, res) => {
-    console.log("Petición recibida en /getPostulacionesByPostId");
+export const getApplicationsByPostId = async (req, res) => {
+    console.log("Petición recibida en /getApplicationsByPostId");
 
     try {
         console.log(req.params.id);
@@ -153,54 +153,54 @@ export const getPostulacionesByPostId = async (req, res) => {
     }
 };
 
-export const updatePostulacion = async (req, res) => {
-    console.log("Petición hecha en /updatePostulacion");
+export const updateApplication = async (req, res) => {
+    console.log("Petición hecha en /updateApplication");
 
-    const postulacionId = req.params.id;
+    const applicationId = req.params.id;
     const { estado } = req.body;
 
     try {
         // Paso 1: Obtener la postulación actual
         const { rows } = await db.query(
             "SELECT * FROM Postulacion WHERE id = $1",
-            [postulacionId]
+            [applicationId]
         );
 
         if (rows.length === 0) {
             return res.status(404).json({ message: "Postulación no encontrada" });
         }
 
-        const idPublicacion = rows[0].id_publicacion;
-        const idTrabajador = rows[0].id_trabajador;
+        const postId = rows[0].id_publicacion;
+        const workerId = rows[0].id_trabajador;
 
         console.log("Id del trabajador: ");
-        console.log(idTrabajador);
+        console.log(workerId);
         // Paso 2: Si el nuevo estado es "aceptado", rechazar las demás
         if (estado === "aceptado") {
             await db.query(
                 `UPDATE Postulacion
                  SET estado = 'rechazado'
                  WHERE id_publicacion = $1 AND id != $2`,
-                [idPublicacion, postulacionId]
+                [postId, applicationId]
             );
             const { rows } = await db.query(
                 "SELECT * FROM Publicacion WHERE id = $1",
-                [idPublicacion]
+                [postId]
             );
             await db.query(
                 `UPDATE Publicacion
                  SET estado = 'en proceso'
                  WHERE id = $1`,
-                [idPublicacion]
+                [postId]
             );
             if (rows.length === 0) {
                 return res.status(404).json({ message: "Publicacion no encontrada" });
             }
-            const idCliente = rows[0].id_cliente;
+            const clientId = rows[0].id_cliente;
             console.log("Id del cliente a enviar notificación: ");
-            console.log(idCliente);
-            await guardarNotificacion(
-                idCliente,
+            console.log(clientId);
+            await saveNotification(
+                clientId,
                 'postulacion_aceptada',
                 'Un trabajador ha aceptado tu oferta',
                 'El trabajador ha aceptado el trabajo. Puedes iniciar la conversación para coordinar detalles',
@@ -216,7 +216,7 @@ export const updatePostulacion = async (req, res) => {
         const keys = Object.keys(req.body);
         const values = Object.values(req.body);
         const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ");
-        values.push(postulacionId);
+        values.push(applicationId);
 
         const updateQuery = `UPDATE Postulacion SET ${setClause} WHERE id = $${values.length}`;
         const result = await db.query(updateQuery, values);
@@ -226,8 +226,8 @@ export const updatePostulacion = async (req, res) => {
         }
         //Enviar notificacion al trabajador
         if (estado == 'considerado') {
-            await guardarNotificacion(
-                idTrabajador,
+            await saveNotification(
+                workerId,
                 'consideracion',
                 'Un cliente está interesado en ti',
                 'El empleador te ha considerado para una oferta. ¿Quieres aceptar?',
@@ -240,8 +240,8 @@ export const updatePostulacion = async (req, res) => {
 
         }
         /*if (estado == 'finalizada') {
-            await guardarNotificacion(
-                idTrabajador,
+            await saveNotification(
+                workerId,
                 'trabajo completado',
                 'Trabajo finalizado',
                 'Tu trabajo ha sido finalizada con éxito. ¡No olvides dejar tu reseña!',
@@ -258,7 +258,7 @@ export const updatePostulacion = async (req, res) => {
     }
 };
 
-export const deletePostulacion = async (req, res) => {
+export const deleteApplication = async (req, res) => {
     try {
         const result = await db.query(
             "DELETE FROM Postulacion WHERE id = $1",

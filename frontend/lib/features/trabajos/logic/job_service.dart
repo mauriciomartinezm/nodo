@@ -1,17 +1,16 @@
-// TODO Implement this library.import 'dart:convert';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:nodo/core/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 
-class TrabajoService {
-  static Future<void> postularse(
+class JobService {
+  static Future<void> apply(
       String publicacionId, String trabajadorId) async {
     print("💬Postulando...");
     try {
       final response = await http.post(
-        Uri.parse(ApiConstants.postularse),
+        Uri.parse(ApiConstants.apply),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -37,11 +36,11 @@ class TrabajoService {
     }
   }
 
-  static Future<void> deletePostulacion(String postulacionId) async {
+  static Future<void> deleteApplication(String applicationId) async {
     print("💬Eliminando postulación...");
     try {
       final response = await http.delete(
-        Uri.parse(ApiConstants.deletePostulacion(postulacionId)),
+        Uri.parse(ApiConstants.deleteApplication(applicationId)),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -63,15 +62,15 @@ class TrabajoService {
     }
   }
 
-  static Future<void> aceptarPostulacion(
-      String idPostulacion, String nuevoEstado) async {
+  static Future<void> acceptApplication(
+      String applicationId, String newStatus) async {
     final url =
-        Uri.parse(ApiConstants.updatePostulacion(idPostulacion));
+        Uri.parse(ApiConstants.updateApplication(applicationId));
 
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'estado': nuevoEstado}),
+      body: jsonEncode({'estado': newStatus}),
     );
 
     if (response.statusCode == 200) {
@@ -81,10 +80,10 @@ class TrabajoService {
     }
   }
 
-  static Future<List<dynamic>> fetchPublicaciones() async {
+  static Future<List<dynamic>> fetchPosts() async {
     print("💬 Haciendo fetch a publicaciones");
     final response = await http.get(
-      Uri.parse(ApiConstants.getPublicaciones),
+      Uri.parse(ApiConstants.getPosts),
       headers: {'Content-Type': 'application/json'},
     );
     print("💬 PubLicaciones: ");
@@ -97,39 +96,39 @@ class TrabajoService {
     }
   }
 
-  static Future<Map<String, String>> fetchNombresClientes(
-      List publicaciones) async {
+  static Future<Map<String, String>> fetchClientNames(
+      List posts) async {
     print("💬 Haciendo fetch a usuarios");
 
-    final Map<String, String> nombres = {};
+    final Map<String, String> names = {};
     final clientIds =
-        publicaciones.map((p) => p['id_cliente']).toSet().toList();
+        posts.map((p) => p['id_cliente']).toSet().toList();
     for (final clientId in clientIds) {
       final response = await http.get(
-        Uri.parse(ApiConstants.getUsuario(clientId)),
+        Uri.parse(ApiConstants.getUser(clientId)),
         headers: {'Content-Type': 'application/json'},
       );
       print("Usuario");
       print(response.body);
       if (response.statusCode == 200) {
-        final clienteData = json.decode(response.body);
+        final clientData = json.decode(response.body);
         print("Client Data");
-        print(clienteData);
-        nombres[clientId] = clienteData['nombres'];
+        print(clientData);
+        names[clientId] = clientData['nombres'];
       } else {
-        nombres[clientId] = 'Cliente $clientId';
+        names[clientId] = 'Cliente $clientId';
       }
     }
     print("Nombres: ");
-    print(nombres);
+    print(names);
 
-    return nombres;
+    return names;
   }
 
-  static Future<List<dynamic>> fetchPostulacionesPorUsuario(
+  static Future<List<dynamic>> fetchApplicationsByUser(
       String userId) async {
     final response = await http.get(
-      Uri.parse(ApiConstants.getPostulacionesByUserId(userId)),
+      Uri.parse(ApiConstants.getApplicationsByUserId(userId)),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -180,23 +179,23 @@ class TrabajoService {
     }
   }
 
-  static Future<void> marcarComoTerminado(String postulacionId) async {
+  static Future<void> markAsFinished(String applicationId) async {
     print("❕❕❕❕Finalizando trabajo");
 
-    final url = Uri.parse(ApiConstants.finalizarTrabajo);
+    final url = Uri.parse(ApiConstants.finishJob);
 
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'id_postulacion': postulacionId, // Usa la variable real aquí
+        'id_postulacion': applicationId, // Usa la variable real aquí
       }),
     );
     print("STATUS CODE: ");
     print(response.statusCode);
   }
 
-  static Future<void> cancelarTrabajo(String? postulacionId) async {
+  static Future<void> cancelJob(String? applicationId) async {
     // Llama a tu API y cambia el estado del trabajo a "cancelado"
   }
 }

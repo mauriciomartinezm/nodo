@@ -1,20 +1,20 @@
 import {Router} from 'express';
 import {
-    getPublicaciones,
-    getPublicacion,
-    getPublicacionesByUserId,
-    createPublicacion,
-    deletePublicacion,
-    updatePublicacion
+    getPosts,
+    getPost,
+    getPostsByUserId,
+    createPost,
+    deletePost,
+    updatePost
 } from '../controllers/publicacionController.js';
 
-const publicacionRouter = Router ();
+const postRouter = Router ();
 
-publicacionRouter.get('/api/getPublicaciones', getPublicaciones);
-publicacionRouter.get('/api/getPublicacion/:id', getPublicacion);
-publicacionRouter.get('/api/getPublicacionesByUserId/:id', getPublicacionesByUserId);
-publicacionRouter.post('/api/createPublicacion', createPublicacion);
-publicacionRouter.delete('/api/deletePublicacion/:id', deletePublicacion);
-publicacionRouter.put('/api/updatePublicacion/:id', updatePublicacion);
+postRouter.get('/api/getPosts', getPosts);
+postRouter.get('/api/getPost/:id', getPost);
+postRouter.get('/api/getPostsByUserId/:id', getPostsByUserId);
+postRouter.post('/api/createPost', createPost);
+postRouter.delete('/api/deletePost/:id', deletePost);
+postRouter.put('/api/updatePost/:id', updatePost);
 
-export default publicacionRouter;
+export default postRouter;

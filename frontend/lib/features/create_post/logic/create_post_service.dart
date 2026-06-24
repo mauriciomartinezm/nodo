@@ -6,14 +6,14 @@ import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../../../core/utils/image_utils.dart';
 
-class CrearPublicacionService {
+class CreatePostService {
   // Crear la publicación y devolver el ID
-  Future<String?> crearPublicacion(
-      Map<String, dynamic> datosPublicacion) async {
+  Future<String?> createPost(
+      Map<String, dynamic> postData) async {
     final response = await http.post(
-      Uri.parse(ApiConstants.createPublicacion),
+      Uri.parse(ApiConstants.createPost),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode(datosPublicacion),
+      body: jsonEncode(postData),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -25,9 +25,9 @@ class CrearPublicacionService {
   }
 
   // Actualizar las URLs de las fotos
-  Future<bool> actualizarFotos(String idPublicacion, List<String> urls) async {
+  Future<bool> updatePhotos(String postId, List<String> urls) async {
     final response = await http.put(
-      Uri.parse(ApiConstants.updatePublicacion(idPublicacion)),
+      Uri.parse(ApiConstants.updatePost(postId)),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"fotos": urls}),
     );
@@ -39,18 +39,18 @@ class CrearPublicacionService {
     }
   }
 
-  Future<List<String>> subirImagenesAFirebase(
-      String publicacionId, List<File> localImages) async {
+  Future<List<String>> uploadImagesToFirebase(
+      String postId, List<File> localImages) async {
     List<String> urls = [];
 
     for (final imagen in localImages) {
       // Convertir a WebP antes de subir
       final imagenWebP = await ImageUtils.convertToAWebP(imagen);
 
-      final nombreArchivo = basename(imagenWebP.path);
+      final fileName = basename(imagenWebP.path);
       final ref = FirebaseStorage.instance
           .ref()
-          .child('publicaciones/$publicacionId/$nombreArchivo');
+          .child('publicaciones/$postId/$fileName');
 
       final uploadTask = ref.putFile(imagenWebP);
       final snapshot = await uploadTask;

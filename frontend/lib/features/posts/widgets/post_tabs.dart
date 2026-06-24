@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-class PublicacionTabs extends StatelessWidget {
+class PostTabs extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabChanged;
 
-  const PublicacionTabs({
+  const PostTabs({
     super.key,
     required this.selectedIndex,
     required this.onTabChanged,

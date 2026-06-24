@@ -2,42 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-class PublicacionEmptyState extends StatelessWidget {
+class PostEmptyState extends StatelessWidget {
   final String title;
   final String description;
 
-  const PublicacionEmptyState({
+  const PostEmptyState({
     super.key,
     required this.title,
     required this.description,
   });
 
-  factory PublicacionEmptyState.initial() {
-    return const PublicacionEmptyState(
+  factory PostEmptyState.initial() {
+    return const PostEmptyState(
       title: 'Aquí verás tus publicaciones',
       description: 'Cuando publiques una solicitud de servicio, aparecerá aquí para que hagas el seguimiento',
     );
   }
 
-  factory PublicacionEmptyState.forFilter(String filter) {
+  factory PostEmptyState.forFilter(String filter) {
     switch (filter) {
       case 'Activas':
-        return const PublicacionEmptyState(
+        return const PostEmptyState(
           title: 'Tus publicaciones activas',
           description: 'Aquí se mostrarán las solicitudes de servicio que hayas publicado y aún no tengan un trabajador asignado',
         );
       case 'En Proceso':
-        return const PublicacionEmptyState(
+        return const PostEmptyState(
           title: 'Tus publicaciones en proceso',
           description: 'Aquí aparecerán las solicitudes en las que hayas asignado un trabajador a una solicitud de servicio',
         );
       case 'Finalizadas':
-        return const PublicacionEmptyState(
+        return const PostEmptyState(
           title: 'Tus publicaciones finalizadas',
           description: 'Aquí aparecerán las solicitudes de servicio que han sido completadas',
         );
       default:
-        return PublicacionEmptyState.initial();
+        return PostEmptyState.initial();
     }
   }
 

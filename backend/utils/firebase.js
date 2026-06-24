@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import { guardarNotificacion } from '../services/notificacionService.js';
+import { saveNotification } from '../services/notificacionService.js';
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
 import serviceAccount from '../serviceAccount.js';
 
@@ -11,25 +11,25 @@ const bucket = admin.storage().bucket();
 export default bucket;
 
 
-export async function enviarNotificacionAUsuario(fcmToken, titulo, cuerpo, data = {}, usuarioId = null) {
+export async function sendNotificationToUser(fcmToken, title, body, data = {}, userId = null) {
     console.log("Enviando notificación al usuario...");
 
-    const mensaje = {
+    const message = {
         token: fcmToken,
         notification: {
-            title: titulo,
-            body: cuerpo,
+            title: title,
+            body: body,
         },
         data
     };
 
     try {
-        const response = await admin.messaging().send(mensaje);
+        const response = await admin.messaging().send(message);
         console.log('Notificación enviada:', response);
 
-        // Guarda la notificación en Redis si hay usuarioId
-        /*if (usuarioId) {
-            await guardarNotificacion(usuarioId, data.tipo || 'otro', titulo, cuerpo, data);
+        // Guarda la notificación en Redis si hay userId
+        /*if (userId) {
+            await saveNotification(userId, data.tipo || 'otro', title, body, data);
         }*/
     } catch (error) {
         console.error('Error enviando notificación:', error);

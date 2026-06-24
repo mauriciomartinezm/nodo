@@ -2,8 +2,8 @@ import { db } from "../database/db.js";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 
-export const getCategoria = async (req, res) => {
-  console.log("Peticion en getCategoria");
+export const getCategory = async (req, res) => {
+  console.log("Peticion en getCategory");
   try {
     const result = await db.query(
       "SELECT * FROM Categoria WHERE id = $1",
@@ -17,8 +17,8 @@ export const getCategoria = async (req, res) => {
   }
 };
 
-export const getCategorias = async (req, res) => {
-  console.log("Peticion en getCategorias");
+export const getCategories = async (req, res) => {
+  console.log("Peticion en getCategories");
   try {
     const result = await db.query("SELECT * FROM Categoria");
     res.json(result.rows);
@@ -29,14 +29,14 @@ export const getCategorias = async (req, res) => {
   }
 };
 
-export const createCategoria = async (req, res) => {
-  console.log("Peticion recibida en /createCategoria. Cuerpo de la petición: ");
+export const createCategory = async (req, res) => {
+  console.log("Peticion recibida en /createCategory. Cuerpo de la petición: ");
   console.log(req.body);
   try {
     const { nombre, descripcion } = req.body;
     const id = uuidv4();
     const query = `
-      INSERT INTO Categoria (id, nombre, descripcion)
+      INSERT INTO Categoria (id, nombre_categoria, descripcion)
       VALUES ($1, $2, $3)
     `;
 
@@ -59,8 +59,8 @@ export const createCategoria = async (req, res) => {
   }
 };
 
-export const getUsuarioCategorias = async (req, res) => {
-  console.log("Peticion en getUsuarioCategorias");
+export const getUserCategories = async (req, res) => {
+  console.log("Peticion en getUserCategories");
   try {
     const result = await db.query("SELECT * FROM usuario_categoria");
     res.json(result.rows);
@@ -71,8 +71,8 @@ export const getUsuarioCategorias = async (req, res) => {
   }
 };
 
-export const createUsuarioCategoria = async (req, res) => {
-  console.log("📥 Petición recibida en /createUsuarioCategoria");
+export const createUserCategory = async (req, res) => {
+  console.log("📥 Petición recibida en /createUserCategory");
   console.log(req.body);
 
   const { id_usuario, id_categorias } = req.body;
@@ -86,13 +86,13 @@ export const createUsuarioCategoria = async (req, res) => {
   try {
     await db.query("BEGIN");
 
-    for (const id_categoria of id_categorias) {
-      console.log(`🟢 Insertando categoría ${id_categoria}`);
+    for (const categoryId of id_categorias) {
+      console.log(`🟢 Insertando categoría ${categoryId}`);
       await db.query(
         "INSERT INTO usuario_categoria (id_usuario, id_categoria) VALUES ($1, $2)",
-        [id_usuario, id_categoria.trim()]
+        [id_usuario, categoryId.trim()]
       );
-      console.log(`✅ Categoría ${id_categoria} registrada`);
+      console.log(`✅ Categoría ${categoryId} registrada`);
     }
 
     await db.query("COMMIT");
@@ -113,5 +113,4 @@ export const createUsuarioCategoria = async (req, res) => {
     });
   }
 };
-
 

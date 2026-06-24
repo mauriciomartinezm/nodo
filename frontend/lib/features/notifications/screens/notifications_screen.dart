@@ -8,14 +8,14 @@ import 'package:provider/provider.dart';
 import '../../../shared/providers/user_provider.dart';
 import '../../../core/constants/api_constants.dart';
 
-class NotificacionesScreen extends StatefulWidget {
-  const NotificacionesScreen({super.key});
+class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
 
   @override
-  _NotificacionesScreenState createState() => _NotificacionesScreenState();
+  _NotificationsScreenState createState() => _NotificationsScreenState();
 }
 
-class _NotificacionesScreenState extends State<NotificacionesScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen> {
   int _selectedIndex = 0;
   late Future<List<dynamic>> _notificationsFuture;
 
@@ -29,7 +29,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final response = await http.get(
       Uri.parse(
-          '${ApiConstants.baseUrl}/getNotificacionesByUserId/${userProvider.user?.id}'),
+          ApiConstants.getNotificationsByUserId(userProvider.user?.id ?? '')),
     );
 
     if (response.statusCode == 200) {
@@ -93,7 +93,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const NotificacionesSettings()),
+                    builder: (context) => const NotificationsSettings()),
               );
             },
           ),

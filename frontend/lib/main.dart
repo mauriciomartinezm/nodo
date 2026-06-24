@@ -67,10 +67,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RegisterProvider()),
         ChangeNotifierProvider(
             create: (_) =>
-                CrearPublicacionController(CrearPublicacionService())),
+                CreatePostController(CreatePostService())),
         ChangeNotifierProvider(
-          create: (context) => PublicacionesController(
-            PublicacionesService(
+          create: (context) => PostsController(
+            PostsService(
               Provider.of<UserProvider>(context, listen: false),
             ),
           ),
@@ -141,7 +141,7 @@ class MyApp extends StatelessWidget {
             AppRoutes.welcome: (context) => const Welcome1Screen(),
             AppRoutes.login: (context) => const LoginScreen(),
             '/home': (context) => const HomeScreen(),
-            '/trabajos2': (context) => const TrabajosScreen2(),
+            '/trabajos2': (context) => const JobsScreen2(),
             '/trabajos5': (context) => const GraciasScreen(),
             '/gracias': (context) => GraciasScreen(),
             '/workWNodo': (context) => const WorkWtNodo(),

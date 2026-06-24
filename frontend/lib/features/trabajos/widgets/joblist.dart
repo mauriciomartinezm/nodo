@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:nodo/features/trabajos/screens/trabajos6.dart';
-import 'package:nodo/features/trabajos/logic/TrabajoService.dart';
+import 'package:nodo/features/trabajos/logic/job_service.dart';
 
 class JobList extends StatelessWidget {
   final List publicaciones;
@@ -34,7 +34,7 @@ class JobList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  TrabajoService.getIconForCategory(
+                  JobService.getIconForCategory(
                       publicacion['id_categoria']),
                   size: 35,
                   color: const Color(0xFF003366),
@@ -99,7 +99,7 @@ class JobList extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "${TrabajoService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
+                        "${JobService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 10,

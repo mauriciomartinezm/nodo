@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/chat/screens/Chat1.dart';
-import 'package:nodo/features/trabajos/logic/TrabajoService.dart';
+import 'package:nodo/features/trabajos/logic/job_service.dart';
 import 'package:nodo/features/trabajos/screens/trabajos4.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
-class DetalleTrabajoScreen extends StatefulWidget {
+class JobDetailScreen extends StatefulWidget {
   final Map<String, dynamic> job;
   final ScrollController scrollController;
   final bool desdePostulaciones;
   final Map<String, dynamic>? postulacion;
   final VoidCallback? onPostulacionCambiada;
 
-  const DetalleTrabajoScreen({
+  const JobDetailScreen({
     super.key,
     required this.job,
     this.postulacion,
@@ -23,10 +23,10 @@ class DetalleTrabajoScreen extends StatefulWidget {
   });
 
   @override
-  State<DetalleTrabajoScreen> createState() => _DetalleTrabajoScreenState();
+  State<JobDetailScreen> createState() => _JobDetailScreenState();
 }
 
-class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
+class _JobDetailScreenState extends State<JobDetailScreen> {
   String selectedAction = 'postularme';
   int currentPage = 0;
 
@@ -266,7 +266,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                             final trabajadorId = userProvider.user!.id;
                             final publicacionId = widget.job['id'];
 
-                            await TrabajoService.postularse(
+                            await JobService.apply(
                                 publicacionId, trabajadorId);
 
                             // Opcional: Mostrar un mensaje de éxito
@@ -346,7 +346,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                               return;
                             }
 
-                            await TrabajoService.aceptarPostulacion(
+                            await JobService.acceptApplication(
                                 widget.postulacion?['id'], 'aceptado');
 
                             Navigator.of(context).pop(); // Cierra el modal
@@ -379,7 +379,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                         child: ElevatedButton(
                           onPressed: () async {
                             // Aquí deberías llamar a un método que marque el trabajo como terminado
-                            await TrabajoService.marcarComoTerminado(
+                            await JobService.markAsFinished(
                                 widget.postulacion?['id']);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -401,7 +401,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                         child: ElevatedButton(
                           onPressed: () async {
                             // Aquí deberías llamar a un método que cancele el trabajo
-                            await TrabajoService.cancelarTrabajo(
+                            await JobService.cancelJob(
                                 widget.postulacion?['id']);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -421,7 +421,7 @@ class _DetalleTrabajoScreenState extends State<DetalleTrabajoScreen> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            await TrabajoService.deletePostulacion(
+                            await JobService.deleteApplication(
                                 widget.postulacion?['id']);
                             Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(

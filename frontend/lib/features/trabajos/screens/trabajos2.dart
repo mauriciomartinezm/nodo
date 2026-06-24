@@ -3,19 +3,19 @@ import 'package:nodo/core/theme/app_theme.dart';
 
 import 'package:nodo/features/trabajos/screens/trabajos3.dart';
 import 'package:nodo/features/trabajos/screens/trabajos6.dart';
-import 'package:nodo/features/trabajos/logic/TrabajoService.dart'; // Asegúrate de importar aquí
+import 'package:nodo/features/trabajos/logic/job_service.dart'; // Asegúrate de importar aquí
 import 'package:nodo/features/trabajos/widgets/joblist.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
-class TrabajosScreen2 extends StatefulWidget {
-  const TrabajosScreen2({super.key});
+class JobsScreen2 extends StatefulWidget {
+  const JobsScreen2({super.key});
 
   @override
-  _TrabajosScreen2State createState() => _TrabajosScreen2State();
+  _JobsScreen2State createState() => _JobsScreen2State();
 }
 
-class _TrabajosScreen2State extends State<TrabajosScreen2> {
+class _JobsScreen2State extends State<JobsScreen2> {
   List<dynamic> _publicaciones = [];
   Map<String, String> _nombresClientes = {};
   bool _isLoading = true;
@@ -44,8 +44,8 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final currentId = userProvider.user?.id; // o userProvider.cedula
     try {
-      final publicaciones = await TrabajoService.fetchPublicaciones();
-      final nombres = await TrabajoService.fetchNombresClientes(publicaciones);
+      final publicaciones = await JobService.fetchPosts();
+      final nombres = await JobService.fetchClientNames(publicaciones);
 
       setState(() {
         _publicaciones = publicaciones;
@@ -69,7 +69,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
 
     try {
       final postulaciones =
-          await TrabajoService.fetchPostulacionesPorUsuario(currentId);
+          await JobService.fetchApplicationsByUser(currentId);
       print(postulaciones);
 
       // Filtrar por estado
@@ -109,7 +109,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
         minChildSize: 0.4,
         maxChildSize: 0.95,
         expand: false,
-        builder: (_, scrollController) => DetalleTrabajoScreen(
+        builder: (_, scrollController) => JobDetailScreen(
           job: {
             "id": publicacion['id'],
             "title": publicacion['titulo'],
@@ -118,9 +118,9 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
             "location": "${publicacion['ubicacion']}",
             "user": "Nombre del cliente: $nombreCliente",
             "time":
-                "${TrabajoService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
+                "${JobService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
             "image":
-                TrabajoService.getIconForCategory(publicacion['id_categoria']),
+                JobService.getIconForCategory(publicacion['id_categoria']),
             "images":
                 _parseImages(publicacion['fotos']), // Usa las imágenes reales
           },
@@ -226,7 +226,7 @@ class _TrabajosScreen2State extends State<TrabajosScreen2> {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => const FiltroCategoriaScreen(),
+                  builder: (context) => const CategoryFilterScreen(),
                 );
               },
             ),

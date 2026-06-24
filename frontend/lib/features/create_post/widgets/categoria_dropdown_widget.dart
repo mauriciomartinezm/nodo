@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-class CategoriaDropdown extends StatelessWidget {
-  final List<Map<String, String>> categorias;
+class CategoryDropdown extends StatelessWidget {
+  final List<Map<String, String>> categories;
   final String? value;
   final ValueChanged<String?> onChanged;
 
-  const CategoriaDropdown({
+  const CategoryDropdown({
     super.key,
-    required this.categorias,
+    required this.categories,
     required this.value,
     required this.onChanged,
   });
@@ -39,11 +39,11 @@ class CategoriaDropdown extends StatelessWidget {
         style: AppTypography.body,
         dropdownColor: Colors.white,
         icon: const Icon(Icons.arrow_drop_down),
-        items: categorias.map<DropdownMenuItem<String>>((categoria) {
+        items: categories.map<DropdownMenuItem<String>>((category) {
           return DropdownMenuItem<String>(
-            value: categoria['nombre'],
+            value: category['nombre'],
             child: Text(
-              categoria['nombre']!,
+              category['nombre']!,
               style: TextStyle(
                 fontSize: 12.sp,
                 color: Colors.black,

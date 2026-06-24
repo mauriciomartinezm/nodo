@@ -3,21 +3,21 @@ import 'dart:convert';
 import '../../../core/constants/api_constants.dart';
 import '../../../shared/providers/user_provider.dart';
 
-class Postulacion {
+class Application {
   final String id;
   final String idTrabajador;
   final String nombre;
   final String estado;
 
-  Postulacion({
+  Application({
     required this.id,
     required this.idTrabajador,
     required this.nombre,
     required this.estado,
   });
 
-  factory Postulacion.fromJson(Map<String, dynamic> json) {
-    return Postulacion(
+  factory Application.fromJson(Map<String, dynamic> json) {
+    return Application(
       id: json['id'],
       idTrabajador: json['id_trabajador'],
       nombre: json['nombre'] ?? 'Sin nombre',
@@ -26,15 +26,15 @@ class Postulacion {
   }
 }
 
-class PublicacionesService {
+class PostsService {
   final UserProvider userProvider;
 
-  PublicacionesService(this.userProvider);
+  PostsService(this.userProvider);
 
-  Future<List<dynamic>> getPublicacionesByUserId() async {
-    final usuarioId = userProvider.user!.id;
+  Future<List<dynamic>> getPostsByUserId() async {
+    final userId = userProvider.user!.id;
     final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/getPublicacionesByUserId/$usuarioId'),
+      Uri.parse(ApiConstants.getPostsByUserId(userId)),
     );
 
     if (response.statusCode == 200) {
@@ -51,31 +51,29 @@ class PublicacionesService {
         'Error al cargar las publicaciones (${response.statusCode})');
   }
 
-  Future<bool> deletePublicacion(String publicacionId) async {
+  Future<bool> deletePost(String postId) async {
     final response = await http.delete(
-      Uri.parse('${ApiConstants.baseUrl}/deletePublicacion/$publicacionId'),
+      Uri.parse(ApiConstants.deletePost(postId)),
     );
     return response.statusCode == 200;
   }
 
-  Future<List<Postulacion>> obtenerPostulaciones(String idPublicacion) async {
-    final url = Uri.parse(
-        "${ApiConstants.baseUrl}/getPostulacionesByPostId/$idPublicacion");
+  Future<List<Application>> getApplications(String postId) async {
+    final url = Uri.parse(ApiConstants.getApplicationsByPostId(postId));
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final lista = List<Map<String, dynamic>>.from(data);
-      return lista.map((json) => Postulacion.fromJson(json)).toList();
+      final list = List<Map<String, dynamic>>.from(data);
+      return list.map((json) => Application.fromJson(json)).toList();
     } else {
       return [];
     }
   }
 
-  Future<bool> updatePublicacion(
-      String idPublicacion, Map<String, dynamic> data) async {
-    final url =
-        Uri.parse('${ApiConstants.baseUrl}/updatePublicacion/$idPublicacion');
+  Future<bool> updatePost(
+      String postId, Map<String, dynamic> data) async {
+    final url = Uri.parse(ApiConstants.updatePost(postId));
 
     final response = await http.put(
       url,
@@ -90,10 +88,9 @@ class PublicacionesService {
       return false;
     }
   }
-  Future<bool> updatePostulacion(
-      String idPostulacion, Map<String, dynamic> data) async {
-    final url =
-        Uri.parse('${ApiConstants.baseUrl}/updatePostulacion/$idPostulacion');
+  Future<bool> updateApplication(
+      String applicationId, Map<String, dynamic> data) async {
+    final url = Uri.parse(ApiConstants.updateApplication(applicationId));
 
     final response = await http.put(
       url,

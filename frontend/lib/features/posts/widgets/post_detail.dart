@@ -5,23 +5,23 @@ import 'package:nodo/features/posts/screens/applications_screen.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:nodo/features/posts/logic/publicaciones_controller.dart';
 
-class PublicacionDetail extends StatefulWidget {
+class PostDetail extends StatefulWidget {
   final dynamic publicacion;
   final VoidCallback onDelete;
-  final PublicacionesController publicacionesController;
+  final PostsController postsController;
 
-  const PublicacionDetail({
+  const PostDetail({
     super.key,
     required this.publicacion,
     required this.onDelete,
-    required this.publicacionesController,
+    required this.postsController,
   });
 
   @override
-  State<PublicacionDetail> createState() => _PublicacionDetailState();
+  State<PostDetail> createState() => _PostDetailState();
 }
 
-class _PublicacionDetailState extends State<PublicacionDetail> {
+class _PostDetailState extends State<PostDetail> {
   int _currentIndex = 0;
   late List<String> imageList;
   final CarouselSliderController _carouselController =
@@ -256,8 +256,8 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => PostulacionesScreen(
-                      idPublicacion: widget.publicacion['id'],
+                    builder: (_) => ApplicationsScreen(
+                      postId: widget.publicacion['id'],
                     ),
                   ),
                 );
@@ -341,8 +341,8 @@ class _PublicacionDetailState extends State<PublicacionDetail> {
 
     if (confirmado == true) {
       try {
-        final success = await widget.publicacionesController
-            .finalizarTrabajo(idPublicacion.toString());
+        final success = await widget.postsController
+            .finishJob(idPublicacion.toString());
 
         if (success) {
           Navigator.pop(context);

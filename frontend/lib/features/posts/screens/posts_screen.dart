@@ -7,27 +7,27 @@ import '../widgets/post_empty_state.dart';
 import '../widgets/post_tabs.dart';
 import '../widgets/post_list_view.dart';
 
-class PublicacionesScreen extends StatefulWidget {
-  const PublicacionesScreen({super.key});
+class PostsScreen extends StatefulWidget {
+  const PostsScreen({super.key});
 
   @override
-  State<PublicacionesScreen> createState() => _PublicacionesScreenState();
+  State<PostsScreen> createState() => _PostsScreenState();
 }
 
-class _PublicacionesScreenState extends State<PublicacionesScreen> {
+class _PostsScreenState extends State<PostsScreen> {
   @override
   void initState() {
     super.initState();
     // Cargar publicaciones cuando el widget se inicializa
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = Provider.of<PublicacionesController>(context, listen: false);
-      controller.loadPublicaciones();
+      final controller = Provider.of<PostsController>(context, listen: false);
+      controller.loadPosts();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<PublicacionesController>(context);
+    final controller = Provider.of<PostsController>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -46,7 +46,7 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
               color: AppColors.blue,
               size: 24.r,
             ),
-            onPressed: controller.loadPublicaciones,
+            onPressed: controller.loadPosts,
           ),
         ],
       ),
@@ -54,27 +54,27 @@ class _PublicacionesScreenState extends State<PublicacionesScreen> {
     );
   }
 
-  Widget _buildBody(PublicacionesController controller) {
+  Widget _buildBody(PostsController controller) {
     if (controller.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (controller.errorMessage.isNotEmpty && controller.publicaciones.isEmpty) {
+    if (controller.errorMessage.isNotEmpty && controller.posts.isEmpty) {
       return Center(child: Text(controller.errorMessage));
     }
 
     if (!controller.hasPublications) {
-      return PublicacionEmptyState.initial();
+      return PostEmptyState.initial();
     }
 
     return Column(
       children: [
-        PublicacionTabs(
+        PostTabs(
           selectedIndex: controller.selectedIndex,
           onTabChanged: controller.setSelectedIndex,
         ),
         Expanded(
-          child: PublicacionListView(
+          child: PostListView(
             filter: controller.selectedIndex,
           ),
         ),

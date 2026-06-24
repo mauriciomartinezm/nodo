@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-class PublicacionCard extends StatelessWidget {
+class PostCard extends StatelessWidget {
   final dynamic item;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
-  const PublicacionCard({
+  const PostCard({
     super.key,
     required this.item,
     required this.onTap,

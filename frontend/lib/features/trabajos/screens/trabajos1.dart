@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-class TrabajosScreen1 extends StatelessWidget {
-  const TrabajosScreen1({super.key});
+class JobsScreen1 extends StatelessWidget {
+  const JobsScreen1({super.key});
 
   @override
   Widget build(BuildContext context) {

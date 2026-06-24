@@ -12,14 +12,14 @@ import '../../../shared/widgets/foto_widget.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import '../widgets/text_field_widget.dart';
 
-class CrearPublicacionScreen extends StatefulWidget {
-  const CrearPublicacionScreen({super.key});
+class CreatePostScreen extends StatefulWidget {
+  const CreatePostScreen({super.key});
 
   @override
-  State<CrearPublicacionScreen> createState() => _CrearPublicacionScreenState();
+  State<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
-class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
+class _CreatePostScreenState extends State<CreatePostScreen> {
   final _formKey = GlobalKey<FormState>();
   final FocusNode _emptyFocusNode = FocusNode();
 
@@ -31,7 +31,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<CrearPublicacionController>();
+    final controller = context.watch<CreatePostController>();
     final categorieProvider = context.watch<CategorieProvider>();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
@@ -86,7 +86,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                               side: BorderSide(color: AppColors.blue),
                             ),
                             onSelected: (_) =>
-                                controller.toggleCategoria(categoria.id),
+                                controller.toggleCategory(categoria.id),
                           );
                         }).toList(),
                       ),
@@ -117,7 +117,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                       SizedBox(height: 10.h),
 
                       // --- Subida de fotos (locales) ---
-                      SubirFotoWidget(
+                      UploadPhotoWidget(
                         key: ValueKey(controller.localImages),
                         onImagesSelected: controller.setLocalImages,
                         initialImages: controller.localImages,
@@ -142,7 +142,7 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                             ? null
                             : () async {
                                 await controller
-                                    .crearPublicacion(context, userProvider);
+                                    .createPost(context, userProvider);
                               },
                         loading: controller.isLoading,
                       )

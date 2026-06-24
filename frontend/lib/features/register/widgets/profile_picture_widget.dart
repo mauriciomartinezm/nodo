@@ -126,7 +126,7 @@ class ProfilePictureWidget extends StatelessWidget {
             text: 'Crear cuenta',
             onPressed: controller.acceptedTerms && !controller.isLoading
                 ? () async {
-                    final success = await controller.confirmar(context);
+                    final success = await controller.confirm(context);
                     if (success && context.mounted) {
                       onContinue();
                     } else {
