@@ -55,7 +55,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     final String presupuesto = widget.job["price"] ?? "0";
     final String fechaLimite = widget.job["time"] ?? "";
     final String estadoPostulacion =
-        widget.postulacion?['estado'].toString() ?? '';
+        widget.postulacion?['status'].toString() ?? '';
     print("Estado de la postulacion: ");
     print(estadoPostulacion);
     // final int? jobId = widget.job["id"];
@@ -301,7 +301,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                       ),
                     ),
                   const SizedBox(width: 8),
-                  if (estadoPostulacion != 'finalizada')
+                  if (estadoPostulacion != 'finished')
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
@@ -329,7 +329,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                       ),
                     ),
                   if (widget.desdePostulaciones &&
-                      estadoPostulacion == 'considerado')
+                      estadoPostulacion == 'pending')
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
@@ -347,7 +347,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             }
 
                             await JobService.acceptApplication(
-                                widget.postulacion?['id'], 'aceptado');
+                                widget.postulacion?['id'], 'accepted');
 
                             Navigator.of(context).pop(); // Cierra el modal
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -373,7 +373,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                       ),
                     ),
                   if (widget.desdePostulaciones)
-                    if (estadoPostulacion == 'aceptado') ...[
+                    if (estadoPostulacion == 'accepted') ...[
                       //lo mismo que 'en proceso' de publicacion
                       Expanded(
                         child: ElevatedButton(
@@ -417,7 +417,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           child: const Text("Cancelar trabajo"),
                         ),
                       ),
-                    ] else if (estadoPostulacion != 'finalizada')
+                    ] else if (estadoPostulacion != 'finished')
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {

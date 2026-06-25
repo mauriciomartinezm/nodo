@@ -1,18 +1,26 @@
 import {Router} from 'express';
 import {
-    getCategories,
-    getCategory,
-    createCategory,
-    createUserCategory,
-    getUserCategories
+    getGeneralCategories,
+    getGeneralCategory,
+    createGeneralCategory,
+    getSpecificCategories,
+    getSpecificCategory,
+    createSpecificCategory,
+    getWorkerCategories,
+    createWorkerCategory
 } from '../controllers/categoryController.js';
 
 const categoryRouter = Router ();
 
-categoryRouter.get('/api/getCategories', getCategories);
-categoryRouter.get('/api/getCategory/:id', getCategory);
-categoryRouter.post('/api/createCategory', createCategory);
-categoryRouter.post('/api/createUserCategory', createUserCategory);
-categoryRouter.get('/api/getUserCategories', getUserCategories);
+categoryRouter.get('/api/getGeneralCategories', getGeneralCategories);
+categoryRouter.get('/api/getGeneralCategory/:id', getGeneralCategory);
+categoryRouter.post('/api/createGeneralCategory', createGeneralCategory);
+
+categoryRouter.get('/api/getSpecificCategories', getSpecificCategories);
+categoryRouter.get('/api/getSpecificCategory/:id', getSpecificCategory);
+categoryRouter.post('/api/createSpecificCategory', createSpecificCategory);
+
+categoryRouter.get('/api/getWorkerCategories', getWorkerCategories);
+categoryRouter.post('/api/createWorkerCategory', createWorkerCategory);
 
 export default categoryRouter;

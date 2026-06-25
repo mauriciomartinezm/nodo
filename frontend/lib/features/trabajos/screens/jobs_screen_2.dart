@@ -21,14 +21,10 @@ class _JobsScreen2State extends State<JobsScreen2> {
   bool _isLoading = true;
   String _errorMessage = '';
   List<dynamic> _postulaciones = [];
-  List<dynamic> _postulacionesPendientes = [];
-  List<dynamic> _postulacionesAceptadas = [];
-  List<dynamic> _postulacionesRechazadas = [];
-  List<dynamic> _postulacionesConsideradas = [];
 
   bool _isLoadingPostulaciones = true;
   String _errorMessagePostulaciones = '';
-  String _trabajadorId = '';
+
   @override
   void initState() {
     super.initState();
@@ -41,8 +37,6 @@ class _JobsScreen2State extends State<JobsScreen2> {
   }
 
   Future<void> _loadData() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final currentId = userProvider.user?.id; // o userProvider.cedula
     try {
       final publicaciones = await JobService.fetchPosts();
       final nombres = await JobService.fetchClientNames(publicaciones);
@@ -51,7 +45,6 @@ class _JobsScreen2State extends State<JobsScreen2> {
         _publicaciones = publicaciones;
         _nombresClientes = nombres;
         _isLoading = false;
-        _trabajadorId = currentId!;
       });
     } catch (e) {
       setState(() {
@@ -62,7 +55,6 @@ class _JobsScreen2State extends State<JobsScreen2> {
   }
 
   Future<void> _loadPostulaciones() async {
-    print("💬 Cargando Postulaciones");
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final currentId = userProvider.user?.id;
     if (currentId == null) return;
@@ -70,24 +62,9 @@ class _JobsScreen2State extends State<JobsScreen2> {
     try {
       final postulaciones =
           await JobService.fetchApplicationsByUser(currentId);
-      print(postulaciones);
-
-      // Filtrar por estado
-      final pendientes =
-          postulaciones.where((p) => p['estado'] == 'pendiente').toList();
-      final aceptadas =
-          postulaciones.where((p) => p['estado'] == 'aceptado').toList();
-      final rechazadas =
-          postulaciones.where((p) => p['estado'] == 'rechazado').toList();
-      final consideradas =
-          postulaciones.where((p) => p['estado'] == 'considerado').toList();
 
       setState(() {
         _postulaciones = postulaciones;
-        _postulacionesPendientes = pendientes;
-        _postulacionesAceptadas = aceptadas;
-        _postulacionesRechazadas = rechazadas;
-        _postulacionesConsideradas = consideradas;
         _isLoadingPostulaciones = false;
       });
     } catch (e) {
@@ -100,6 +77,10 @@ class _JobsScreen2State extends State<JobsScreen2> {
 
   void _mostrarDetalleTrabajo(dynamic publicacion, String nombreCliente,
       Map<String, dynamic>? postulacion, bool desdePostulaciones) {
+    final categories = (publicacion['categories'] as List?) ?? [];
+    final firstCategoryId =
+        categories.isNotEmpty ? categories[0]['specificCategoryId'] : '';
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -112,17 +93,15 @@ class _JobsScreen2State extends State<JobsScreen2> {
         builder: (_, scrollController) => JobDetailScreen(
           job: {
             "id": publicacion['id'],
-            "title": publicacion['titulo'],
-            "description": publicacion['descripcion_necesidad'],
-            "price": "\$${publicacion['presupuesto']}",
-            "location": "${publicacion['ubicacion']}",
+            "title": publicacion['title'],
+            "description": publicacion['description'],
+            "price": "\$${publicacion['budget']}",
+            "location": "${publicacion['location']}",
             "user": "Nombre del cliente: $nombreCliente",
             "time":
-                "${JobService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
-            "image":
-                JobService.getIconForCategory(publicacion['id_categoria']),
-            "images":
-                _parseImages(publicacion['fotos']), // Usa las imágenes reales
+                "${JobService.formatTimeAgo(publicacion['postDate'])} · ${publicacion['status']}",
+            "image": JobService.getIconForCategory(firstCategoryId),
+            "images": _parseImages(publicacion['photos']),
           },
           postulacion: postulacion,
           scrollController: scrollController,
@@ -134,60 +113,21 @@ class _JobsScreen2State extends State<JobsScreen2> {
   }
 
   void _mostrarDetalleDesdePostulacion(dynamic publicacion, String _) {
-    final idCliente = publicacion['id_cliente'];
-    print("nombres de clientes");
-    print(_nombresClientes);
-    print(idCliente);
+    final idCliente = publicacion['clientId'];
     final postulacion = _postulaciones.firstWhere(
-      (p) => p['id_publicacion'] == publicacion['id'],
+      (p) => p['postId'] == publicacion['id'],
       orElse: () => null,
     );
 
     final nombreCliente = _nombresClientes[idCliente.toString()] ?? 'Cliente';
-    print("Nombre del cliente: ");
-    print(nombreCliente);
-    print("Informacion de la postulacion: ");
-    print(postulacion);
     _mostrarDetalleTrabajo(publicacion, nombreCliente, postulacion, true);
   }
 
-  List<String> _parseImages(String fotosString) {
-    print("fotos string");
-    print(fotosString);
-    if (fotosString.isEmpty || fotosString.toLowerCase() == 'sin fotos') {
-      return ['assets/images/diomedes_joven.jpg']; // Imagen por defecto
+  List<String> _parseImages(dynamic photos) {
+    if (photos is List && photos.isNotEmpty) {
+      return photos.map((url) => url.toString()).toList();
     }
-
-    try {
-      // Limpieza inicial del string
-      String cleanedString = fotosString.trim();
-
-      // Caso 1: Si es un JSON válido con escapes (menos común)
-      if (cleanedString.startsWith(r'{\"') || cleanedString.startsWith('{"')) {
-        cleanedString =
-            cleanedString.replaceAll(r'\"', '"').replaceAll('\\"', '"');
-      }
-
-      // Caso 2: Si tiene comillas dobles externas (como en tu ejemplo)
-      if (cleanedString.startsWith('{"') && cleanedString.endsWith('"}')) {
-        cleanedString = cleanedString.substring(1, cleanedString.length - 1);
-      }
-
-      // Reemplazar comillas dobles restantes si las hay
-      cleanedString = cleanedString.replaceAll('"', '');
-
-      // Dividir por comas y limpiar cada URL
-      List<String> urls = cleanedString
-          .split(',')
-          .map((url) => url.trim())
-          .where((url) => url.startsWith('http'))
-          .toList();
-
-      return urls;
-    } catch (e) {
-      print('Error parsing images: $e');
-      return [];
-    }
+    return ['assets/images/diomedes_joven.jpg']; // Imagen por defecto
   }
 
   @override
@@ -275,7 +215,7 @@ class _JobsScreen2State extends State<JobsScreen2> {
                       publicaciones: _publicaciones.where((pub) {
                         // Verifica si hay alguna postulación para esta publicación
                         final yaPostulado = _postulaciones.any(
-                          (post) => post['id_publicacion'] == pub['id'],
+                          (post) => post['postId'] == pub['id'],
                         );
                         return !yaPostulado; // Mostrar solo si NO hay postulación
                       }).toList(),
@@ -341,16 +281,16 @@ class _JobsScreen2State extends State<JobsScreen2> {
                   : JobList(
                       publicaciones: _postulaciones
                           .where((postulacion) =>
-                              postulacion['estado'] != 'aceptado' && postulacion['estado'] != 'finalizada')
+                              postulacion['status'] != 'accepted')
                           .map((postulacion) {
-                            final idPublicacion = postulacion['id_publicacion'];
+                            final idPublicacion = postulacion['postId'];
                             final publicacion = _publicaciones.firstWhere(
                               (pub) => pub['id'] == idPublicacion,
                               orElse: () => null,
                             );
                             if (publicacion != null) {
                               publicacion['estado_postulacion'] =
-                                  postulacion['estado']; // 👈 AÑADIDO
+                                  postulacion['status']; // 👈 AÑADIDO
                             }
                             return publicacion;
                           })
@@ -363,9 +303,8 @@ class _JobsScreen2State extends State<JobsScreen2> {
   }
 
   Widget _buildMisTrabajosList(BuildContext context) {
-    final trabajos = _postulaciones.where((post) =>
-    post['estado'] == 'aceptado' || post['estado'] == 'finalizada'
-  ).toList();
+    final trabajos =
+        _postulaciones.where((post) => post['status'] == 'accepted').toList();
     return RefreshIndicator(
       onRefresh: _loadAllData,
       color: Colors.orange,
@@ -396,7 +335,7 @@ class _JobsScreen2State extends State<JobsScreen2> {
                   : JobList(
                       publicaciones: trabajos
                           .map((postulacion) {
-                            final idPublicacion = postulacion['id_publicacion'];
+                            final idPublicacion = postulacion['postId'];
                             final publicacion = _publicaciones.firstWhere(
                               (pub) => pub['id'] == idPublicacion,
                               orElse: () => null,

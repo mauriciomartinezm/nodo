@@ -19,9 +19,9 @@ class Application {
   factory Application.fromJson(Map<String, dynamic> json) {
     return Application(
       id: json['id'],
-      idTrabajador: json['id_trabajador'],
+      idTrabajador: json['workerId'],
       nombre: json['nombre'] ?? 'Sin nombre',
-      estado: json['estado'],
+      estado: json['status'],
     );
   }
 }
@@ -42,7 +42,8 @@ class PostsService {
       if (responseData is List) {
         return responseData;
       } else if (responseData is Map &&
-          responseData['message'] == 'No existen registros') {
+          (responseData['message'] == 'No existen registros' ||
+              responseData['message'] == 'No records found')) {
         return [];
       }
       throw Exception('Formato de respuesta inesperado');

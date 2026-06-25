@@ -22,7 +22,10 @@ class JobList extends StatelessWidget {
       itemBuilder: (context, index) {
         final publicacion = publicaciones[index];
         final nombreCliente =
-            nombresClientes[publicacion['id_cliente']] ?? 'Cargando nombre...';
+            nombresClientes[publicacion['clientId']] ?? 'Cargando nombre...';
+        final categories = (publicacion['categories'] as List?) ?? [];
+        final firstCategoryId =
+            categories.isNotEmpty ? categories[0]['specificCategoryId'] : '';
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -34,8 +37,7 @@ class JobList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  JobService.getIconForCategory(
-                      publicacion['id_categoria']),
+                  JobService.getIconForCategory(firstCategoryId),
                   size: 35,
                   color: const Color(0xFF003366),
                 ),
@@ -46,14 +48,14 @@ class JobList extends StatelessWidget {
                     children: [
                       Text.rich(
                         TextSpan(
-                          text: "${publicacion['titulo']}: ",
+                          text: "${publicacion['title']}: ",
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                           children: [
                             TextSpan(
-                              text: publicacion['descripcion_necesidad'],
+                              text: publicacion['description'],
                               style: const TextStyle(
                                 fontWeight: FontWeight.normal,
                                 fontSize: 11,
@@ -65,41 +67,21 @@ class JobList extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "\$${publicacion['presupuesto']}",
+                        "\$${publicacion['budget']}",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
                       ),
-                      if (publicacion['estado_postulacion'] ==
-                          'considerado') ...[
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.green[100],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'Esperando tu aceptación',
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
                       Text(
-                        publicacion['ubicacion'],
+                        publicacion['location'],
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 11,
                         ),
                       ),
                       Text(
-                        "${JobService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
+                        "${JobService.formatTimeAgo(publicacion['postDate'])} · ${publicacion['status']}",
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 10,

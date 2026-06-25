@@ -1,30 +1,49 @@
-import { db } from "../database/db.js";
-import { v4 as uuidv4 } from "uuid";
-import jwt from "jsonwebtoken";
-//
+import bcrypt from "bcryptjs";
+import { prisma } from "../database/prisma.js";
+
+const userInclude = {
+  worker: { include: { workerCategories: { include: { generalCategory: true } } } },
+};
+
+// The frontend's date picker sends dates as "dd/MM/yyyy", which JS's Date
+// constructor cannot parse reliably (it expects ISO format). Accepts both
+// "dd/MM/yyyy" and ISO strings.
+function parseBirthDate(value) {
+  const ddmmyyyy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(value);
+  if (ddmmyyyy) {
+    const [, day, month, year] = ddmmyyyy;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+  return new Date(value);
+}
+
+function omitPassword(user) {
+  if (!user) return user;
+  const { passwordHash, ...rest } = user;
+  return rest;
+}
+
 export const getUsers = async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM Usuario");
-    res.json(result.rows);
+    const users = await prisma.appUser.findMany({ include: userInclude });
+    res.json(users.map(omitPassword));
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error interno del servidor", error: error.message });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
 export const getUser = async (req, res) => {
   try {
-    const result = await db.query(
-      "SELECT * FROM Usuario WHERE id = $1",
-      [req.params.id]
-    );
+    const user = await prisma.appUser.findUnique({
+      where: { id: req.params.id },
+      include: userInclude,
+    });
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "No existen registros" });
+    if (!user) {
+      return res.status(404).json({ message: "No records found" });
     }
 
-    res.json(result.rows[0]);
+    res.json(omitPassword(user));
   } catch (error) {
     if (!res.headersSent) {
       res.status(500).json({ message: error.message });
@@ -32,136 +51,140 @@ export const getUser = async (req, res) => {
   }
 };
 
-//Este createUser es dinámico. Este subprograma recibe los datos que se envía desde
-//el frontend y va creando el query automáticamente
-//El id se crea desde el backend con uuidv4
+// id is no longer sent by the client: Prisma generates it automatically.
+// If isWorker is true, a Worker profile is created alongside the user.
 export const createUser = async (req, res) => {
   try {
     const data = req.body;
-    //console.log(data);
-    data.fecha_registro = new Date(new Date().getTime() - 5 * 60 * 60 * 1000); // UTC-5
 
-    data.verificado = false; //Cualquier tipo de usuario recien creado por defecto tendrá false en verificado
-
-    if (!data.id) {
-      return res.status(400).json({ message: "El campo 'id' es obligatorio" });
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "dni",
+      "email",
+      "phone",
+      "birthDate",
+      "password",
+    ];
+    const missing = requiredFields.filter((field) => !data[field]);
+    if (missing.length > 0) {
+      return res.status(400).json({
+        message: `Missing required fields: ${missing.join(", ")}`,
+      });
     }
-    // Obtener columnas y valores dinámicamente
-    const columns = Object.keys(data);                    // ["id", "nombre", "fecha_registro", ...]
-    const values = Object.values(data);                   // [123, "Juan", Date, false, ...]
-    const placeholders = columns.map((_, i) => `$${i + 1}`); // ["$1", "$2", "$3", ...]
 
-    const query = `
-      INSERT INTO Usuario (${columns.join(', ')})
-      VALUES (${placeholders.join(', ')})
-    `;
+    const birthDate = parseBirthDate(data.birthDate);
+    if (isNaN(birthDate.getTime())) {
+      return res.status(400).json({ message: "Invalid birthDate." });
+    }
 
-    await db.query(query, values);
+    const passwordHash = await bcrypt.hash(data.password, 10);
 
-    res.status(200).json({ message: "Usuario registrado exitosamente", usuario: data });
+    const user = await prisma.appUser.create({
+      data: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        secondLastName: data.secondLastName ?? null,
+        dni: data.dni,
+        email: data.email,
+        phone: data.phone,
+        birthDate,
+        passwordHash,
+        profilePhoto: data.profilePhoto ?? null,
+        location: data.location ?? null,
+        verified: false,
+      },
+    });
+
+    let worker = null;
+    if (data.isWorker) {
+      worker = await prisma.worker.create({
+        data: {
+          userId: user.id,
+          description: data.description ?? null,
+        },
+      });
+    }
+
+    res.status(200).json({
+      message: "User registered successfully",
+      user: { ...omitPassword(user), worker: worker ? { ...worker, workerCategories: [] } : null },
+    });
   } catch (error) {
-    console.error("Error al crear Usuario:", error);
-    res.status(500).json({ message: "Error al registrar usuario", error: error.message });
+    console.error("Error creating user:", error);
+    if (error.code === "P2002") {
+      return res.status(409).json({
+        message: "A user with that DNI, email, or phone already exists.",
+      });
+    }
+    res.status(500).json({ message: "Error registering user", error: error.message });
   }
 };
-
 
 export const login = async (req, res) => {
-  console.log("Petición recibida en /login");
-
-  const { identificador, contrasena } = req.body; // puede ser teléfono o email
-
-  console.log("Intentando iniciar sesión para:", identificador);
-  console.log("Contraseña recibida:", contrasena);
+  const { identifier, password } = req.body; // phone or email
 
   try {
-    // 🔹 1. Buscar usuario por email o teléfono
-    const result = await db.query(
-      `SELECT * FROM Usuario
-       WHERE (telefono = $1 OR email = $1) AND contrasena = $2`,
-      [identificador, contrasena]
-    );
+    const user = await prisma.appUser.findFirst({
+      where: { OR: [{ phone: identifier }, { email: identifier }] },
+      include: userInclude,
+    });
 
-    console.log("Resultado de la consulta:", result.rows);
-
-    if (result.rows.length !== 1) {
-      return res.status(401).json({ messageFail: "Credenciales inválidas" });
+    if (!user) {
+      return res.status(401).json({ messageFail: "Invalid credentials" });
     }
 
-    const user = result.rows[0];
-    const userId = user.id;
+    const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+    if (!passwordMatches) {
+      return res.status(401).json({ messageFail: "Invalid credentials" });
+    }
 
-    console.log("Inicio de sesión exitoso para:", userId);
-
-    // 🔹 2. Consultar categorías asociadas al usuario
-    const categoriesQuery = `
-      SELECT c.id, c.nombre_categoria, c.descripcion
-      FROM usuario_categoria uc
-      JOIN categoria c ON uc.id_categoria = c.id
-      WHERE uc.id_usuario = $1
-    `;
-    const categoriesResult = await db.query(categoriesQuery, [userId]);
-    const categories = categoriesResult.rows;
-
-    console.log("Categorías del usuario:", categories);
-
-    // 🔹 3. Devolver usuario + categorías
     return res.status(200).json({
-      messageSuccess: "Inicio de sesión exitoso",
-      usuario: {
-        ...user,
-        categorias: categories // ← se agregan aquí
-      }
+      messageSuccess: "Login successful",
+      user: omitPassword(user),
     });
-
   } catch (error) {
     console.error("Error en login:", error);
-    return res.status(500).json({
-      messageFail: "Error en el servidor",
-      error: error.message
-    });
+    return res.status(500).json({ messageFail: "Server error", error: error.message });
   }
 };
-
-
 
 export const updateUser = async (req, res) => {
   try {
-    const keys = Object.keys(req.body);
-    const values = Object.values(req.body);
-    // Construye dinámicamente el SET usando los índices $1, $2, ...
-    const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ");
+    const data = { ...req.body };
 
-    // Añade el valor de ID al final para usarlo como último parámetro
-    values.push(req.params.id);
-
-    const query = `UPDATE Usuario SET ${setClause} WHERE id = $${values.length}`;
-
-    const result = await db.query(query, values);
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "No se encuentra registrado" });
+    if (data.password) {
+      data.passwordHash = await bcrypt.hash(data.password, 10);
+      delete data.password;
+    }
+    if (data.birthDate) {
+      data.birthDate = parseBirthDate(data.birthDate);
     }
 
-    res.json({ message: "Datos actualizados exitosamente" });
+    await prisma.appUser.update({
+      where: { id: req.params.id },
+      data,
+    });
+
+    res.json({ message: "Data updated successfully" });
   } catch (error) {
-    console.log(error);
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Record not found" });
+    }
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
+
 export const deleteUser = async (req, res) => {
   try {
-    const result = await db.query(
-      "DELETE FROM Usuario WHERE id = $1",
-      [req.params.id]
-    );
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "No se encuentra registrado" });
-    }
-
-    res.json({ message: "Registro eliminado exitosamente" });
+    await prisma.appUser.delete({ where: { id: req.params.id } });
+    res.json({ message: "Record deleted successfully" });
   } catch (error) {
-    console.log(error);
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Record not found" });
+    }
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };

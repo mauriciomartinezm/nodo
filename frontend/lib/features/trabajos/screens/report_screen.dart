@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/constants/api_constants.dart';
 import 'package:nodo/features/trabajos/screens/thanks_screen.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -56,6 +58,9 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> enviarReporte() async {
     if (selectedOption == null || selectedOption!.isEmpty) return;
 
+    final userId = Provider.of<UserProvider>(context, listen: false).user?.id;
+    if (userId == null) return;
+
     final url = Uri.parse(ApiConstants.createReport);
 
     try {
@@ -63,8 +68,9 @@ class _ReportScreenState extends State<ReportScreen> {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'id_publicacion': widget.jobId,
-          'razon': selectedOption,
+          'postId': widget.jobId,
+          'userId': userId,
+          'reason': selectedOption,
         }),
       );
 

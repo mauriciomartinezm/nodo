@@ -83,13 +83,13 @@ class CreatePostController extends ChangeNotifier {
       setLoading(true);
 
       final data = {
-        "id_cliente": userProvider.user?.id,
-        "titulo": tituloController.text,
-        "id_categorias": selectedCategories,
-        "ubicacion": ubicacionController.text,
-        "presupuesto": int.tryParse(presupuestoController.text) ?? 0,
-        "fecha_limite": fechaLimiteController.text,
-        "descripcion_necesidad": descripcionController.text,
+        "clientId": userProvider.user?.id,
+        "title": tituloController.text,
+        "specificCategoryIds": selectedCategories,
+        "location": ubicacionController.text,
+        "budget": int.tryParse(presupuestoController.text) ?? 0,
+        "deadline": fechaLimiteController.text,
+        "description": descripcionController.text,
       };
 
       final id = await _service.createPost(data);

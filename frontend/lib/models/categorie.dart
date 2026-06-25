@@ -1,24 +1,21 @@
 class Categorie {
   final String id;
-  final String nombre;
-  final String descripcion;
+  final String name;
 
-  Categorie({required this.id, required this.nombre, required this.descripcion});
+  Categorie({required this.id, required this.name});
 
   factory Categorie.fromJson(Map<String, dynamic> json) {
     return Categorie(
       id: json['id'],
-      nombre: json['nombre'],
-      descripcion: json['descripcion']
+      name: json['name'],
     );
   }
 
   @override
-  String toString() => nombre;
-  
+  String toString() => name;
+
   Map<String, dynamic> toJson() => {
         'id': id,
-        'nombre': nombre,
-        'descripcion': descripcion,
+        'name': name,
       };
 }

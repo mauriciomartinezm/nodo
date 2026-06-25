@@ -26,7 +26,7 @@ class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen>
   Future<void> _fetchCategorias() async {
     try {
       final response = await http.get(
-        Uri.parse(ApiConstants.getCategories),
+        Uri.parse(ApiConstants.getSpecificCategories),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -121,7 +121,7 @@ class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen>
                       final cat = categorias[i];
                       return CheckboxListTile(
                         controlAffinity: ListTileControlAffinity.leading,
-                        title: Text(cat['nombre_cat'], style: const TextStyle(color: Color(0xFF003366))),
+                        title: Text(cat['name'], style: const TextStyle(color: Color(0xFF003366))),
                         value: categoriasSeleccionadas.contains(cat['id']),
                         onChanged: (val) => toggleCategoria(cat['id'], val),
                       );

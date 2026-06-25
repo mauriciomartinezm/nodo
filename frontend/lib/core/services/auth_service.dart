@@ -12,14 +12,14 @@ class AuthService {
         Uri.parse(ApiConstants.login),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'identificador': identificador,
-          'contrasena': contrasena,
+          'identifier': identificador,
+          'password': contrasena,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final usuario = User.fromJson(data['usuario']);
+        final usuario = User.fromJson(data['user']);
         await _guardarTokenFCM(usuario.id);
         return usuario;
       } else {
@@ -50,7 +50,7 @@ class AuthService {
     final response = await http.post(
       Uri.parse(ApiConstants.saveToken),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id_usuario': userId, 'token': nuevoToken}),
+      body: jsonEncode({'userId': userId, 'token': nuevoToken}),
     );
 
     if (response.statusCode == 200) {
@@ -65,7 +65,7 @@ class AuthService {
     await http.put(
       Uri.parse(ApiConstants.deleteToken),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id_usuario': userId}),
+      body: jsonEncode({'userId': userId}),
     );
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('fcm_token');

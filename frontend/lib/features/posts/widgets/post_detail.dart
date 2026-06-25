@@ -30,45 +30,14 @@ class _PostDetailState extends State<PostDetail> {
   void initState() {
     super.initState();
     // Parsear las imágenes de la publicación
-    imageList = _parseImages(widget.publicacion['fotos']);
+    imageList = _parseImages(widget.publicacion['photos']);
   }
 
-  List<String> _parseImages(String fotosString) {
-    // Caso cuando no hay fotos
-    if (fotosString.isEmpty || fotosString == 'sin fotos') {
-      return [];
+  List<String> _parseImages(dynamic fotos) {
+    if (fotos is List) {
+      return fotos.map((url) => url.toString()).toList();
     }
-
-    try {
-      // Limpieza inicial del string
-      String cleanedString = fotosString.trim();
-
-      // Caso 1: Si es un JSON válido con escapes (menos común)
-      if (cleanedString.startsWith(r'{\"') || cleanedString.startsWith('{"')) {
-        cleanedString =
-            cleanedString.replaceAll(r'\"', '"').replaceAll('\\"', '"');
-      }
-
-      // Caso 2: Si tiene comillas dobles externas (como en tu ejemplo)
-      if (cleanedString.startsWith('{"') && cleanedString.endsWith('"}')) {
-        cleanedString = cleanedString.substring(1, cleanedString.length - 1);
-      }
-
-      // Reemplazar comillas dobles restantes si las hay
-      cleanedString = cleanedString.replaceAll('"', '');
-
-      // Dividir por comas y limpiar cada URL
-      List<String> urls = cleanedString
-          .split(',')
-          .map((url) => url.trim())
-          .where((url) => url.startsWith('http'))
-          .toList();
-
-      return urls;
-    } catch (e) {
-      print('Error parsing images: $e');
-      return [];
-    }
+    return [];
   }
 
   @override
@@ -93,23 +62,22 @@ class _PostDetailState extends State<PostDetail> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.publicacion['titulo'] ?? 'Sin título',
+                  widget.publicacion['title'] ?? 'Sin título',
                   style: AppTypography.label.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: 8.h),
                 _buildDetailInfo(
-                    widget.publicacion['descripcion_necesidad'] ??
-                        'Sin descripción',
+                    widget.publicacion['description'] ?? 'Sin descripción',
                     isDescription: true),
                 _buildDetailInfo(
-                    'Publicado: ${_formatDate(widget.publicacion['fecha_publicacion'])}'),
+                    'Publicado: ${_formatDate(widget.publicacion['postDate'])}'),
                 _buildDetailInfo(
-                    'Ubicación: ${widget.publicacion['ubicacion'] ?? 'Sin ubicación'}'),
+                    'Ubicación: ${widget.publicacion['location'] ?? 'Sin ubicación'}'),
                 _buildDetailInfo(
-                    'Fecha límite: ${_formatDate(widget.publicacion['fecha_limite'])}'),
+                    'Fecha límite: ${_formatDate(widget.publicacion['deadline'])}'),
                 _buildDetailInfo(
-                    'Presupuesto: \$${widget.publicacion['presupuesto']?.toString() ?? '0'}'),
-                _buildStatusInfo(widget.publicacion['estado']),
+                    'Presupuesto: \$${widget.publicacion['budget']?.toString() ?? '0'}'),
+                _buildStatusInfo(widget.publicacion['status']),
                 _buildActionButtons(),
               ],
             ),
@@ -230,13 +198,13 @@ class _PostDetailState extends State<PostDetail> {
   }
 
   Widget _buildActionButtons() {
-    final estado = widget.publicacion['estado'];
+    final estado = widget.publicacion['status'];
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          if (estado != 'en proceso' && estado != 'finalizada')
+          if (estado != 'in_progress' && estado != 'finished')
             _buildActionButton(
               Icons.edit_outlined,
               'Editar',
@@ -246,7 +214,7 @@ class _PostDetailState extends State<PostDetail> {
                 // Acción editar
               },
             ),
-          if (estado != 'en proceso' && estado != 'finalizada')
+          if (estado != 'in_progress' && estado != 'finished')
             _buildActionButton(
               Icons.person,
               'Postulaciones',
@@ -263,7 +231,7 @@ class _PostDetailState extends State<PostDetail> {
                 );
               },
             ),
-          if (estado == 'en proceso' && estado != 'finalizada')
+          if (estado == 'in_progress' && estado != 'finished')
             _buildActionButton(
               Icons.check_circle_outline,
               'Completado',
@@ -271,7 +239,7 @@ class _PostDetailState extends State<PostDetail> {
               AppColors.blue.withOpacity(0.2), // fondo azul
               () => _confirmarFinalizacion(widget.publicacion['id']),
             ),
-          if (estado != 'en proceso' && estado != 'finalizada')
+          if (estado != 'in_progress' && estado != 'finished')
             _buildActionButton(
               Icons.delete_outline,
               'Eliminar',
@@ -352,7 +320,7 @@ class _PostDetailState extends State<PostDetail> {
         }
 
         setState(() {
-          widget.publicacion['estado'] = 'finalizada';
+          widget.publicacion['status'] = 'finished';
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -373,12 +341,14 @@ class _PostDetailState extends State<PostDetail> {
 
   String _translateStatus(String status) {
     switch (status) {
-      case 'pendiente':
+      case 'pending':
         return 'Activa';
-      case 'en_proceso':
+      case 'in_progress':
         return 'En Proceso';
-      case 'finalizada':
+      case 'finished':
         return 'Finalizada';
+      case 'cancelled':
+        return 'Cancelada';
       default:
         return status;
     }

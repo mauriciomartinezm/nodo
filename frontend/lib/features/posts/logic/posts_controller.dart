@@ -81,7 +81,7 @@ class PostsController extends ChangeNotifier {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'id_publicacion': id_publicacion, // Usa la variable real aquí
+          'postId': id_publicacion,
         }),
       );
       print("STATUS CODE: ");
@@ -109,7 +109,7 @@ class PostsController extends ChangeNotifier {
 
   List<dynamic> filterPosts(String estado) {
     return _posts
-        .where((pub) => pub['estado'] == estado.toLowerCase())
+        .where((pub) => pub['status'] == estado.toLowerCase())
         .toList();
   }
 

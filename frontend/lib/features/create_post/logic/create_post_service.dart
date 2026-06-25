@@ -29,7 +29,7 @@ class CreatePostService {
     final response = await http.put(
       Uri.parse(ApiConstants.updatePost(postId)),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"fotos": urls}),
+      body: jsonEncode({"photos": urls}),
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {

@@ -130,7 +130,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               .contains(categoria.id);
                           return ChoiceChip(
                             label: Text(
-                              categoria.nombre,
+                              categoria.name,
                               style: AppTypography.body.copyWith(
                                 color: isSelected
                                     ? AppColors.white

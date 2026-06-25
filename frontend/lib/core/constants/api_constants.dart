@@ -15,9 +15,16 @@ class ApiConstants {
   static String updatePost(String id) => "$baseUrl/updatePost/$id";
   static String deletePost(String id) => "$baseUrl/deletePost/$id";
 
-  static String get getCategories => "$baseUrl/getCategories";
-  static String getCategory(String id) => "$baseUrl/getCategory/$id";
-  static String get createUserCategory => "$baseUrl/createUserCategory";
+  static String get getGeneralCategories => "$baseUrl/getGeneralCategories";
+  static String getGeneralCategory(String id) => "$baseUrl/getGeneralCategory/$id";
+  static String get createGeneralCategory => "$baseUrl/createGeneralCategory";
+
+  static String get getSpecificCategories => "$baseUrl/getSpecificCategories";
+  static String getSpecificCategory(String id) => "$baseUrl/getSpecificCategory/$id";
+  static String get createSpecificCategory => "$baseUrl/createSpecificCategory";
+
+  static String get getWorkerCategories => "$baseUrl/getWorkerCategories";
+  static String get createWorkerCategory => "$baseUrl/createWorkerCategory";
 
   static String get apply => "$baseUrl/apply";
   static String get finishJob => "$baseUrl/finishJob";

@@ -28,6 +28,7 @@ import 'package:nodo/features/trabajos/screens/jobs_screen_2.dart';
 import 'package:nodo/features/trabajos/screens/thanks_screen.dart';
 import 'package:nodo/core/services/notification_service.dart';
 import 'package:nodo/shared/providers/categorie_provider.dart';
+import 'package:nodo/shared/providers/general_category_provider.dart';
 import 'package:nodo/shared/providers/register_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -81,6 +82,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ValidationController()),
         ChangeNotifierProvider(create: (_) => ProfilePictureController()),
         ChangeNotifierProvider(create: (_) => CategorieProvider()),
+        ChangeNotifierProvider(create: (_) => GeneralCategoryProvider()),
 
       ],
       child: MyApp(firstTime: firstTime),
@@ -104,6 +106,7 @@ class MyApp extends StatelessWidget {
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CategorieProvider>(context, listen: false).cargarCategorias();
+      Provider.of<GeneralCategoryProvider>(context, listen: false).cargarCategorias();
     });
 
     return ScreenUtilInit(

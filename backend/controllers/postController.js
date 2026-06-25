@@ -1,235 +1,203 @@
-import { db } from "../database/db.js";
-import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
-import { saveNotification } from '../services/notificationService.js';
+import { prisma } from "../database/prisma.js";
 import { notifyWorkersByCategories } from "../services/notificationService.js";
+
+const postInclude = { photos: true, categories: { include: { specificCategory: true } } };
+
+function serializePost(post) {
+  if (!post) return post;
+  return {
+    ...post,
+    photos: (post.photos ?? [])
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((p) => p.url),
+  };
+}
+
 export const getPosts = async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM publicacion");
-    res.json(result.rows);
+    const posts = await prisma.post.findMany({ include: postInclude });
+    res.json(posts.map(serializePost));
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error interno del servidor", error: error.message });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
 export const getPost = async (req, res) => {
   try {
-    console.log(req.params.id);
-
-    const result = await db.query(
-      "SELECT * FROM publicacion WHERE id = $1",
-      [req.params.id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "No existen registros" });
-    }
-
-    res.json(result.rows);
-  } catch (error) {
-    if (!res.headersSent) {
-      res.status(500).json({ message: error.message });
-    }
-  }
-};
-export const getPostsByUserId = async (req, res) => {
-  try {
-    console.log(req.params.id);
-
-    const result = await db.query(
-      "SELECT * FROM publicacion WHERE id_cliente = $1",
-      [req.params.id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(200).json({ message: "No existen registros" });
-    }
-
-    res.json(result.rows);
-  } catch (error) {
-    if (!res.headersSent) {
-      res.status(500).json({ message: error.message });
-    }
-  }
-};
-//
-
-
-export const createPost = async (req, res) => {
-  console.log("Petición en /createPost. Cuerpo de la petición: ");
-  console.log(req.body);
-
-  try {
-    const {
-      id_cliente,
-      titulo,
-      id_categorias, // 👈 ahora es un arreglo de IDs
-      ubicacion,
-      presupuesto,
-      fecha_limite,
-      descripcion_necesidad,
-      fotos
-    } = req.body;
-
-    // Valor por defecto para fotos
-    const finalPhotos = fotos || "sin fotos";
-
-    // Validar campos obligatorios
-    if (!id_cliente || !id_categorias || !Array.isArray(id_categorias) || id_categorias.length === 0 ||
-        !titulo || !descripcion_necesidad || !ubicacion || !presupuesto || !fecha_limite) {
-      return res.status(400).json({ message: "Faltan campos obligatorios o categorías inválidas." });
-    }
-
-    // Validar que el cliente exista
-    const clientCheck = await db.query("SELECT id FROM Usuario WHERE id = $1", [id_cliente]);
-    if (clientCheck.rowCount === 0) {
-      return res.status(404).json({ message: "El Cliente no existe." });
-    }
-
-    // Validar que todas las categorías existan
-    const categoriesQuery = `
-      SELECT id, nombre_categoria FROM Categoria WHERE id = ANY($1)
-    `;
-    const categoriesResult = await db.query(categoriesQuery, [id_categorias]);
-
-    if (categoriesResult.rowCount !== id_categorias.length) {
-      return res.status(404).json({ message: "Una o más categorías no existen." });
-    }
-
-    // Generar ID para la publicación
-    const id = uuidv4();
-
-    // Insertar publicación (sin id_categoria)
-    const postQuery = `
-      INSERT INTO publicacion
-      (id, id_cliente, titulo, descripcion_necesidad, ubicacion, presupuesto, fecha_publicacion, fecha_limite, estado, fotos)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pendiente', $9)
-    `;
-    await db.query(postQuery, [
-      id,
-      id_cliente,
-      titulo,
-      descripcion_necesidad,
-      ubicacion,
-      presupuesto,
-      new Date(),
-      fecha_limite,
-      finalPhotos
-    ]);
-
-    // Insertar las relaciones en publicacion_categoria
-    for (const categoryId of id_categorias) {
-      await db.query(
-        "INSERT INTO publicacion_categoria (id_publicacion, id_categoria) VALUES ($1, $2)",
-        [id, categoryId]
-      );
-    }
-    // --- RESPUESTA ---
-    res.status(201).json({
-      id,
-      id_cliente,
-      id_categorias,
-      titulo,
-      descripcion_necesidad,
-      ubicacion,
-      presupuesto,
-      fecha_limite,
-      fotos: finalPhotos,
-      mensaje: "Publicación creada exitosamente"
+    const post = await prisma.post.findUnique({
+      where: { id: req.params.id },
+      include: postInclude,
     });
 
-    // --- LLAMAR SUBPROGRAMA DE NOTIFICACIONES ---
-    await notifyWorkersByCategories(id, id_cliente, id_categorias, categoriesResult);
+    if (!post) {
+      return res.status(404).json({ message: "No records found" });
+    }
 
-
+    res.json(serializePost(post));
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({ message: error.message });
+    }
   }
 };
 
+export const getPostsByUserId = async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      where: { clientId: req.params.id },
+      include: postInclude,
+    });
+
+    if (posts.length === 0) {
+      return res.status(200).json({ message: "No records found" });
+    }
+
+    res.json(posts.map(serializePost));
+  } catch (error) {
+    if (!res.headersSent) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+};
+
+export const createPost = async (req, res) => {
+  try {
+    const { clientId, title, specificCategoryIds, location, budget, deadline, description } = req.body;
+
+    if (
+      !clientId ||
+      !specificCategoryIds ||
+      !Array.isArray(specificCategoryIds) ||
+      specificCategoryIds.length === 0 ||
+      !title ||
+      !description ||
+      !location ||
+      !budget ||
+      !deadline
+    ) {
+      return res.status(400).json({ message: "Missing required fields or invalid categories." });
+    }
+
+    const client = await prisma.appUser.findUnique({ where: { id: clientId } });
+    if (!client) {
+      return res.status(404).json({ message: "Client does not exist." });
+    }
+
+    const matchingCategories = await prisma.specificCategory.findMany({
+      where: { id: { in: specificCategoryIds } },
+    });
+    if (matchingCategories.length !== specificCategoryIds.length) {
+      return res.status(404).json({ message: "One or more categories do not exist." });
+    }
+
+    const post = await prisma.post.create({
+      data: {
+        clientId,
+        title,
+        description,
+        location,
+        budget: Number(budget),
+        deadline: new Date(deadline),
+        status: "pending",
+        categories: {
+          create: specificCategoryIds.map((specificCategoryId) => ({ specificCategoryId })),
+        },
+      },
+      include: postInclude,
+    });
+
+    res.status(201).json({
+      ...serializePost(post),
+      message: "Post created successfully",
+    });
+
+    await notifyWorkersByCategories(post.id, clientId, specificCategoryIds);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// Max 10 photos per post, validated here since it can't be expressed as a
+// database constraint.
+export const addPostPhotos = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const { urls } = req.body;
+
+    if (!Array.isArray(urls) || urls.length === 0) {
+      return res.status(400).json({ message: "An 'urls' array with at least one element is required." });
+    }
+
+    const existingCount = await prisma.postPhoto.count({ where: { postId } });
+    if (existingCount + urls.length > 10) {
+      return res.status(400).json({
+        message: `This post already has ${existingCount} photos; it cannot exceed the maximum of 10.`,
+      });
+    }
+
+    const photos = await prisma.postPhoto.createMany({
+      data: urls.map((url, index) => ({
+        postId,
+        url,
+        sortOrder: existingCount + index,
+      })),
+    });
+
+    res.status(201).json({ message: "Photos added successfully", count: photos.count });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
 
 export const updatePost = async (req, res) => {
   try {
-    const keys = Object.keys(req.body);
-    const values = Object.values(req.body);
-
-    // Construye dinámicamente el SET usando los índices $1, $2, ...
-    const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ");
-
-    // Añade el valor de ID al final para usarlo como último parámetro
     const postId = req.params.id;
-    values.push(postId);
+    const data = { ...req.body };
 
-    const query = `UPDATE publicacion SET ${setClause} WHERE id = $${values.length}`;
-
-    const result = await db.query(query, values);
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "No se encuentra registrado" });
+    // Photos go to their own table, not a column on post.
+    if (data.photos) {
+      const urls = Array.isArray(data.photos) ? data.photos : [data.photos];
+      delete data.photos;
+      const existingCount = await prisma.postPhoto.count({ where: { postId } });
+      await prisma.postPhoto.createMany({
+        data: urls.map((url, index) => ({ postId, url, sortOrder: existingCount + index })),
+      });
     }
 
-    // 🔔 Si se está actualizando el estado a "finalizada"
-    /*if (req.body.estado && req.body.estado === "finalizada") {
-      // Obtener el id_cliente de la publicación
-      const workerResult = await db.query(
-        `SELECT id_trabajador FROM Postulacion WHERE id_publicacion = $1`,
-        [postId]
-      );
+    if (data.deadline) {
+      data.deadline = new Date(data.deadline);
+    }
 
-      if (workerResult.rows.length > 0) {
-        const workerId = workerResult.rows[0].id_trabajador;
+    if (Object.keys(data).length > 0) {
+      await prisma.post.update({ where: { id: postId }, data });
+    }
 
-        // 🔔 Aquí puedes llamar una función para enviar la notificación
-        await saveNotification(
-          workerId,
-          'trabajo completado',
-          'Trabajo finalizado',
-          'Tu trabajo ha sido finalizada con éxito. ¡No olvides dejar tu reseña!',
-          { publicacionId: req.params.id }
-        );
-
-      }
-    }*/
-
-    res.json({ message: "Datos actualizados exitosamente" });
+    res.json({ message: "Data updated successfully" });
   } catch (error) {
-    console.log(error);
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Record not found" });
+    }
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
-
 
 export const deletePost = async (req, res) => {
-  console.log("Petición en /deletePost/:id");
   try {
-    //const client = await db.connect(); // Inicia conexión manual si usas pool
-
-    //await client.query('BEGIN'); // Comienza transacción
-
-    // 1. Eliminar las postulaciones asociadas
-    //const result1 = await db.query(
-    //  'DELETE FROM postulacion WHERE id_publicacion = $1',
-    //  [req.params.id]
-    //);
-    //console.log(`Postulaciones eliminadas: ${result1.rowCount}`);
-    // 2. Eliminar la publicación
-    const result = await db.query(
-      'DELETE FROM publicacion WHERE id = $1',
-      [req.params.id]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'No se encuentra registrado' });
-    }
-
-    res.json({ message: 'Registro eliminado exitosamente' });
-
+    await prisma.post.delete({ where: { id: req.params.id } });
+    res.json({ message: "Record deleted successfully" });
   } catch (error) {
-    await db.query('ROLLBACK'); // Revierte si hay error
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Record not found" });
+    }
+    if (error.code === "P2003") {
+      return res.status(409).json({
+        message: "Cannot delete: this post has applications or other related records.",
+      });
+    }
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
-

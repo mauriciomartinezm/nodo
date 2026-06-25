@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:nodo/core/services/categorie_service.dart';
+import 'package:nodo/core/services/general_category_service.dart';
 import 'package:nodo/models/categorie.dart';
 
-class CategorieProvider extends ChangeNotifier {
-  final CategorieService _service = CategorieService();
+class GeneralCategoryProvider extends ChangeNotifier {
+  final GeneralCategoryService _service = GeneralCategoryService();
 
   List<Categorie> _categories = [];
   bool _isLoading = false;
@@ -13,8 +13,8 @@ class CategorieProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> cargarCategorias() async {
-    debugPrint('Cargando categorías en el provider...');
-    if (_loaded) return; // ⚡ evita múltiples peticiones
+    debugPrint('Cargando categorías generales en el provider...');
+    if (_loaded) return;
 
     _isLoading = true;
     notifyListeners();
@@ -23,17 +23,10 @@ class CategorieProvider extends ChangeNotifier {
       _categories = await _service.obtenerCategorias();
       _loaded = true;
     } catch (e) {
-      debugPrint('Error al cargar categorías: $e');
+      debugPrint('Error al cargar categorías generales: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
-  }
-
-  Categorie? obtenerPorId(String id) {
-    return _categories.firstWhere(
-      (c) => c.id == id,
-      orElse: () => Categorie(id: '', name: 'Unknown'),
-    );
   }
 }

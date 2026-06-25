@@ -15,8 +15,8 @@ class JobService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'publicacionId': publicacionId,
-          'trabajadorId': trabajadorId,
+          'postId': publicacionId,
+          'workerId': trabajadorId,
         }),
       );
       print("💬Respuesta del servidor: ");
@@ -70,7 +70,7 @@ class JobService {
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'estado': newStatus}),
+      body: jsonEncode({'status': newStatus}),
     );
 
     if (response.statusCode == 200) {
@@ -102,7 +102,7 @@ class JobService {
 
     final Map<String, String> names = {};
     final clientIds =
-        posts.map((p) => p['id_cliente']).toSet().toList();
+        posts.map((p) => p['clientId']).toSet().toList();
     for (final clientId in clientIds) {
       final response = await http.get(
         Uri.parse(ApiConstants.getUser(clientId)),
@@ -114,7 +114,7 @@ class JobService {
         final clientData = json.decode(response.body);
         print("Client Data");
         print(clientData);
-        names[clientId] = clientData['nombres'];
+        names[clientId] = clientData['firstName'];
       } else {
         names[clientId] = 'Cliente $clientId';
       }
@@ -188,7 +188,7 @@ class JobService {
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'id_postulacion': applicationId, // Usa la variable real aquí
+        'applicationId': applicationId,
       }),
     );
     print("STATUS CODE: ");

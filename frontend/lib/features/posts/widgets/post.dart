@@ -14,43 +14,17 @@ class PostCard extends StatelessWidget {
     required this.onDelete,
   });
 
-  List<String> _parseImages(String fotosString) {
-    if (fotosString.isEmpty || fotosString == 'sin fotos') {
-      return [];
+  List<String> _parseImages(dynamic fotos) {
+    if (fotos is List) {
+      return fotos.map((url) => url.toString()).toList();
     }
-
-    try {
-      String cleanedString = fotosString.trim();
-
-      // Caso 1: Si es un JSON válido con escapes
-      if (cleanedString.startsWith(r'{\"') || cleanedString.startsWith('{\"')) {
-        cleanedString =
-            cleanedString.replaceAll(r'\"', '"').replaceAll('\\"', '"');
-      }
-
-      // Caso 2: Si tiene comillas dobles externas
-      if (cleanedString.startsWith('{"') && cleanedString.endsWith('"}')) {
-        cleanedString = cleanedString.substring(1, cleanedString.length - 1);
-      }
-
-      // Limpieza final
-      cleanedString = cleanedString.replaceAll('"', '');
-
-      return cleanedString
-          .split(',')
-          .map((url) => url.trim())
-          .where((url) => url.startsWith('http'))
-          .toList();
-    } catch (e) {
-      print('Error parsing images: $e');
-      return [];
-    }
+    return [];
   }
 
   @override
   Widget build(BuildContext context) {
     // Parseamos las imágenes
-    final List<String> imagenes = _parseImages(item['fotos'] ?? '');
+    final List<String> imagenes = _parseImages(item['photos']);
     final bool tieneImagenes = imagenes.isNotEmpty;
     final String? primeraImagen = tieneImagenes ? imagenes.first : null;
 
@@ -94,7 +68,7 @@ class PostCard extends StatelessWidget {
           ),
           SizedBox(height: 8.h),
           Text(
-            item['titulo'] ?? 'Sin título',
+            item['title'] ?? 'Sin título',
             style: TextStyle(
               color: AppColors.blue,
               fontFamily: 'GothamMedium',
@@ -105,7 +79,7 @@ class PostCard extends StatelessWidget {
           ),
           SizedBox(height: 4.h),
           Text(
-            _formatDate(item['fecha_publicacion']),
+            _formatDate(item['postDate']),
             style: TextStyle(
               color: AppColors.blue,
               fontFamily: 'GothamBook',

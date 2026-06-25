@@ -103,7 +103,7 @@ class ProfilePictureController extends ChangeNotifier {
       final response = await http.put(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'foto_perfil': urlFoto}),
+        body: jsonEncode({'profilePhoto': urlFoto}),
       );
 
       if (response.statusCode != 200) {
@@ -124,8 +124,7 @@ class ProfilePictureController extends ChangeNotifier {
     try {
       final registerProvider =
           Provider.of<RegisterProvider>(context, listen: false);
-      //final id = registerProvider.id;
-      final id = "1040350494"; //for debugging
+      final id = registerProvider.id;
       if (id == null) throw Exception('ID de usuario no encontrado');
       uploadImageViaBackend(id, imageFile);
       /*

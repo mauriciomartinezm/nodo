@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -117,7 +117,7 @@ model AppUser {
   firstName        String   @map("first_name")
   lastName         String   @map("last_name")
   secondLastName   String?  @map("second_last_name")
-  nationalId       String   @unique @map("national_id")
+  dni              String   @unique
   email            String   @unique
   phone            String   @unique
   birthDate        DateTime @map("birth_date") @db.Date

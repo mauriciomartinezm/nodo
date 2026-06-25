@@ -17,13 +17,13 @@ class PostListView extends StatelessWidget {
   String _getEstadoForFilter(int filterIndex) {
     switch (filterIndex) {
       case 0:
-        return 'pendiente';
+        return 'pending';
       case 1:
-        return 'en proceso';
+        return 'in_progress';
       case 2:
-        return 'finalizada';
+        return 'finished';
       default:
-        return 'pendiente';
+        return 'pending';
     }
   }
 

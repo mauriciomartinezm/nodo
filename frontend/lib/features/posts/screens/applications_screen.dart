@@ -23,8 +23,6 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
   }
 
   Future<void> fetchApplications() async {
-    print("Fetch postulaciones, id publicacion: ");
-    print(widget.postId);
     final response = await http.get(
       Uri.parse(ApiConstants.getApplicationsByPostId(widget.postId)),
     );
@@ -33,36 +31,30 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
       final List<dynamic> data = jsonDecode(response.body);
       List<Map<String, dynamic>> tempList = [];
 
-      for (var post in data) {
+      for (var application in data) {
         final userResponse = await http.get(
-          Uri.parse(ApiConstants.getUser(post['id_trabajador'])),
+          Uri.parse(ApiConstants.getUser(application['workerId'])),
         );
 
         if (userResponse.statusCode == 200) {
           final user = jsonDecode(userResponse.body);
 
-          // Obtener el nombre de la categoría
-          String categoryName = "Sin categoría";
-          final categoryResponse = await http.get(
-            Uri.parse(ApiConstants.getCategory(user['id_categoria'])),
-          );
-          print("Usuario: ");
-          print(user);
-          if (categoryResponse.statusCode == 200) {
-            final category = jsonDecode(categoryResponse.body);
-            categoryName = category['nombre_cat'] ?? "Sin categoría";
-          }
+          final workerCategories = (user['worker']?['workerCategories'] as List?) ?? [];
+          final categoryName = workerCategories.isNotEmpty
+              ? workerCategories.map((wc) => wc['generalCategory']?['name']).join(', ')
+              : "Sin categoría";
+
           tempList.add({
-            'id_postulacion': post['id'],
-            'id_trabajador': user['id'],
-            'estado': post['estado'], // necesario?
-            'ubicacion': user['ubicacion'] ?? "Sin ubicación",
-            'telefono': user['telefono'] ?? "Sin teléfono",
-            'nombre': '${user['nombres']} ${user['primer_apellido']}',
-            'correo': user['email'],
-            'foto': user['foto_perfil'],
-            'descripcion': user['descripcion'],
-            'categoria': categoryName,
+            'applicationId': application['id'],
+            'workerId': user['id'],
+            'status': application['status'],
+            'location': user['location'] ?? "Sin ubicación",
+            'phone': user['phone'] ?? "Sin teléfono",
+            'name': '${user['firstName']} ${user['lastName']}',
+            'email': user['email'],
+            'photo': user['profilePhoto'],
+            'description': user['worker']?['description'],
+            'category': categoryName,
           });
         }
       }
@@ -72,7 +64,6 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
         isLoading = false;
       });
     } else {
-      // error al cargar
       setState(() {
         isLoading = false;
       });
@@ -80,12 +71,11 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
   }
 
   void acceptApplication(String applicationId) {
-    updateApplicationStatus(applicationId, "considerado");
-
+    updateApplicationStatus(applicationId, "accepted");
   }
 
   void rejectApplication(String applicationId) {
-    updateApplicationStatus(applicationId, "rechazado");
+    updateApplicationStatus(applicationId, "rejected");
   }
 
   void goToChat(String workerId, String name) {
@@ -102,21 +92,18 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
   Future<void> updateApplicationStatus(
       String applicationId, String newStatus) async {
-    final url =
-        Uri.parse(ApiConstants.updateApplication(applicationId));
+    final url = Uri.parse(ApiConstants.updateApplication(applicationId));
 
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'estado': newStatus}),
+      body: jsonEncode({'status': newStatus}),
     );
 
     if (response.statusCode == 200) {
-      // Opcional: mostrar snackbar o recargar datos
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Estado actualizado a "$newStatus"')),
       );
-      // Vuelve a cargar la lista
       fetchApplications();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -126,7 +113,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
   }
 
   bool hasAcceptedApplication() {
-    return applications.any((p) => p['estado'] == 'aceptado');
+    return applications.any((p) => p['status'] == 'accepted');
   }
 
   @override
@@ -143,14 +130,14 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                   margin: const EdgeInsets.all(10),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundImage: NetworkImage(post['foto']),
+                      backgroundImage: NetworkImage(post['photo']),
                     ),
-                    title: Text(post['nombre']),
+                    title: Text(post['name']),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(post['correo']),
-                        Text("Estado: ${post['estado']}"),
+                        Text(post['email']),
+                        Text("Estado: ${post['status']}"),
                       ],
                     ),
                     trailing: PopupMenuButton<String>(
@@ -159,20 +146,19 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                           showDialog(
                             context: context,
                             builder: (_) => AlertDialog(
-                              title: Text(post['nombre']),
+                              title: Text(post['name']),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Correo: ${post['correo']}"),
+                                  Text("Correo: ${post['email']}"),
                                   const SizedBox(height: 8),
-                                  Text("Ubicación: ${post['ubicacion']}"),
+                                  Text("Ubicación: ${post['location']}"),
                                   const SizedBox(height: 8),
-                                  Text("Categoría: ${post['categoria']}"),
+                                  Text("Categoría: ${post['category']}"),
                                   const SizedBox(height: 8),
                                   Text("Descripción:"),
-                                  Text(
-                                      post['descripcion'] ?? 'Sin descripción'),
+                                  Text(post['description'] ?? 'Sin descripción'),
                                 ],
                               ),
                               actions: [
@@ -184,11 +170,11 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                             ),
                           );
                         } else if (value == 'aceptar') {
-                          acceptApplication(post['id_postulacion']);
+                          acceptApplication(post['applicationId']);
                         } else if (value == 'rechazar') {
-                          rejectApplication(post['id_postulacion']);
+                          rejectApplication(post['applicationId']);
                         } else if (value == 'chat') {
-                          goToChat(post['id_trabajador'], post['nombre']);
+                          goToChat(post['workerId'], post['name']);
                         }
                       },
                       itemBuilder: (_) => [
@@ -196,13 +182,13 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                             value: 'info', child: Text("Ver info")),
                         PopupMenuItem(
                           value: 'aceptar',
-                          enabled: post['estado'] == 'pendiente' &&
+                          enabled: post['status'] == 'pending' &&
                               !hasAcceptedApplication(),
                           child: Text("Aceptar"),
                         ),
                         PopupMenuItem(
                           value: 'rechazar',
-                          enabled: post['estado'] == 'pendiente',
+                          enabled: post['status'] == 'pending',
                           child: Text("Rechazar"),
                         ),
                         PopupMenuItem(value: 'chat', child: Text("Chatear")),
