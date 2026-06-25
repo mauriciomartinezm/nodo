@@ -41,6 +41,11 @@ class CreatePostController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setCategories(List<String> categoryIds) {
+    selectedCategories = categoryIds;
+    notifyListeners();
+  }
+
   void setLocalImages(List<File> files) {
     localImages = files;
     notifyListeners();

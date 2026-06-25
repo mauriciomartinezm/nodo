@@ -7,7 +7,9 @@ import 'package:nodo/features/login/screens/login_screen.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final String? initialUserType;
+
+  const RegisterScreen({super.key, this.initialUserType});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -33,7 +35,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget getStepWidget() {
     switch (currentStep) {
       case 0:
-        return FormWidget(onContinue: nextStep);
+        return FormWidget(
+          onContinue: nextStep,
+          initialUserType: widget.initialUserType,
+        );
       case 1:
         return ValidationWidget(onContinue: nextStep);
       case 2:
@@ -51,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: AppColors.blue,
         toolbarHeight: 72.h,
         title: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             Image.asset(
               'assets/icons/iconNodoWhite.png',
@@ -62,14 +67,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
             SizedBox(width: 12.w),
             Text(
               'Registro',
-              style: AppTypography.subtitle.copyWith(
+              style: AppTypography.title.copyWith(
                 color: AppColors.white,
-                fontFamily: 'GothamBook',
+                // fontFamily: 'GothamBook',
               ),
             ),
           ],
         ),
-        centerTitle: true,
+        // centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              );
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.white,
+              overlayColor: Colors.transparent,
+            ),
+            child: const Text('Tengo una cuenta'),
+          ),
+        ],
       ),
       body: Container(
         width: double.infinity,

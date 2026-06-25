@@ -18,24 +18,21 @@ class AppColors {
 
 class AppTypography {
   static TextStyle title = const TextStyle(
-    fontFamily: 'GothamMedium',
+    fontFamily: 'GothamBold',
     fontSize: 18,
-    fontWeight: FontWeight.bold,
   );
 
   static TextStyle subtitle = const TextStyle(
     fontFamily: 'GothamMedium',
-    fontSize: 15,
-    fontWeight: FontWeight.bold,
-  );
-
-  static TextStyle label = const TextStyle(
-    fontFamily: 'GothamBook',
-    fontSize: 14,
-    fontWeight: FontWeight.bold,
+    fontSize: 16,
   );
 
   static TextStyle body = const TextStyle(
+    fontFamily: 'GothamBook',
+    fontSize: 14,
+  );
+
+  static TextStyle label = const TextStyle(
     fontFamily: 'GothamBook',
     fontSize: 13,
   );
@@ -79,11 +76,23 @@ final ThemeData appTheme = ThemeData(
 
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(color: AppColors.slateGrey, width: 2),
+      borderSide: BorderSide(color: AppColors.slateGrey),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(color: AppColors.blue, width: 2),
+      borderSide: BorderSide(color: AppColors.blue),
+    ),
+    disabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: AppColors.slateGrey),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: AppColors.error),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: AppColors.error),
     ),
   ),
 );

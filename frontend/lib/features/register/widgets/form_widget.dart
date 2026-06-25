@@ -3,14 +3,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/register/logic/register_controller.dart';
 import 'package:nodo/shared/providers/general_category_provider.dart';
+import 'package:nodo/models/categorie.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
+import 'package:nodo/shared/widgets/multi_select_dropdown.dart';
+import 'package:nodo/shared/widgets/password_form_field.dart';
 
 class FormWidget extends StatefulWidget {
   final VoidCallback onContinue; // 🔹 callback para avanzar al siguiente paso
+  final String? initialUserType;
 
-  const FormWidget({super.key, required this.onContinue});
+  const FormWidget({
+    super.key,
+    required this.onContinue,
+    this.initialUserType,
+  });
 
   @override
   State<FormWidget> createState() => _FormWidgetState();
@@ -20,6 +28,13 @@ class _FormWidgetState extends State<FormWidget> {
   String? selectedUserType;
   DateTime? selectedDate;
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePasswords = true;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedUserType = widget.initialUserType;
+  }
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lastName1Controller = TextEditingController();
@@ -34,12 +49,6 @@ class _FormWidgetState extends State<FormWidget> {
       TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
-  /*final List<Categorie> availableCategories = [
-    Categorie(id: '1', nombre: 'Carpintería', descripcion: ''),
-    Categorie(id: '2', nombre: 'Electricidad', descripcion: ''),
-    Categorie(id: '3', nombre: 'Fontanería', descripcion: ''),
-    Categorie(id: '4', nombre: 'Jardinería', descripcion: ''),
-  ];*/
   List<String> selectedCategories = [];
 
   @override
@@ -66,20 +75,23 @@ class _FormWidgetState extends State<FormWidget> {
                 // Texto introductorio
                 Text(
                   "En NODO creemos en el poder de unir necesidades con talentos. Regístrate y sé parte de una red que impulsa el trabajo real.",
-                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
+                  style: AppTypography.body.copyWith(color: AppColors.blue),
+                  textAlign: TextAlign.justify,
                 ),
 
                 SizedBox(height: categorySpacing),
 
                 Text(
                   "¿Cómo quieres comenzar en Nodo?",
-                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.orange),
+                  textAlign: TextAlign.center,
                 ),
                 SizedBox(height: textSpacing),
 
                 Text(
                   "Elige si deseas buscar servicios como cliente o empezar a trabajar ofreciendo tu talento.",
-                  style: AppTypography.label.copyWith(color: AppColors.blue),
+                  style: AppTypography.body.copyWith(color: AppColors.blue),
+                  textAlign: TextAlign.justify,
                 ),
                 SizedBox(height: textSpacing),
 
@@ -93,7 +105,7 @@ class _FormWidgetState extends State<FormWidget> {
                 DropdownButtonFormField<String>(
                   decoration:
                       const InputDecoration(labelText: "Tipo de usuario"),
-                  value: selectedUserType,
+                  initialValue: selectedUserType,
                   items: const [
                     DropdownMenuItem(value: "cliente", child: Text("Cliente")),
                     DropdownMenuItem(
@@ -265,9 +277,6 @@ class _FormWidgetState extends State<FormWidget> {
                         decoration: InputDecoration(
                           labelText: effectiveLabel,
                           errorText: field.errorText,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
                         ),
                         child: Text(
                           isEmpty
@@ -288,7 +297,8 @@ class _FormWidgetState extends State<FormWidget> {
                 if (selectedUserType == "trabajador") ...[
                   Text(
                     "Datos adicionales",
-                    style: AppTypography.subtitle.copyWith(color: AppColors.blue),
+                    style:
+                        AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: fieldSpacing),
                   TextFormField(
@@ -305,7 +315,8 @@ class _FormWidgetState extends State<FormWidget> {
                   SizedBox(height: fieldSpacing),
                   Text(
                     "Categorías de trabajo",
-                    style: AppTypography.subtitle.copyWith(color: AppColors.blue),
+                    style:
+                        AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: textSpacing),
                   Text(
@@ -313,38 +324,19 @@ class _FormWidgetState extends State<FormWidget> {
                     style: AppTypography.label.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: fieldSpacing),
-                  Wrap(
-                    spacing: 8.w,
-                    runSpacing: 8.h,
-                    children: categorieProvider.categories.map((categoria) {
-                      final isSelected =
-                          selectedCategories.contains(categoria.id);
-                      return ChoiceChip(
-                        label: Text(
-                          categoria.name,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.blue,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        selected: isSelected,
-                        selectedColor: AppColors.orange,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.r),
-                          side: BorderSide(color: AppColors.orange),
-                        ),
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              selectedCategories.add(categoria.id);
-                            } else {
-                              selectedCategories.remove(categoria.id);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
+                  MultiSelectDropdown<Categorie>(
+                    label: 'Categorías de trabajo',
+                    hint: 'Selecciona tus áreas de trabajo',
+                    options: categorieProvider.categories,
+                    selectedValues: categorieProvider.categories
+                        .where((c) => selectedCategories.contains(c.id))
+                        .toList(),
+                    labelBuilder: (categoria) => categoria.name,
+                    onChanged: (selected) {
+                      setState(() {
+                        selectedCategories = selected.map((c) => c.id).toList();
+                      });
+                    },
                   ),
                   SizedBox(height: fieldSpacing),
                   TextFormField(
@@ -370,15 +362,20 @@ class _FormWidgetState extends State<FormWidget> {
                 SizedBox(height: textSpacing),
 
                 Text(
-                  "Crea una contraseña segura para proteger tu cuenta. Debe tener mínimo 8 caracteres, combinar letras mayúsculas, minúsculas, números y símbolos.",
-                  style: AppTypography.body.copyWith(color: AppColors.blue),
+                  "Debe tener mínimo 8 caracteres, combinar letras mayúsculas, minúsculas, números y símbolos.",
+                  style: AppTypography.label.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: fieldSpacing),
 
-                TextFormField(
+                PasswordFormField(
                   controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: "Contraseña"),
+                  labelText: "Contraseña",
+                  obscureText: _obscurePasswords,
+                  onToggleVisibility: () {
+                    setState(() {
+                      _obscurePasswords = !_obscurePasswords;
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Este campo es obligatorio';
@@ -388,11 +385,10 @@ class _FormWidgetState extends State<FormWidget> {
                 ),
                 SizedBox(height: fieldSpacing),
 
-                TextFormField(
+                PasswordFormField(
                   controller: confirmPasswordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                      labelText: "Confirma tu contraseña"),
+                  labelText: "Confirma tu contraseña",
+                  obscureText: _obscurePasswords,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Este campo es obligatorio';
@@ -405,7 +401,7 @@ class _FormWidgetState extends State<FormWidget> {
                 ),
                 SizedBox(height: categorySpacing * 2),
                 CustomElevatedButton(
-                  text: "Continuar",
+                  text: "Completar registro",
                   onPressed: registerController.isLoading
                       ? null
                       : () async {

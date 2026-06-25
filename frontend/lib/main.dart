@@ -33,7 +33,7 @@ import 'package:nodo/shared/providers/register_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
-import 'package:nodo/features/welcome/widgets/welcome1.dart';
+import 'package:nodo/features/welcome/screens/welcome_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'shared/providers/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -141,7 +141,7 @@ class MyApp extends StatelessWidget {
           //home: firstTime ? const Welcome1Screen() : const LoginScreen(),
           // Sistema de rutas combinado
           routes: {
-            AppRoutes.welcome: (context) => const Welcome1Screen(),
+            AppRoutes.welcome: (context) => const WelcomeScreen(),
             AppRoutes.login: (context) => const LoginScreen(),
             '/home': (context) => const HomeScreen(),
             '/trabajos2': (context) => const JobsScreen2(),

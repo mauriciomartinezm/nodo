@@ -6,6 +6,8 @@ import 'package:nodo/features/create_post/widgets/header_info_widget.dart';
 import 'package:nodo/shared/providers/categorie_provider.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
+import 'package:nodo/shared/widgets/multi_select_dropdown.dart';
+import 'package:nodo/models/categorie.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/widgets/upload_photo_widget.dart';
@@ -122,38 +124,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             AppTypography.label.copyWith(color: AppColors.blue),
                       ),
                       SizedBox(height: 8.h),
-                      Wrap(
-                        spacing: 8.w,
-                        runSpacing: 8.h,
-                        children: categorieProvider.categories.map((categoria) {
-                          final isSelected = controller.selectedCategories
-                              .contains(categoria.id);
-                          return ChoiceChip(
-                            label: Text(
-                              categoria.name,
-                              style: AppTypography.body.copyWith(
-                                color: isSelected
-                                    ? AppColors.white
-                                    : AppColors.blue,
-                              ),
-                            ),
-                            selected: isSelected,
-                            showCheckmark: false,
-                            backgroundColor:
-                                AppColors.blue.withValues(alpha: 0.05),
-                            selectedColor: AppColors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: BorderSide(
-                                color: isSelected
-                                    ? AppColors.blue
-                                    : AppColors.blue.withValues(alpha: 0.3),
-                              ),
-                            ),
-                            onSelected: (_) =>
-                                controller.toggleCategory(categoria.id),
-                          );
-                        }).toList(),
+                      MultiSelectDropdown<Categorie>(
+                        label: 'Categoría del servicio',
+                        hint: 'Selecciona una o varias categorías',
+                        options: categorieProvider.categories,
+                        selectedValues: categorieProvider.categories
+                            .where((c) => controller.selectedCategories
+                                .contains(c.id))
+                            .toList(),
+                        labelBuilder: (categoria) => categoria.name,
+                        onChanged: (selected) => controller
+                            .setCategories(selected.map((c) => c.id).toList()),
                       ),
                       SizedBox(height: 20.h),
                       _sectionLabel(

@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:nodo/features/login/logic/login_controller.dart';
 import 'package:nodo/features/register/screens/register_screen.dart';
-import 'package:nodo/features/welcome/widgets/welcome3.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/providers/user_provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
@@ -22,6 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController();
   final TextEditingController _contrasenaController = TextEditingController();
 
+  bool _obscurePassword = true;
+
   late LoginController _loginController;
 
   @override
@@ -32,8 +33,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final bool _loading = userProvider.isLoading;
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(children: [
@@ -97,9 +96,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 34.5.h,
                     child: TextField(
                       controller: _contrasenaController,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: "Contraseña",
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: AppColors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -118,17 +130,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     margin: EdgeInsets.only(
                       top: 17.25.h,
                     ),
-                    child: CustomElevatedButton(
-                      text: "Iniciar sesión",
-                      onPressed: _loading
-                          ? null
-                          : () async {
-                              await _loginController.login(
-                                _identificadorController.text.trim(),
-                                _contrasenaController.text.trim(),
-                              );
-                            },
-                      loading: _loading,
+                    child: Selector<UserProvider, bool>(
+                      selector: (_, provider) => provider.isLoading,
+                      builder: (_, loading, __) => CustomElevatedButton(
+                        text: "Iniciar sesión",
+                        onPressed: loading
+                            ? null
+                            : () async {
+                                await _loginController.login(
+                                  _identificadorController.text.trim(),
+                                  _contrasenaController.text.trim(),
+                                );
+                              },
+                        loading: loading,
+                      ),
                     ),
                   ),
                   Row(

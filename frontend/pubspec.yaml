@@ -114,6 +114,12 @@ flutter:
     - family: GothamMedium
       fonts:
         - asset: assets/fonts/GothamMedium.ttf
+    - family: GothamBlack
+      fonts:
+        - asset: assets/fonts/Gotham-Black.otf
+    - family: GothamBold
+      fonts:
+        - asset: assets/fonts/Gotham-Bold.otf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

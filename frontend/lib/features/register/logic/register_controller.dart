@@ -101,16 +101,34 @@ class RegisterController extends ChangeNotifier {
       } else {
         debugPrint("❌ Error al registrar: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al registrar usuario.')),
+          SnackBar(
+            content: Text(_friendlyRegisterError(response)),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
       debugPrint("⚠️ Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error de conexión.')),
+        const SnackBar(
+          content: Text(
+              'No pudimos conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       _setLoading(false);
+    }
+  }
+
+  String _friendlyRegisterError(http.Response response) {
+    switch (response.statusCode) {
+      case 409:
+        return 'Ya existe una cuenta con esa cédula, correo o teléfono.';
+      case 400:
+        return 'Revisa los datos del formulario: hay campos inválidos o incompletos.';
+      default:
+        return 'No pudimos completar el registro. Intenta de nuevo en unos minutos.';
     }
   }
 

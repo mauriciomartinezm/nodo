@@ -22,9 +22,18 @@ class LoginController {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        SnackBar(
+          content: Text(_cleanMessage(e)),
+          backgroundColor: Colors.red,
+        ),
       );
     }
+  }
+
+  String _cleanMessage(Object error) {
+    final text = error.toString();
+    return text.startsWith('Exception: ') ? text.substring(11) : text;
   }
 }

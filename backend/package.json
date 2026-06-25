@@ -20,9 +20,13 @@
   "scripts": {
     "start": "node -r dotenv/config server.js",
     "predev": "kill-port 3001",
-    "dev": "nodemon -r dotenv/config server.js"
+    "dev": "nodemon -r dotenv/config server.js",
+    "seed": "node -r dotenv/config prisma/seed.js"
   },
   "devDependencies": {
     "kill-port": "^2.0.1"
+  },
+  "prisma": {
+    "seed": "node -r dotenv/config prisma/seed.js"
   }
 }
