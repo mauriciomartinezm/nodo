@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -44,70 +45,106 @@ class _UploadPhotoWidgetState extends State<UploadPhotoWidget> {
     });
   }
 
+  Widget _buildThumbnail(File imagen, int index) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 72.w,
+          height: 72.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.blue.withValues(alpha: 0.12),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: kIsWeb
+                ? Image.network(
+                    imagen.path,
+                    width: 72.w,
+                    height: 72.h,
+                    fit: BoxFit.cover,
+                  )
+                : Image.file(
+                    imagen,
+                    width: 72.w,
+                    height: 72.h,
+                    fit: BoxFit.cover,
+                  ),
+          ),
+        ),
+        Positioned(
+          top: -6,
+          right: -6,
+          child: GestureDetector(
+            onTap: () => _removeImage(index),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.orange,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.white, width: 1.5),
+              ),
+              padding: const EdgeInsets.all(3),
+              child: Icon(
+                Icons.close,
+                size: 13.r,
+                color: AppColors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          onTap: _selectImages,
-          child: Container(
-            height: 100.h,
-            width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.slateGrey, width: 2.r),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: _images.isEmpty
-                ? Center(
-                    child: Text(
-                      'Seleccionar imágenes',
-                      style: AppTypography.body
-                          .copyWith(color: AppColors.slateGrey),
-                    ),
-                  )
-                : Wrap(
-                    spacing: 8.w,
-                    runSpacing: 8.h,
-                    children: _images.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final imagen = entry.value;
-                      return Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: Image.file(
-                              imagen,
-                              width: 60.w,
-                              height: 60.h,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: () => _removeImage(index),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.6),
-                                  shape: BoxShape.circle,
-                                ),
-                                padding: const EdgeInsets.all(2),
-                                child: Icon(
-                                  Icons.close,
-                                  size: 14.r,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }).toList(),
+        Wrap(
+          spacing: 10.w,
+          runSpacing: 10.h,
+          children: [
+            ..._images
+                .asMap()
+                .entries
+                .map((entry) => _buildThumbnail(entry.value, entry.key)),
+            GestureDetector(
+              onTap: _selectImages,
+              child: Container(
+                width: 72.w,
+                height: 72.h,
+                decoration: BoxDecoration(
+                  color: AppColors.blue.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.blue.withValues(alpha: 0.4),
+                    width: 1.4,
                   ),
-          ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_a_photo_outlined,
+                        size: 22.r, color: AppColors.blue),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Agregar',
+                      style:
+                          AppTypography.caption.copyWith(color: AppColors.blue),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

@@ -29,17 +29,59 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     super.dispose();
   }
 
+  // Widget para mostrar la sección con un ícono y un texto
+  Widget _sectionLabel(IconData icon, String text) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      child: Row(
+        children: [
+          Icon(icon, size: 14.r, color: AppColors.blue),
+          SizedBox(width: 5.w),
+          Text(
+            text,
+            style: AppTypography.label.copyWith(color: AppColors.blue),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<CreatePostController>();
     final categorieProvider = context.watch<CategorieProvider>();
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userProvider = context.watch<UserProvider>();
+    final fotoPerfil = userProvider.user?.fotoPerfil;
 
     if (categorieProvider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
+      backgroundColor: AppColors.blue.withValues(alpha: 0.03),
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        title: Text(
+          "Crear publicación",
+          style: AppTypography.title.copyWith(color: AppColors.orange),
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 16.w),
+            child: CircleAvatar(
+              radius: 18.r,
+              backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+              backgroundImage: fotoPerfil != null && fotoPerfil.isNotEmpty
+                  ? NetworkImage(fotoPerfil)
+                  : null,
+              child: fotoPerfil == null || fotoPerfil.isEmpty
+                  ? Icon(Icons.person, color: AppColors.orange, size: 18.r)
+                  : null,
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -48,21 +90,41 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const HeaderInfoWidget(),
-                SizedBox(height: 20.h),
+                const HeaderInfoWidget(), // Muestra el nombre y la profesión del usuario
+                SizedBox(height: 16.h),
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 25.w),
+                  margin: EdgeInsets.symmetric(horizontal: 18.w),
+                  padding: EdgeInsets.all(18.r),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.blue.withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CustomTextField("Título", controller.tituloController),
-                      SizedBox(height: 10.h),
-                      Text(
-                        "Seleccione la(s) categoría(s) de su servicio",
-                        style: AppTypography.label.copyWith(color: AppColors.blue),
+                      _sectionLabel(Icons.edit_outlined, "¿Qué necesitas?"),
+                      CustomTextField(
+                        "Título *",
+                        controller.tituloController,
+                        icon: Icons.title,
                       ),
+                      SizedBox(height: 16.h),
+                      Text(
+                        "Categoría del servicio *",
+                        style:
+                            AppTypography.label.copyWith(color: AppColors.blue),
+                      ),
+                      SizedBox(height: 8.h),
                       Wrap(
                         spacing: 8.w,
+                        runSpacing: 8.h,
                         children: categorieProvider.categories.map((categoria) {
                           final isSelected = controller.selectedCategories
                               .contains(categoria.id);
@@ -76,33 +138,41 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               ),
                             ),
                             selected: isSelected,
+                            showCheckmark: false,
+                            backgroundColor:
+                                AppColors.blue.withValues(alpha: 0.05),
                             selectedColor: AppColors.blue,
-                            checkmarkColor: AppColors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(
+                                color: isSelected
+                                    ? AppColors.blue
+                                    : AppColors.blue.withValues(alpha: 0.3),
                               ),
-                              side: BorderSide(color: AppColors.blue),
                             ),
                             onSelected: (_) =>
                                 controller.toggleCategory(categoria.id),
                           );
                         }).toList(),
                       ),
-                      SizedBox(height: 10.h),
-
+                      SizedBox(height: 20.h),
+                      _sectionLabel(
+                          Icons.info_outline, "Detalles de la solicitud"),
                       CustomTextField(
-                          "Ubicación", controller.ubicacionController),
-                      SizedBox(height: 10.h),
-
+                        "Ubicación *",
+                        controller.ubicacionController,
+                        icon: Icons.location_on_outlined,
+                      ),
+                      SizedBox(height: 12.h),
                       CustomTextField(
-                          "Presupuesto", controller.presupuestoController,
-                          isNumber: true),
-                      SizedBox(height: 10.h),
-
+                        "Presupuesto *",
+                        controller.presupuestoController,
+                        isNumber: true,
+                        icon: Icons.attach_money,
+                      ),
+                      SizedBox(height: 12.h),
                       CustomDatePicker(
-                        label: "Fecha límite",
+                        label: "Fecha límite *",
                         controller: controller.fechaLimiteController,
                         initialDate:
                             DateTime.now().add(const Duration(days: 7)),
@@ -110,42 +180,60 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         lastDate: DateTime(2100),
                         emptyFocusNode: _emptyFocusNode,
                       ),
-                      SizedBox(height: 10.h),
-
+                      SizedBox(height: 12.h),
                       DescripcionField(
                           controller: controller.descripcionController),
-                      SizedBox(height: 10.h),
-
-                      // --- Subida de fotos (locales) ---
+                      SizedBox(height: 20.h),
+                      _sectionLabel(
+                          Icons.photo_library_outlined, "Fotos (opcional)"),
                       UploadPhotoWidget(
                         key: ValueKey(controller.localImages),
                         onImagesSelected: controller.setLocalImages,
                         initialImages: controller.localImages,
                       ),
-
                       if (controller.errorMessage != null) ...[
-                        SizedBox(height: 10.h),
-                        Text(
-                          controller.errorMessage!,
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 10.sp,
+                        SizedBox(height: 12.h),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                              vertical: 8.h, horizontal: 12.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.error.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: AppColors.error.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.error_outline,
+                                  size: 16.r, color: AppColors.error),
+                              SizedBox(width: 6.w),
+                              Expanded(
+                                child: Text(
+                                  controller.errorMessage!,
+                                  style: AppTypography.caption
+                                      .copyWith(color: AppColors.error),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-
-                      SizedBox(height: 15.h),
-
-                      CustomElevatedButton(
-                        text: "Publicar",
-                        onPressed: controller.isLoading
-                            ? null
-                            : () async {
-                                await controller
-                                    .createPost(context, userProvider);
-                              },
-                        loading: controller.isLoading,
-                      )
+                      SizedBox(height: 20.h),
+                      SizedBox(
+                        width: double.infinity,
+                        child: CustomElevatedButton(
+                          text: "Publicar",
+                          icon: Icons.send_outlined,
+                          onPressed: controller.isLoading
+                              ? null
+                              : () async {
+                                  await controller.createPost(
+                                      context, userProvider);
+                                },
+                          loading: controller.isLoading,
+                        ),
+                      ),
                     ],
                   ),
                 ),
