@@ -111,8 +111,9 @@ class PostListView extends StatelessWidget {
       padding: EdgeInsets.all(16.r),
       child: GridView.count(
         crossAxisCount: 2,
-        crossAxisSpacing: 20.w,
-        mainAxisSpacing: 10.h,
+        crossAxisSpacing: 8.w,
+        mainAxisSpacing: 8.h,
+        childAspectRatio: 0.82,
         children: items.map((item) {
           return PostCard(
             item: item,

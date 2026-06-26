@@ -4,6 +4,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nodo/features/posts/screens/applications_screen.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:nodo/features/posts/logic/posts_controller.dart';
+import 'package:nodo/features/posts/utils/post_format_utils.dart';
+import 'package:nodo/features/posts/utils/post_status.dart';
 
 class PostDetail extends StatefulWidget {
   final dynamic publicacion;
@@ -30,14 +32,7 @@ class _PostDetailState extends State<PostDetail> {
   @override
   void initState() {
     super.initState();
-    imageList = _parseImages(widget.publicacion['photos']);
-  }
-
-  List<String> _parseImages(dynamic fotos) {
-    if (fotos is List) {
-      return fotos.map((url) => url.toString()).toList();
-    }
-    return [];
+    imageList = parsePostImages(widget.publicacion['photos']);
   }
 
   @override
@@ -103,7 +98,7 @@ class _PostDetailState extends State<PostDetail> {
                     _buildInfoRow(
                       Icons.calendar_today_outlined,
                       'Publicado',
-                      _formatDate(widget.publicacion['postDate']),
+                      formatPostDate(widget.publicacion['postDate']),
                     ),
                     _buildInfoRow(
                       Icons.location_on_outlined,
@@ -113,7 +108,7 @@ class _PostDetailState extends State<PostDetail> {
                     _buildInfoRow(
                       Icons.event_outlined,
                       'Fecha límite',
-                      _formatDate(widget.publicacion['deadline']),
+                      formatPostDate(widget.publicacion['deadline']),
                     ),
                     _buildInfoRow(
                       Icons.attach_money,
@@ -232,7 +227,7 @@ class _PostDetailState extends State<PostDetail> {
   }
 
   Widget _buildStatusChip(String status) {
-    final color = _statusColor(status);
+    final color = postStatusColor(status);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
@@ -240,27 +235,12 @@ class _PostDetailState extends State<PostDetail> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        _translateStatus(status),
+        translatePostStatus(status),
         style: AppTypography.caption.copyWith(
           color: color,
         ),
       ),
     );
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'pending':
-        return AppColors.orange;
-      case 'in_progress':
-        return AppColors.blue;
-      case 'finished':
-        return AppColors.success;
-      case 'cancelled':
-        return AppColors.error;
-      default:
-        return AppColors.grey;
-    }
   }
 
   Widget _buildActionButtons() {
@@ -391,27 +371,4 @@ class _PostDetailState extends State<PostDetail> {
     }
   }
 
-  String _formatDate(String dateString) {
-    try {
-      final date = DateTime.parse(dateString);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (e) {
-      return dateString;
-    }
-  }
-
-  String _translateStatus(String status) {
-    switch (status) {
-      case 'pending':
-        return 'Activa';
-      case 'in_progress':
-        return 'En Proceso';
-      case 'finished':
-        return 'Finalizada';
-      case 'cancelled':
-        return 'Cancelada';
-      default:
-        return status;
-    }
-  }
 }

@@ -3,29 +3,6 @@ import 'dart:convert';
 import '../../../core/constants/api_constants.dart';
 import '../../../shared/providers/user_provider.dart';
 
-class Application {
-  final String id;
-  final String idTrabajador;
-  final String nombre;
-  final String estado;
-
-  Application({
-    required this.id,
-    required this.idTrabajador,
-    required this.nombre,
-    required this.estado,
-  });
-
-  factory Application.fromJson(Map<String, dynamic> json) {
-    return Application(
-      id: json['id'],
-      idTrabajador: json['workerId'],
-      nombre: json['nombre'] ?? 'Sin nombre',
-      estado: json['status'],
-    );
-  }
-}
-
 class PostsService {
   final UserProvider userProvider;
 
@@ -59,39 +36,18 @@ class PostsService {
     return response.statusCode == 200;
   }
 
-  Future<List<Application>> getApplications(String postId) async {
-    final url = Uri.parse(ApiConstants.getApplicationsByPostId(postId));
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final list = List<Map<String, dynamic>>.from(data);
-      return list.map((json) => Application.fromJson(json)).toList();
-    } else {
-      return [];
-    }
+  Future<bool> finishJob(String postId) async {
+    final response = await http.put(
+      Uri.parse(ApiConstants.finishJob),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'postId': postId}),
+    );
+    return response.statusCode == 200;
   }
 
   Future<bool> updatePost(
       String postId, Map<String, dynamic> data) async {
     final url = Uri.parse(ApiConstants.updatePost(postId));
-
-    final response = await http.put(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      print('Error al actualizar publicación: ${response.body}');
-      return false;
-    }
-  }
-  Future<bool> updateApplication(
-      String applicationId, Map<String, dynamic> data) async {
-    final url = Uri.parse(ApiConstants.updateApplication(applicationId));
 
     final response = await http.put(
       url,

@@ -97,13 +97,29 @@ export const getApplicationsByPostId = async (req, res) => {
   try {
     const applications = await prisma.application.findMany({
       where: { postId: req.params.id },
+      include: {
+        worker: {
+          include: {
+            user: true,
+            workerCategories: { include: { generalCategory: true } },
+          },
+        },
+      },
     });
 
     if (applications.length === 0) {
       return res.status(204).json({ message: "No records found" });
     }
 
-    res.status(200).json(applications);
+    const sanitized = applications.map((application) => {
+      const { passwordHash, fcmToken, ...user } = application.worker.user;
+      return {
+        ...application,
+        worker: { ...application.worker, user },
+      };
+    });
+
+    res.status(200).json(sanitized);
   } catch (error) {
     if (!res.headersSent) {
       res.status(500).json({ message: error.message });

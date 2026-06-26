@@ -1,203 +1,176 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:nodo/core/constants/api_constants.dart';
+import 'package:provider/provider.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/chat/screens/Chat1.dart';
+import 'package:nodo/features/posts/logic/applications_controller.dart';
+import 'package:nodo/features/posts/logic/applications_service.dart';
+import 'package:nodo/features/posts/models/job_application.dart';
 
-class ApplicationsScreen extends StatefulWidget {
+class ApplicationsScreen extends StatelessWidget {
   final String postId;
   const ApplicationsScreen({super.key, required this.postId});
 
   @override
-  State<ApplicationsScreen> createState() => _ApplicationsScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => ApplicationsController(ApplicationsService(), postId),
+      child: const _ApplicationsView(),
+    );
+  }
 }
 
-class _ApplicationsScreenState extends State<ApplicationsScreen> {
-  List<Map<String, dynamic>> applications = [];
-  bool isLoading = true;
+class _ApplicationsView extends StatelessWidget {
+  const _ApplicationsView();
 
-  @override
-  void initState() {
-    super.initState();
-    fetchApplications();
-  }
-
-  Future<void> fetchApplications() async {
-    final response = await http.get(
-      Uri.parse(ApiConstants.getApplicationsByPostId(widget.postId)),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      List<Map<String, dynamic>> tempList = [];
-
-      for (var application in data) {
-        final userResponse = await http.get(
-          Uri.parse(ApiConstants.getUser(application['workerId'])),
-        );
-
-        if (userResponse.statusCode == 200) {
-          final user = jsonDecode(userResponse.body);
-
-          final workerCategories = (user['worker']?['workerCategories'] as List?) ?? [];
-          final categoryName = workerCategories.isNotEmpty
-              ? workerCategories.map((wc) => wc['generalCategory']?['name']).join(', ')
-              : "Sin categoría";
-
-          tempList.add({
-            'applicationId': application['id'],
-            'workerId': user['id'],
-            'status': application['status'],
-            'location': user['location'] ?? "Sin ubicación",
-            'phone': user['phone'] ?? "Sin teléfono",
-            'name': '${user['firstName']} ${user['lastName']}',
-            'email': user['email'],
-            'photo': user['profilePhoto'],
-            'description': user['worker']?['description'],
-            'category': categoryName,
-          });
-        }
-      }
-
-      setState(() {
-        applications = tempList;
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  void acceptApplication(String applicationId) {
-    updateApplicationStatus(applicationId, "accepted");
-  }
-
-  void rejectApplication(String applicationId) {
-    updateApplicationStatus(applicationId, "rejected");
-  }
-
-  void goToChat(String workerId, String name) {
+  void _goToChat(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ChatScreen(
-            //receptorId: workerId,
-            //receptorNombre: name,
-            ),
+      MaterialPageRoute(builder: (context) => const ChatScreen()),
+    );
+  }
+
+  void _showInfoDialog(BuildContext context, JobApplication application) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(application.workerName),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Correo: ${application.workerEmail}'),
+            const SizedBox(height: 8),
+            Text('Ubicación: ${application.workerLocation}'),
+            const SizedBox(height: 8),
+            Text('Categoría: ${application.workerCategory}'),
+            const SizedBox(height: 8),
+            const Text('Descripción:'),
+            Text(application.workerDescription ?? 'Sin descripción'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> updateApplicationStatus(
-      String applicationId, String newStatus) async {
-    final url = Uri.parse(ApiConstants.updateApplication(applicationId));
-
-    final response = await http.put(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'status': newStatus}),
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Estado actualizado a "$newStatus"')),
-      );
-      fetchApplications();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al actualizar la postulación')),
-      );
+  Future<void> _handleAction(
+    BuildContext context,
+    ApplicationsController controller,
+    String value,
+    JobApplication application,
+  ) async {
+    switch (value) {
+      case 'info':
+        _showInfoDialog(context, application);
+        return;
+      case 'chat':
+        _goToChat(context);
+        return;
+      case 'aceptar':
+      case 'rechazar':
+        final success = value == 'aceptar'
+            ? await controller.acceptApplication(application.id)
+            : await controller.rejectApplication(application.id);
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(success
+                ? 'Estado actualizado correctamente'
+                : 'Error al actualizar la postulación'),
+          ),
+        );
     }
-  }
-
-  bool hasAcceptedApplication() {
-    return applications.any((p) => p['status'] == 'accepted');
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<ApplicationsController>();
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Postulaciones")),
-      body: isLoading
+      appBar: AppBar(
+        title: Text(
+          'Postulaciones',
+          style: AppTypography.title.copyWith(color: AppColors.orange),
+        ),
+      ),
+      body: controller.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: applications.length,
-              itemBuilder: (context, index) {
-                final post = applications[index];
-                return Card(
-                  margin: const EdgeInsets.all(10),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(post['photo']),
-                    ),
-                    title: Text(post['name']),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(post['email']),
-                        Text("Estado: ${post['status']}"),
-                      ],
-                    ),
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (value) {
-                        if (value == 'info') {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: Text(post['name']),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Correo: ${post['email']}"),
-                                  const SizedBox(height: 8),
-                                  Text("Ubicación: ${post['location']}"),
-                                  const SizedBox(height: 8),
-                                  Text("Categoría: ${post['category']}"),
-                                  const SizedBox(height: 8),
-                                  Text("Descripción:"),
-                                  Text(post['description'] ?? 'Sin descripción'),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("Cerrar"),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else if (value == 'aceptar') {
-                          acceptApplication(post['applicationId']);
-                        } else if (value == 'rechazar') {
-                          rejectApplication(post['applicationId']);
-                        } else if (value == 'chat') {
-                          goToChat(post['workerId'], post['name']);
-                        }
-                      },
-                      itemBuilder: (_) => [
-                        const PopupMenuItem(
-                            value: 'info', child: Text("Ver info")),
-                        PopupMenuItem(
-                          value: 'aceptar',
-                          enabled: post['status'] == 'pending' &&
-                              !hasAcceptedApplication(),
-                          child: Text("Aceptar"),
-                        ),
-                        PopupMenuItem(
-                          value: 'rechazar',
-                          enabled: post['status'] == 'pending',
-                          child: Text("Rechazar"),
-                        ),
-                        PopupMenuItem(value: 'chat', child: Text("Chatear")),
-                      ],
-                    ),
+          : controller.applications.isEmpty
+              ? Center(
+                  child: Text(
+                    'Aún no hay postulaciones para esta publicación',
+                    style: AppTypography.body.copyWith(color: AppColors.blue),
+                    textAlign: TextAlign.center,
                   ),
-                );
-              },
-            ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: controller.applications.length,
+                  itemBuilder: (context, index) {
+                    final application = controller.applications[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: AppColors.slateGrey.withValues(alpha: 0.3)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+                          backgroundImage: (application.workerPhoto != null &&
+                                  application.workerPhoto!.isNotEmpty)
+                              ? NetworkImage(application.workerPhoto!)
+                              : null,
+                          child: (application.workerPhoto == null ||
+                                  application.workerPhoto!.isEmpty)
+                              ? Icon(Icons.person, color: AppColors.blue)
+                              : null,
+                        ),
+                        title: Text(
+                          application.workerName,
+                          style: AppTypography.label
+                              .copyWith(color: AppColors.blue),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(application.workerEmail,
+                                style: AppTypography.caption),
+                            Text('Estado: ${application.status}',
+                                style: AppTypography.caption),
+                          ],
+                        ),
+                        trailing: PopupMenuButton<String>(
+                          onSelected: (value) =>
+                              _handleAction(context, controller, value, application),
+                          itemBuilder: (_) => [
+                            const PopupMenuItem(
+                                value: 'info', child: Text('Ver info')),
+                            PopupMenuItem(
+                              value: 'aceptar',
+                              enabled: application.status == 'pending' &&
+                                  !controller.hasAcceptedApplication,
+                              child: const Text('Aceptar'),
+                            ),
+                            PopupMenuItem(
+                              value: 'rechazar',
+                              enabled: application.status == 'pending',
+                              child: const Text('Rechazar'),
+                            ),
+                            const PopupMenuItem(
+                                value: 'chat', child: Text('Chatear')),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

@@ -1,9 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:nodo/core/constants/api_constants.dart';
 import 'posts_service.dart';
-import 'package:http/http.dart' as http;
 
 class PostsController extends ChangeNotifier {
   final PostsService _service;
@@ -70,30 +66,16 @@ class PostsController extends ChangeNotifier {
     }
   }
 
-  Future<bool> finishJob(String id_publicacion) async {
-    print("❕❕❕❕Finalizando trabajo");
-
+  Future<bool> finishJob(String postId) async {
     try {
       _setLoading(true);
-      final url = Uri.parse(ApiConstants.finishJob);
-
-      final response = await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'postId': id_publicacion,
-        }),
-      );
-      print("STATUS CODE: ");
-      print(response.statusCode);
-
-      if (response.statusCode == 200) {
+      final success = await _service.finishJob(postId);
+      if (success) {
         await loadPosts(); // Recarga la lista si todo va bien
-        return true;
       } else {
         _errorMessage = 'No se pudo finalizar el trabajo o la postulación.';
-        return false;
       }
+      return success;
     } catch (e) {
       _errorMessage = 'Error al finalizar trabajo: ${e.toString()}';
       return false;
