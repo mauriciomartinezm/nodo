@@ -26,6 +26,8 @@ class ApiConstants {
   static String get getWorkerCategories => "$baseUrl/getWorkerCategories";
   static String get createWorkerCategory => "$baseUrl/createWorkerCategory";
 
+  static String get getLocations => "$baseUrl/getLocations";
+
   static String get apply => "$baseUrl/apply";
   static String get finishJob => "$baseUrl/finishJob";
   static String getApplicationsByPostId(String id) =>

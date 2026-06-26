@@ -22,8 +22,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<Widget> _screens;
   bool _initialized = false;
 
-  
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -36,31 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
-/*
-  void initState() {
-    super.initState();
-    _initializeScreens();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    });
-  }
-*/
-  /*void _initializeScreens() {
-    _screens = [
-      const PostsScreen(),
-      trabajosScreen,
-      const CreatePostScreen(),
-      const NotificationsScreen(),
-      const ChatScreen(),
-    ];
-  }*/
 
   void _initializeScreens() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    final Widget trabajosScreen = userProvider.isWorker
-        ? const JobsScreen2()
-        : const JobsScreen1();
+    final Widget trabajosScreen =
+        userProvider.isWorker ? const JobsScreen2() : const JobsScreen1();
 
     _screens = [
       const PostsScreen(),
@@ -77,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-     final userProvider = Provider.of<UserProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.user;
 
     return Scaffold(
@@ -85,6 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
         index: currentPageIndex,
         children: _screens,
       ),
+
+      //Boton flotante para crear publicación
       floatingActionButton: FloatingActionButton(
         onPressed: _openCreatePost,
         backgroundColor: AppColors.orange,
@@ -99,6 +80,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 Navigator.pushNamed(context, '/ProfileScreen');
               },
+
+              //Header
               child: Container(
                 width: double.infinity,
                 padding:
@@ -110,13 +93,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 child: Row(
-
                   //Avatar
                   children: [
                     Consumer<UserProvider>(
                       builder: (context, userProvider, child) {
                         final fotoPerfil = userProvider.user?.fotoPerfil;
-
+                        // Si no hay foto de perfil, muestra un icono por defecto
                         return CircleAvatar(
                           radius: 30,
                           backgroundColor: AppColors.white,
@@ -143,14 +125,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row( 
+                          Row(
                             children: [
                               Text("${user?.nombres.split(' ').first}",
                                   style: AppTypography.subtitle
                                       .copyWith(color: AppColors.white)),
-                              
-                              Text(
-                                  ' ${user?.primerApellido}' ,
+                              Text(' ${user?.primerApellido}',
                                   style: AppTypography.subtitle
                                       .copyWith(color: AppColors.white)),
                             ],
@@ -172,11 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            drawerTile(Icons.settings, "Ajustes", '/SettingsScreen'),
-
-            if (user?.tipoUsuario != 'trabajador') 
-            drawerTile(Icons.work_rounded, "Trabajar con NODO", '/workWNodo'),
-            drawerTile(Icons.info_rounded, "Acerca de", '/About'),
+            drawerTile(Icons.settings_outlined, "Ajustes", '/SettingsScreen'),
+            if (user?.tipoUsuario != 'trabajador')
+              drawerTile(Icons.work_outline_sharp, "Trabajar con NODO", '/workWNodo'),
+            drawerTile(Icons.info_outlined, "Acerca de", '/About'),
             const Spacer(),
             Divider(color: Colors.grey.shade300),
             Padding(
@@ -207,39 +186,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
 
                   if (confirm == true) {
-                      // Muestra un indicador de carga
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => PopScope(
-                          canPop: false,
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                      );
+                    // Muestra un indicador de carga
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => PopScope(
+                        canPop: false,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    );
 
-                      // Ejecuta el logout (que ahora incluye toda la limpieza)
-                      await Provider.of<UserProvider>(context, listen: false)
-                          .logout();
-                      print("Usuario desloggeado");
-                      // Navega al login
-                      // 5. Navegar al login - FORMA CORREGIDA
-                      Navigator.of(context, rootNavigator: true)
-                          .pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => LoginScreen()),
-                        (route) => false,
-                      );
-                    }
+                    // Ejecuta el logout (que ahora incluye toda la limpieza)
+                    await Provider.of<UserProvider>(context, listen: false)
+                        .logout();
+                    print("Usuario desloggeado");
+                    // Navega al login
+                    // 5. Navegar al login - FORMA CORREGIDA
+                    Navigator.of(context, rootNavigator: true)
+                        .pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => LoginScreen()),
+                      (route) => false,
+                    );
+                  }
                 },
                 child: Row(
                   children: [
                     const Icon(Icons.power_settings_new_rounded,
-                        color: AppColors.blue),
-                    const SizedBox(width: 10),
+                        color: AppColors.blue, size: 20),
+                    const SizedBox(width: 5),
                     Text("Cerrar sesión",
-                        style: AppTypography.body.copyWith(color: AppColors.blue)),
+                        style: AppTypography.caption
+                            .copyWith(color: AppColors.blue)),
                     const Spacer(),
                     Text("Versión 1.0",
-                        style: AppTypography.label.copyWith(color: Colors.grey)),
+                        style: AppTypography.caption
+                            .copyWith(color: AppColors.grey)),
                   ],
                 ),
               ),
@@ -260,8 +241,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget drawerTile(IconData icon, String title, String routeName) {
     return ListTile(
+      horizontalTitleGap: 8,
       leading: Icon(icon, color: AppColors.blue),
-      title: Text(title, style: AppTypography.subtitle),
+      title: Text(title, style: AppTypography.body),
       onTap: () {
         Navigator.pushNamed(context, routeName);
       },

@@ -13,7 +13,7 @@ export const getGeneralCategories = async (req, res) => {
 
 export const getGeneralCategory = async (req, res) => {
   try {
-    const category = await prisma.generalCategory.findUnique({ where: { id: req.params.id } });
+    const category = await prisma.generalCategory.findUnique({ where: { id: Number(req.params.id) } });
     if (!category) {
       return res.status(404).json({ message: "No records found" });
     }
@@ -50,7 +50,7 @@ export const getSpecificCategories = async (req, res) => {
 
 export const getSpecificCategory = async (req, res) => {
   try {
-    const category = await prisma.specificCategory.findUnique({ where: { id: req.params.id } });
+    const category = await prisma.specificCategory.findUnique({ where: { id: Number(req.params.id) } });
     if (!category) {
       return res.status(404).json({ message: "No records found" });
     }
@@ -76,7 +76,9 @@ export const createSpecificCategory = async (req, res) => {
       data: {
         name,
         hierarchyLinks: {
-          create: generalCategoryIds.map((generalCategoryId) => ({ generalCategoryId })),
+          create: generalCategoryIds.map((generalCategoryId) => ({
+            generalCategoryId: Number(generalCategoryId),
+          })),
         },
       },
       include: { hierarchyLinks: true },
@@ -115,7 +117,7 @@ export const createWorkerCategory = async (req, res) => {
     await prisma.workerCategory.createMany({
       data: generalCategoryIds.map((generalCategoryId) => ({
         workerId,
-        generalCategoryId: generalCategoryId.trim(),
+        generalCategoryId: Number(generalCategoryId),
       })),
       skipDuplicates: true,
     });

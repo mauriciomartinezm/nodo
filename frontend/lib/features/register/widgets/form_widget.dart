@@ -3,12 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/register/logic/register_controller.dart';
 import 'package:nodo/shared/providers/general_category_provider.dart';
+import 'package:nodo/shared/providers/location_provider.dart';
 import 'package:nodo/models/categorie.dart';
+import 'package:nodo/models/location.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:nodo/shared/widgets/multi_select_dropdown.dart';
 import 'package:nodo/shared/widgets/password_form_field.dart';
+import 'package:nodo/shared/widgets/searchable_dropdown_field.dart';
 
 class FormWidget extends StatefulWidget {
   final VoidCallback onContinue; // 🔹 callback para avanzar al siguiente paso
@@ -54,6 +57,7 @@ class _FormWidgetState extends State<FormWidget> {
   @override
   Widget build(BuildContext context) {
     final categorieProvider = context.watch<GeneralCategoryProvider>();
+    final locationProvider = context.watch<LocationProvider>();
     if (categorieProvider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -301,20 +305,23 @@ class _FormWidgetState extends State<FormWidget> {
                         AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: fieldSpacing),
-                  TextFormField(
-                    controller: locationController,
-                    decoration: const InputDecoration(
-                        labelText: "Ubicación o zona de servicio"),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Este campo es obligatorio';
-                      }
-                      return null;
-                    },
+                  SearchableDropdownField<Location>(
+                    label: "Ubicación o zona de servicio",
+                    icon: Icons.location_on_outlined,
+                    searchHint: "Buscar ubicación...",
+                    emptyMessage: "No se encontraron ubicaciones",
+                    options: locationProvider.locations,
+                    labelBuilder: (location) => location.name,
+                    value: locationProvider.locations.cast<Location?>().firstWhere(
+                          (l) => l!.name == locationController.text,
+                          orElse: () => null,
+                        ),
+                    onChanged: (location) =>
+                        setState(() => locationController.text = location.name),
                   ),
                   SizedBox(height: fieldSpacing),
                   Text(
-                    "Categorías de trabajo",
+                    "Rubros",
                     style:
                         AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
@@ -325,8 +332,8 @@ class _FormWidgetState extends State<FormWidget> {
                   ),
                   SizedBox(height: fieldSpacing),
                   MultiSelectDropdown<Categorie>(
-                    label: 'Categorías de trabajo',
-                    hint: 'Selecciona tus áreas de trabajo',
+                    label: 'Rubros',
+                    hint: 'Selecciona tus rubros',
                     options: categorieProvider.categories,
                     selectedValues: categorieProvider.categories
                         .where((c) => selectedCategories.contains(c.id))
@@ -408,13 +415,26 @@ class _FormWidgetState extends State<FormWidget> {
                           // Validar formulario general
                           if (!_formKey.currentState!.validate()) return;
 
+                          // Validar ubicación si es trabajador (no es un TextFormField, no la valida el Form)
+                          if (selectedUserType == "trabajador" &&
+                              locationController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('Por favor selecciona tu ubicación'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
                           // Validar que seleccione al menos una categoría si es trabajador
                           if (selectedUserType == "trabajador" &&
                               selectedCategories.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                    'Por favor selecciona al menos una categoría'),
+                                    'Por favor selecciona al menos un rubro'),
                                 backgroundColor: Colors.red,
                               ),
                             );

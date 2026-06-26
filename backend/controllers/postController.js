@@ -83,10 +83,12 @@ export const createPost = async (req, res) => {
       return res.status(404).json({ message: "Client does not exist." });
     }
 
+    const categoryIds = specificCategoryIds.map(Number);
+
     const matchingCategories = await prisma.specificCategory.findMany({
-      where: { id: { in: specificCategoryIds } },
+      where: { id: { in: categoryIds } },
     });
-    if (matchingCategories.length !== specificCategoryIds.length) {
+    if (matchingCategories.length !== categoryIds.length) {
       return res.status(404).json({ message: "One or more categories do not exist." });
     }
 
@@ -100,7 +102,7 @@ export const createPost = async (req, res) => {
         deadline: new Date(deadline),
         status: "pending",
         categories: {
-          create: specificCategoryIds.map((specificCategoryId) => ({ specificCategoryId })),
+          create: categoryIds.map((specificCategoryId) => ({ specificCategoryId })),
         },
       },
       include: postInclude,
@@ -111,7 +113,7 @@ export const createPost = async (req, res) => {
       message: "Post created successfully",
     });
 
-    await notifyWorkersByCategories(post.id, clientId, specificCategoryIds);
+    await notifyWorkersByCategories(post.id, clientId, categoryIds);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error", error: error.message });
@@ -164,6 +166,24 @@ export const updatePost = async (req, res) => {
       await prisma.postPhoto.createMany({
         data: urls.map((url, index) => ({ postId, url, sortOrder: existingCount + index })),
       });
+    }
+
+    // Categories are a relation, not a scalar column: replace the set.
+    if (data.specificCategoryIds) {
+      const categoryIds = data.specificCategoryIds.map(Number);
+      delete data.specificCategoryIds;
+
+      const matchingCategories = await prisma.specificCategory.findMany({
+        where: { id: { in: categoryIds } },
+      });
+      if (matchingCategories.length !== categoryIds.length) {
+        return res.status(404).json({ message: "One or more categories do not exist." });
+      }
+
+      data.categories = {
+        deleteMany: {},
+        create: categoryIds.map((specificCategoryId) => ({ specificCategoryId })),
+      };
     }
 
     if (data.deadline) {

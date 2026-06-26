@@ -242,7 +242,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         children: [
           const SizedBox(height: 110),
           const Text(
-            'Publica una solicitud y recibe ofertas de trabajadores calificados em segundos. O si eres trbajador, recibe oportunidaes directamente en tu categoría',
+            'Publica una solicitud y recibe ofertas de trabajadores calificados em segundos. O si eres trbajador, recibe oportunidaes directamente en tu rubro',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18, color: Colors.white),
           ),

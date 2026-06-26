@@ -58,7 +58,7 @@ class CategoryFilterScreen extends StatelessWidget {
               // Lista de filtros
               const _FilterItem(
                 icon: Icons.grid_view_rounded,
-                label: 'Categoría',
+                label: 'Tipo de trabajo',
               ),
               const _FilterItem(
                 icon: Icons.location_on_outlined,
@@ -118,7 +118,7 @@ class _FilterItem extends StatelessWidget {
         style: AppTypography.subtitle.copyWith(color: const Color(0xFF003366)),
       ),
       onTap: () async {
-        if (label == 'Categoría') {
+        if (label == 'Tipo de trabajo') {
           final resultado = await showModalBottomSheet<List<String>>(
             context: context,
             isScrollControlled: true,

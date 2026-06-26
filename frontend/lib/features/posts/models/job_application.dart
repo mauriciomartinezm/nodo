@@ -34,7 +34,7 @@ class JobApplication {
             .map((wc) => wc['generalCategory']?['name'])
             .where((name) => name != null)
             .join(', ')
-        : 'Sin categoría';
+        : 'Sin rubro';
 
     return JobApplication(
       id: json['id'],

@@ -97,7 +97,7 @@ class _NotificationSettingsScreenState
             _buildSwitchTile(
               title: 'Notificaciones en tiempo real',
               subtitle:
-                  'Recibe una notificación cada vez que un cliente publique un servicio de tu categoría.',
+                  'Recibe una notificación cada vez que un cliente publique un servicio de tu rubro.',
               value: activeNotification == 'tiempoReal',
               onChanged: (val) {
                 if (!disableAll) {
@@ -114,7 +114,7 @@ class _NotificationSettingsScreenState
             _buildSwitchTile(
               title: 'Resumen en tiempo real',
               subtitle:
-                  'Recibe un resumen de las nuevas publicaciones en tu categoría cada cierto tiempo.',
+                  'Recibe un resumen de las nuevas publicaciones en tu rubro cada cierto tiempo.',
               value: activeNotification == 'resumen',
               onChanged: (val) {
                 if (!disableAll) {

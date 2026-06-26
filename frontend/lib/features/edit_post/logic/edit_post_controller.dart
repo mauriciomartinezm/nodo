@@ -1,17 +1,38 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
-import 'package:nodo/shared/providers/user_provider.dart';
+import 'package:nodo/features/posts/logic/posts_controller.dart';
 
-class CreatePostController extends ChangeNotifier {
+class EditPostController extends ChangeNotifier {
   final CreatePostService _service;
+  final PostsController postsController;
+  final String postId;
 
-  CreatePostController(this._service);
+  EditPostController(this._service, this.postsController, this.postId, dynamic post) {
+    tituloController.text = post['title'] ?? '';
+    ubicacionController.text = post['location'] ?? '';
+    presupuestoController.text = post['budget']?.toString() ?? '';
+    descripcionController.text = post['description'] ?? '';
+    final deadline = post['deadline'];
+    if (deadline != null) {
+      fechaLimiteController.text = deadline.toString().substring(0, 10);
+    }
+    final categories = post['categories'];
+    if (categories is List) {
+      selectedCategories = categories
+          .map((c) => c['specificCategory']?['id'] ?? c['specificCategoryId'])
+          .whereType<String>()
+          .toList();
+    }
+    final photos = post['photos'];
+    if (photos is List) {
+      existingPhotos = photos.whereType<String>().toList();
+    }
+  }
 
   bool isLoading = false;
   String? errorMessage;
 
-  // Campos
   final tituloController = TextEditingController();
   final ubicacionController = TextEditingController();
   final presupuestoController = TextEditingController();
@@ -19,8 +40,8 @@ class CreatePostController extends ChangeNotifier {
   final descripcionController = TextEditingController();
 
   List<String> selectedCategories = [];
-  List<File> localImages = []; // imágenes locales
-  List<String> imageUrls = []; // URLs tras subida
+  List<String> existingPhotos = [];
+  List<File> newLocalImages = [];
 
   void setErrorMessage(String? message) {
     errorMessage = message;
@@ -29,15 +50,6 @@ class CreatePostController extends ChangeNotifier {
 
   void setLoading(bool value) {
     isLoading = value;
-    notifyListeners();
-  }
-
-  void toggleCategory(String categoryId) {
-    if (selectedCategories.contains(categoryId)) {
-      selectedCategories.remove(categoryId);
-    } else {
-      selectedCategories.add(categoryId);
-    }
     notifyListeners();
   }
 
@@ -51,21 +63,8 @@ class CreatePostController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setLocalImages(List<File> files) {
-    localImages = files;
-    notifyListeners();
-  }
-
-  void clearForm() {
-    tituloController.clear();
-    ubicacionController.clear();
-    presupuestoController.clear();
-    fechaLimiteController.clear();
-    descripcionController.clear();
-    selectedCategories.clear();
-    localImages.clear();
-    imageUrls.clear();
-    errorMessage = null;
+  void setNewLocalImages(List<File> files) {
+    newLocalImages = files;
     notifyListeners();
   }
 
@@ -83,17 +82,13 @@ class CreatePostController extends ChangeNotifier {
     return true;
   }
 
-  Future<void> createPost(
-    BuildContext context,
-    UserProvider userProvider,
-  ) async {
-    if (!validateFields()) return;
+  Future<bool> saveChanges(BuildContext context) async {
+    if (!validateFields()) return false;
 
     try {
       setLoading(true);
 
       final data = {
-        "clientId": userProvider.user?.id,
         "title": tituloController.text,
         "specificCategoryIds": selectedCategories,
         "location": ubicacionController.text,
@@ -102,19 +97,22 @@ class CreatePostController extends ChangeNotifier {
         "description": descripcionController.text,
       };
 
-      final id = await _service.createPost(data);
-      // 🔹 Subir imágenes solo ahora
-      final urls = await _service.uploadImagesToFirebase(id!, localImages);
-      // 2️⃣ Actualizar con fotos si existen
-      if (urls.isNotEmpty) {
-        await _service.updatePhotos(id, urls);
+      if (newLocalImages.isNotEmpty) {
+        final urls =
+            await _service.uploadImagesToFirebase(postId, newLocalImages);
+        if (urls.isNotEmpty) {
+          data["photos"] = urls;
+        }
       }
-      clearForm();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Publicación creada correctamente')),
-      );
+
+      final success = await postsController.updatePost(postId, data);
+      if (!success) {
+        setErrorMessage(postsController.errorMessage);
+      }
+      return success;
     } catch (e) {
-      setErrorMessage("Error al crear la publicación: $e");
+      setErrorMessage("Error al actualizar la publicación: $e");
+      return false;
     } finally {
       setLoading(false);
     }

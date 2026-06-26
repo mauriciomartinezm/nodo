@@ -114,6 +114,21 @@ const dataset = [
   },
 ];
 
+// Los 11 municipios oficiales de la subregión de Urabá (Antioquia).
+const locations = [
+  "Apartadó",
+  "Turbo",
+  "Chigorodó",
+  "Carepa",
+  "Necoclí",
+  "Arboletes",
+  "San Juan de Urabá",
+  "San Pedro de Urabá",
+  "Mutatá",
+  "Murindó",
+  "Vigía del Fuerte",
+];
+
 async function main() {
   console.log("Limpiando categorías existentes...");
   // Hay que limpiar primero las tablas que referencian a las categorías
@@ -152,6 +167,15 @@ async function main() {
   }
 
   console.log("Categorías insertadas correctamente.");
+
+  console.log("Limpiando ubicaciones existentes...");
+  await prisma.location.deleteMany();
+
+  await prisma.location.createMany({
+    data: locations.map((name) => ({ name })),
+  });
+
+  console.log("Ubicaciones insertadas correctamente.");
 }
 
 main()

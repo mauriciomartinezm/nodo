@@ -6,7 +6,7 @@ class Categorie {
 
   factory Categorie.fromJson(Map<String, dynamic> json) {
     return Categorie(
-      id: json['id'],
+      id: json['id'].toString(),
       name: json['name'],
     );
   }

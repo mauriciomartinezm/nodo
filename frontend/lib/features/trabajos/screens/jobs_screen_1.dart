@@ -9,11 +9,11 @@ class JobsScreen1 extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Trabajos',
-          style: TextStyle(
-            color: Color(0xFF003366), // Azul oscuro
-          ),
+          style: AppTypography.subtitle.copyWith(
+              color: const Color(0xFF003366),
+            ),
         ),
         elevation: 0,
         centerTitle: false,

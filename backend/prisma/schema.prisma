@@ -79,8 +79,10 @@ enum ReportStatus {
 
 // ===== CATEGORIES =====
 
+// Lookup/auxiliary table: low cardinality, heavily joined, never a target
+// of authorization checks, so a sequential int id is fine performance-wise.
 model GeneralCategory {
-  id   String @id @default(uuid())
+  id   Int    @id @default(autoincrement())
   name String
 
   hierarchyLinks   CategoryHierarchy[]
@@ -90,7 +92,7 @@ model GeneralCategory {
 }
 
 model SpecificCategory {
-  id   String @id @default(uuid())
+  id   Int    @id @default(autoincrement())
   name String
 
   hierarchyLinks CategoryHierarchy[]
@@ -100,14 +102,21 @@ model SpecificCategory {
 }
 
 model CategoryHierarchy {
-  generalCategoryId  String @map("general_category_id")
-  specificCategoryId String @map("specific_category_id")
+  generalCategoryId  Int @map("general_category_id")
+  specificCategoryId Int @map("specific_category_id")
 
   generalCategory  GeneralCategory  @relation(fields: [generalCategoryId], references: [id])
   specificCategory SpecificCategory @relation(fields: [specificCategoryId], references: [id])
 
   @@id([generalCategoryId, specificCategoryId])
   @@map("category_hierarchy")
+}
+
+model Location {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  @@map("location")
 }
 
 // ===== USERS =====
@@ -174,7 +183,7 @@ model Worker {
 
 model WorkerCategory {
   workerId          String @map("worker_id")
-  generalCategoryId String @map("general_category_id")
+  generalCategoryId Int    @map("general_category_id")
 
   worker          Worker          @relation(fields: [workerId], references: [userId])
   generalCategory GeneralCategory @relation(fields: [generalCategoryId], references: [id])
@@ -206,21 +215,21 @@ model Post {
 }
 
 model PostPhoto {
-  id        String @id @default(uuid())
+  id        Int    @id @default(autoincrement())
   postId    String @map("post_id")
   url       String
   sortOrder Int?   @map("sort_order")
 
-  post Post @relation(fields: [postId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@map("post_photo")
 }
 
 model PostCategory {
   postId             String @map("post_id")
-  specificCategoryId String @map("specific_category_id")
+  specificCategoryId Int    @map("specific_category_id")
 
-  post             Post             @relation(fields: [postId], references: [id])
+  post             Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
   specificCategory SpecificCategory @relation(fields: [specificCategoryId], references: [id])
 
   @@id([postId, specificCategoryId])
@@ -292,7 +301,7 @@ model Service {
 // this ledger, so it can never drift out of sync.
 
 model BalanceMovement {
-  id           String              @id @default(uuid())
+  id           Int                 @id @default(autoincrement())
   workerId     String              @map("worker_id")
   type         BalanceMovementType
   amount       Float
@@ -396,7 +405,7 @@ model Dispute {
 }
 
 model DisputeEvidence {
-  id        String @id @default(uuid())
+  id        Int    @id @default(autoincrement())
   disputeId String @map("dispute_id")
   url       String
 

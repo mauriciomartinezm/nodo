@@ -122,7 +122,7 @@ class WorkWtNodo extends StatelessWidget {
       {
         'title': 'Consigue clientes fácilmente',
         'desc':
-            'Accede a nuevas oportunidades laborales de manera sencilla. Recibe notificaciones cada vez que se publique una solicitud en tu categoría y elige las que mejor se adapten a tus habilidades y disponibilidad.',
+            'Accede a nuevas oportunidades laborales de manera sencilla. Recibe notificaciones cada vez que se publique una solicitud en tu rubro y elige las que mejor se adapten a tus habilidades y disponibilidad.',
       },
       {
         'title': 'Gana por lo que sabes hacer',

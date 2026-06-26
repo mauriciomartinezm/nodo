@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../logic/posts_controller.dart';
@@ -78,7 +79,7 @@ class PostListView extends StatelessWidget {
               } catch (e) {
                 Navigator.of(context).pop(false);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
+                  SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
                 );
               }
             },
@@ -90,7 +91,7 @@ class PostListView extends StatelessWidget {
 
     if (confirmed == true && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Publicación eliminada')),
+        const SnackBar(content: Text('Publicación eliminada'), backgroundColor: AppColors.success),
       );
       await controller.loadPosts();
       Navigator.of(context).pop(); // Cierra el modal de detalle

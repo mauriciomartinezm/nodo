@@ -101,7 +101,7 @@ class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen>
                   ),
                 ),
               ),
-              Text('Categoría', style: AppTypography.title.copyWith(color: const Color(0xFF003366))),
+              Text('Tipo de trabajo', style: AppTypography.title.copyWith(color: const Color(0xFF003366))),
               
               if (_isLoading)
                 const Center(child: CircularProgressIndicator())
@@ -131,7 +131,7 @@ class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Selecciona las categorías que deseas filtrar',
+                  'Selecciona los tipos de trabajo que deseas filtrar',
                   style: AppTypography.label.copyWith(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),

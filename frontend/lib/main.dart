@@ -29,6 +29,7 @@ import 'package:nodo/features/trabajos/screens/thanks_screen.dart';
 import 'package:nodo/core/services/notification_service.dart';
 import 'package:nodo/shared/providers/categorie_provider.dart';
 import 'package:nodo/shared/providers/general_category_provider.dart';
+import 'package:nodo/shared/providers/location_provider.dart';
 import 'package:nodo/shared/providers/register_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -83,6 +84,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProfilePictureController()),
         ChangeNotifierProvider(create: (_) => CategorieProvider()),
         ChangeNotifierProvider(create: (_) => GeneralCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
 
       ],
       child: MyApp(firstTime: firstTime),
@@ -107,6 +109,7 @@ class MyApp extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CategorieProvider>(context, listen: false).cargarCategorias();
       Provider.of<GeneralCategoryProvider>(context, listen: false).cargarCategorias();
+      Provider.of<LocationProvider>(context, listen: false).cargarUbicaciones();
     });
 
     return ScreenUtilInit(
@@ -151,7 +154,7 @@ class MyApp extends StatelessWidget {
             '/SettingsScreen': (context) => const SettingsScreen(),
             '/AccountProfileScreen': (context) => const AccountProfileScreen(),
             '/PreferencesScreen': (context) => const PreferencesScreen(),
-            //'/ProfileScreen': (context) => const ProfileScreen(),
+            '/ProfileScreen': (context) => const ProfileScreen(),
             '/editProfile': (context) => const EditProfileScreen(),
             '/NotificationSettingsScreen': (context) =>
                 const NotificationSettingsScreen(),

@@ -7,6 +7,7 @@ import tokenRouter from "./routes/tokenRoutes.js";
 import reportRouter from "./routes/reportsRoutes.js";
 import jobRouter from "./routes/jobsRoutes.js";
 import storageRoutes from "./routes/storageRoutes.js";
+import locationRouter from "./routes/locationsRoutes.js";
 import express from "express";
 import cors from "cors";
 
@@ -28,6 +29,7 @@ app.use(tokenRouter);
 app.use(reportRouter);
 app.use(jobRouter);
 app.use(storageRoutes);
+app.use(locationRouter);
 
 // Inicia el servidor
 app.listen(PORT, "0.0.0.0", () => {

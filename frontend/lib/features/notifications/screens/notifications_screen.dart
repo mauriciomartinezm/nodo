@@ -76,7 +76,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       appBar: AppBar(
         title: Text(
           'Notificaciones',
-          style: AppTypography.body.copyWith(color: AppColors.blue),
+          style: AppTypography.subtitle.copyWith(color: AppColors.blue),
         ),
         elevation: 0,
         actions: [

@@ -60,8 +60,7 @@ class _JobsScreen2State extends State<JobsScreen2> {
     if (currentId == null) return;
 
     try {
-      final postulaciones =
-          await JobService.fetchApplicationsByUser(currentId);
+      final postulaciones = await JobService.fetchApplicationsByUser(currentId);
 
       setState(() {
         _postulaciones = postulaciones;
@@ -159,7 +158,8 @@ class _JobsScreen2State extends State<JobsScreen2> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.filter_alt_outlined, color: AppColors.orange),
+              icon: const Icon(Icons.filter_alt_outlined,
+                  color: AppColors.orange),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
@@ -324,7 +324,8 @@ class _JobsScreen2State extends State<JobsScreen2> {
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.8,
                           child: const Center(
-                            child: Text('Aún no tienes trabajos aceptados ni finalizados'),
+                            child: Text(
+                                'Aún no tienes trabajos aceptados ni finalizados'),
                           ),
                         ),
                       ],

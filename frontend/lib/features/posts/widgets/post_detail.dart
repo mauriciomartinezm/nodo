@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:nodo/features/create_post/logic/create_post_service.dart';
+import 'package:nodo/features/edit_post/logic/edit_post_controller.dart';
+import 'package:nodo/features/edit_post/screens/edit_post_screen.dart';
 import 'package:nodo/features/posts/screens/applications_screen.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:nodo/features/posts/logic/posts_controller.dart';
 import 'package:nodo/features/posts/utils/post_format_utils.dart';
 import 'package:nodo/features/posts/utils/post_status.dart';
+import 'package:provider/provider.dart';
 
 class PostDetail extends StatefulWidget {
   final dynamic publicacion;
@@ -252,8 +256,21 @@ class _PostDetailState extends State<PostDetail> {
           'Editar',
           AppColors.blue,
           AppColors.blue.withValues(alpha: 0.1),
-          () {
-            // Acción editar
+          () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ChangeNotifierProvider(
+                  create: (_) => EditPostController(
+                    CreatePostService(),
+                    widget.postsController,
+                    widget.publicacion['id'],
+                    widget.publicacion,
+                  ),
+                  child: const EditPostScreen(),
+                ),
+              ),
+            );
           },
         ),
       if (estado != 'in_progress' && estado != 'finished')

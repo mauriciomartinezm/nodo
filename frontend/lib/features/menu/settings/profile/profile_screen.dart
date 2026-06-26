@@ -1,9 +1,9 @@
-/*
 import 'package:flutter/material.dart';
-import 'package:nodo/features/publicaciones/screens/publicaciones_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:nodo/features/posts/screens/posts_screen.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-import 'package:nodo/providers/user_provider.dart';
 import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -28,341 +28,394 @@ class ProfileScreen extends StatelessWidget {
       );
     }
 
+    final esTrabajador = user.tipoUsuario == 'trabajador';
+
     return Scaffold(
-      backgroundColor: AppColors.white,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    //Portada
-                    Column(
+      backgroundColor:
+          Color.alphaBlend(AppColors.blue.withValues(alpha: 0.03), Colors.white),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeader(context, user),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 0.h, 16.w, 24.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nombre y calificación
+                  _buildNameCard(user, esTrabajador),
+                  SizedBox(height: 14.h),
+
+                  // Información de contacto
+                  _buildCard(
+                    title: "Información de contacto",
+                    icon: Icons.contact_mail_outlined,
+                    child: Column(
                       children: [
-                        Container(
-                          height: 160,
-                          width: double.infinity,
-                          color: AppColors.blue,
-                        ),
-                        Container(
-                          height: 15,
-                          width: double.infinity,
-                          color: AppColors.orange,
+                        _buildInfoRow(
+                            Icons.email_outlined, "Correo", user.email),
+                        _buildInfoRow(Icons.phone_outlined,
+                            "Número de contacto", user.telefono),
+                        _buildInfoRow(
+                          Icons.location_on_outlined,
+                          "Ubicación",
+                          (user.ubicacion is String &&
+                                  (user.ubicacion as String).isNotEmpty)
+                              ? user.ubicacion
+                              : 'No especificada',
+                          isLast: true,
                         ),
                       ],
                     ),
+                  ),
+                  SizedBox(height: 14.h),
 
-                    //Boton retroceso
-                    Positioned(
-                      top: 40,
-                      left: 16,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.blue,
-                            shape: BoxShape.circle,
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          child: const Icon(
-                            Icons.arrow_back_sharp,
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ),
+                  // Descripción
+                  _buildCard(
+                    title: "Descripción",
+                    icon: Icons.notes_outlined,
+                    child: Text(
+                      (user.descripcion is String &&
+                              (user.descripcion as String).isNotEmpty)
+                          ? user.descripcion
+                          : "No hay descripción disponible",
+                      style: AppTypography.label
+                          .copyWith(color: AppColors.blue.withValues(alpha: 0.85)),
+                      textAlign: TextAlign.justify,
                     ),
+                  ),
 
-                    //Avatar
-                    Positioned(
-                      top: 100,
-                      left: 16,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Consumer<UserProvider>(
-                          builder: (context, userProvider, child) {
-                            final fotoPerfil = userProvider.user?.fotoPerfil;
-                            return CircleAvatar(
-                              radius: 60,
-                              backgroundColor: AppColors.white,
-                              backgroundImage:
-                                  (fotoPerfil != null && fotoPerfil.isNotEmpty)
-                                      ? NetworkImage(fotoPerfil)
-                                      : null,
-                              child: (fotoPerfil == null || fotoPerfil.isEmpty)
-                                  ? const Padding(
-                                      padding: EdgeInsets.all(32.0),
-                                      child: Image(
-                                        image: AssetImage(
-                                            'assets/icons/iconNodoBlue.png'),
-                                        fit: BoxFit.contain,
-                                      ),
-                                    )
-                                  : null,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-
-                    //Botón editar
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 175, right: 0),
-                        child: TextButton.icon(
-                          icon: const Icon(Icons.edit_outlined,
-                              color: AppColors.blue),
-                          label: Text('Editar',
-                              style: AppTypography.label
-                                  .copyWith(color: AppColors.blue)),
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/editProfile');
-                          },
-                        ),
+                  // Rubros (solo para trabajadores)
+                  if (esTrabajador && user.categorias.isNotEmpty) ...[
+                    SizedBox(height: 14.h),
+                    _buildCard(
+                      title: "Rubros",
+                      icon: Icons.work_outline,
+                      child: Wrap(
+                        spacing: 8.w,
+                        runSpacing: 8.h,
+                        children: user.categorias
+                            .map(
+                              (categoria) => Chip(
+                                label: Text(
+                                  categoria.name,
+                                  style: AppTypography.caption
+                                      .copyWith(color: AppColors.blue),
+                                ),
+                                backgroundColor:
+                                    AppColors.blue.withValues(alpha: 0.06),
+                                side: BorderSide(
+                                    color: AppColors.blue.withValues(alpha: 0.3)),
+                                shape: const StadiumBorder(),
+                              ),
+                            )
+                            .toList(),
                       ),
                     ),
                   ],
-                ),
 
-                //Contenido
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //Nombre y tipo
-                      Row(
-                        children: [
-                          Text(user.nombres,
-                              style: AppTypography.subtitle
-                                  .copyWith(color: AppColors.blue)),
-                          Text(' ${user.primerApellido}',
-                              style: AppTypography.subtitle
-                                  .copyWith(color: AppColors.blue)),
-                          Text(' ${user.segundoApellido}',
-                              style: AppTypography.subtitle
-                                  .copyWith(color: AppColors.blue)),
-                        ],
-                      ),
-
-                      //Datos de usuario
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Text(user.tipoUsuario,
-                            style: AppTypography.label
-                                .copyWith(color: AppColors.blue)),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Row(
-                          children: [
-                            Text('Calificación promedio: ',
-                                style: AppTypography.label
-                                    .copyWith(color: AppColors.blue)),
-                            const SizedBox(width: 4),
-                            Text(
-                              user.calificacionPromedio?.toStringAsFixed(1) ??
-                                  'Sin calificación',
-                              style: AppTypography.label
-                                  .copyWith(color: AppColors.orange),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      //Información de contacto
-                      _buildInfoSection(
-                        title: "Correo",
-                        content: user.email,
-                      ),
-                      _buildInfoSection(
-                        title: "Número de contacto",
-                        content: user.telefono,
-                      ),
-                      _buildInfoSection(
-                        title: "Ubicación o ciudad",
-                        content: user.ubicacion ?? 'No especificada',
-                      ),
-                      // const SizedBox(height: 16),
-
-                      //Descripción
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Descripción",
-                              style: AppTypography.body
-                                  .copyWith(color: AppColors.blue)),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                            child: Text(
-                              user.descripcion?.isNotEmpty == true
-                                  ? user.descripcion!
-                                  : "No hay descripción disponible",
-                              style: AppTypography.label
-                                  .copyWith(color: AppColors.blue),
-                              textAlign: TextAlign.justify,
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                        ],
-                      ),
-
-                      Text("Categoría cruda: ${user.idCategoria.toString()}"),
-                      // Categorías
-                      if (user.idCategoria is List && user.idCategoria.isNotEmpty)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Categorías",
-                              style: AppTypography.body
-                                  .copyWith(color: AppColors.blue),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                              child: Wrap(
-                                spacing: 5,
-                                runSpacing: -4,
-                                children:
-                                    (user.idCategoria as List).map<Widget>((tag) {
-                                  String nombre;
-
-                                  if (tag is String) {
-                                    nombre = tag;
-                                  } else if (tag is Map &&
-                                      tag.containsKey('nombre_cat')) {
-                                    nombre = tag['nombre_cat'].toString();
-                                  } else {
-                                    nombre = tag.toString();
-                                  }
-
-                                  return Chip(
-                                    label: Text(
-                                      nombre,
-                                      style: AppTypography.body
-                                          .copyWith(color: AppColors.blue),
-                                    ),
-                                    backgroundColor: AppColors.white,
-                                    side: BorderSide(
-                                        color: AppColors.blue, width: 1.2),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            const SizedBox(height: 30),
-                          ],
-                        ),
-
-                      //Estadísticas
-                      Text("Estadísticas",
-                          style:
-                              AppTypography.subtitle.copyWith(color: AppColors.blue)),
-
-                      if (user.tipoUsuario == 'trabajador') ...[
-                        ListTile(
-                          title: Text(
+                  // Estadísticas
+                  SizedBox(height: 14.h),
+                  _buildCard(
+                    title: "Estadísticas",
+                    icon: Icons.bar_chart_outlined,
+                    child: Column(
+                      children: [
+                        if (esTrabajador) ...[
+                          _buildStatRow(
+                            Icons.assignment_outlined,
                             "Publicaciones en las que te has postulado",
-                            style: AppTypography.label
-                                .copyWith(color: AppColors.blue),
+                            null,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const PostsScreen()),
+                              );
+                            },
                           ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PostsScreen()),
-                            );
-                          },
-                        ),
-                        ListTile(
-                          title: Text("Trabajos completados",
-                              style: AppTypography.label
-                                  .copyWith(color: AppColors.blue)),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                            child: Text(
-                              (user.trabajosCompletados ?? 0) == 0
-                                  ? '0'
-                                  : (user.trabajosCompletados ?? 0)
-                                      .toInt()
-                                      .toString(),
-                              style: AppTypography.body
-                                  .copyWith(color: AppColors.blue),
-                            ),
+                          _buildStatRow(
+                            Icons.task_alt_outlined,
+                            "Trabajos completados",
+                            (user.trabajosCompletados ?? 0).toString(),
                           ),
-                        ),
-                        ListTile(
-                          title: Text("Total ganado",
-                              style: AppTypography.label
-                                  .copyWith(color: AppColors.blue)),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                            child: Text(user.tipoUsuario,
-                                style: AppTypography.body
-                                    .copyWith(color: AppColors.blue)),
-                          ),
+                        ],
+                        _buildStatRow(
+                          Icons.calendar_today_outlined,
+                          "Miembro desde",
+                          formatDate(user.fechaRegistro),
+                          isLast: true,
                         ),
                       ],
-
-                      ListTile(
-                        title: Text("Miembro desde",
-                            style: AppTypography.label
-                                .copyWith(color: AppColors.blue)),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: Text(formatDate(user.fechaRegistro),
-                              style: AppTypography.body
-                                  .copyWith(color: AppColors.blue)),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-
-                      // Insignias
-                      Text("Insignias",
-                          style: AppTypography.subtitle
-                              .copyWith(color: AppColors.blue)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Text(
-                          "Las insignias son un modo de reconocer los logros de los usuarios. Otros usuarios podrán verlas. Será una función que agregaremos próximamente ;)",
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 14.h),
+                  _buildCard(
+                    title: "Insignias",
+                    icon: Icons.military_tech_outlined,
+                    child: Text(
+                      "Las insignias son un modo de reconocer los logros de nuestros usuarios. Otros usuarios podrán verlas. Será una función que agregaremos próximamente ;)",
+                      style: AppTypography.caption
+                          .copyWith(color: AppColors.blue.withValues(alpha: 0.7)),
+                    textAlign: TextAlign.justify,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
 
-//Wdgt para el correo numero ubicacion
-  Widget _buildInfoSection({required String title, required String content}) {
+  Widget _buildHeader(BuildContext context, dynamic user) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: AppTypography.body.copyWith(color: AppColors.blue)),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-          child: Text(content,
-              style: AppTypography.label.copyWith(color: AppColors.blue)),
+        SafeArea(
+          bottom: false,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Column(
+                children: [
+                  Container(
+                    height: 110.h,
+                    width: double.infinity,
+                    color: AppColors.blue,
+                  ),
+                  Container(
+                    height: 10.h,
+                    width: double.infinity,
+                    color: AppColors.orange,
+                  ),
+                ],
+              ),
+
+              // Botón de retroceso
+              Positioned(
+                top: 12.h,
+                left: 5.w,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: AppColors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                    padding: EdgeInsets.all(8.r),
+                    child: Icon(Icons.arrow_back_sharp,
+                        color: AppColors.white, size: 20.r),
+                  ),
+                ),
+              ),
+
+              // Botón de editar perfil
+              Positioned(
+                top: 12.h,
+                right: 5.w,
+                child: IconButton(
+                  style: TextButton.styleFrom(
+                    // backgroundColor: AppColors.white.withValues(alpha: 0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                    elevation: 1,
+                  ),
+                  icon: Icon(Icons.edit_outlined,
+                      color: AppColors.white, size: 18.r),
+                  // label: Text('Editar',
+                  //     style:
+                  //         AppTypography.label.copyWith(color: AppColors.white)),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/editProfile');
+                  },
+                ),
+              ),
+              Positioned(
+                top: 80.h,
+                left: 16.w,
+                child: Container(
+                  padding: EdgeInsets.all(4.r),
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                      final fotoPerfil = userProvider.user?.fotoPerfil;
+                      return CircleAvatar(
+                        radius: 40.r,
+                        backgroundColor: AppColors.blue.withValues(alpha: 0.06),
+                        backgroundImage:
+                            (fotoPerfil != null && fotoPerfil.isNotEmpty)
+                                ? NetworkImage(fotoPerfil)
+                                : null,
+                        child: (fotoPerfil == null || fotoPerfil.isEmpty)
+                            ? Padding(
+                                padding: EdgeInsets.all(20.r),
+                                child: Image.asset(
+                                  'assets/icons/iconNodoBlue.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              )
+                            : null,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 64.h),
       ],
+    );
+  }
+
+  Widget _buildNameCard(dynamic user, bool esTrabajador) {
+    final nombreCompleto =
+        '${user.nombres} ${user.primerApellido} ${user.segundoApellido}'.trim();
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.blue.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(nombreCompleto,
+              style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
+          SizedBox(height: 6.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+            decoration: BoxDecoration(
+              color: AppColors.orange.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              esTrabajador ? 'Trabajador' : 'Cliente',
+              style: AppTypography.caption.copyWith(color: AppColors.orange),
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              Icon(Icons.star_rounded, color: AppColors.orange, size: 18.r),
+              SizedBox(width: 4.w),
+              Text(
+                user.calificacionPromedio != null
+                    ? user.calificacionPromedio.toStringAsFixed(1)
+                    : 'Sin calificación',
+                style: AppTypography.label.copyWith(color: AppColors.blue),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Función para construir una tarjeta con un título, un ícono y contenido
+  Widget _buildCard({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.blue.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16.r, color: AppColors.blue),
+              SizedBox(width: 6.w),
+              Text(title,
+                  style: AppTypography.label.copyWith(color: AppColors.blue)),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value,
+      {bool isLast = false}) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 12.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18.r, color: AppColors.orange),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: AppTypography.caption
+                        .copyWith(color: AppColors.slateGrey)),
+                Text(value,
+                    style:
+                        AppTypography.body.copyWith(color: AppColors.blue)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatRow(IconData icon, String label, String? value,
+      {bool isLast = false, VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        child: Row(
+          children: [
+            Icon(icon, size: 18.r, color: AppColors.orange),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Text(label,
+                  style:
+                      AppTypography.label.copyWith(color: AppColors.blue)),
+            ),
+            if (value != null)
+              Text(value,
+                  style: AppTypography.body.copyWith(color: AppColors.blue)),
+            if (onTap != null)
+              Icon(Icons.chevron_right, size: 18.r, color: AppColors.slateGrey),
+          ],
+        ),
+      ),
     );
   }
 
@@ -375,4 +428,4 @@ class ProfileScreen extends StatelessWidget {
       return dateString;
     }
   }
-}*/
+}

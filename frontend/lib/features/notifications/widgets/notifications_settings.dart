@@ -136,13 +136,13 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
             ),
             _buildSwitchTile(
               'Notificaciones en tiempo real',
-              'Recibe una notificación cada vez que un cliente publique un servicio de tu categoría.',
+              'Recibe una notificación cada vez que un cliente publique un servicio de tu rubro.',
               realTimeNotifications,
               (value) => setState(() => realTimeNotifications = value),
             ),
             _buildSwitchTile(
               'Resumen en tiempo real',
-              'Recibe un resumen de las nuevas publicaciones en tu categoría cada cierto tiempo.',
+              'Recibe un resumen de las nuevas publicaciones en tu rubro cada cierto tiempo.',
               realTimeSummary,
               (value) => setState(() => realTimeSummary = value),
             ),

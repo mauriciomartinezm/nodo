@@ -42,7 +42,7 @@ class _ApplicationsView extends StatelessWidget {
             const SizedBox(height: 8),
             Text('Ubicación: ${application.workerLocation}'),
             const SizedBox(height: 8),
-            Text('Categoría: ${application.workerCategory}'),
+            Text('Rubro: ${application.workerCategory}'),
             const SizedBox(height: 8),
             const Text('Descripción:'),
             Text(application.workerDescription ?? 'Sin descripción'),

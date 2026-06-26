@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:nodo/features/create_post/logic/create_post_controller.dart';
 import 'package:nodo/features/create_post/widgets/date_picker_widget.dart';
 import 'package:nodo/features/create_post/widgets/descripcion_field_widget.dart';
-import 'package:nodo/features/create_post/widgets/header_info_widget.dart';
+import 'package:nodo/features/create_post/widgets/text_field_widget.dart';
+import 'package:nodo/features/edit_post/logic/edit_post_controller.dart';
 import 'package:nodo/shared/providers/categorie_provider.dart';
 import 'package:nodo/shared/providers/location_provider.dart';
-import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:nodo/shared/widgets/multi_select_dropdown.dart';
 import 'package:nodo/shared/widgets/searchable_dropdown_field.dart';
+import 'package:nodo/shared/widgets/upload_photo_widget.dart';
 import 'package:nodo/models/categorie.dart';
 import 'package:nodo/models/location.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../shared/widgets/upload_photo_widget.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-import '../widgets/text_field_widget.dart';
 
-class CreatePostScreen extends StatefulWidget {
-  const CreatePostScreen({super.key});
+class EditPostScreen extends StatefulWidget {
+  const EditPostScreen({super.key});
 
   @override
-  State<CreatePostScreen> createState() => _CreatePostScreenState();
+  State<EditPostScreen> createState() => _EditPostScreenState();
 }
 
-class _CreatePostScreenState extends State<CreatePostScreen> {
+class _EditPostScreenState extends State<EditPostScreen> {
   final _formKey = GlobalKey<FormState>();
   final FocusNode _emptyFocusNode = FocusNode();
 
@@ -34,7 +32,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     super.dispose();
   }
 
-  // Widget para mostrar la sección con un ícono y un texto
   Widget _sectionLabel(IconData icon, String text) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
@@ -51,13 +48,35 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
+  Widget _buildExistingPhotos(List<String> photos) {
+    if (photos.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: Wrap(
+        spacing: 10.w,
+        runSpacing: 10.h,
+        children: photos
+            .map(
+              (url) => ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  url,
+                  width: 72.w,
+                  height: 72.h,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<CreatePostController>();
+    final controller = context.watch<EditPostController>();
     final categorieProvider = context.watch<CategorieProvider>();
     final locationProvider = context.watch<LocationProvider>();
-    final userProvider = context.watch<UserProvider>();
-    final fotoPerfil = userProvider.user?.fotoPerfil;
 
     if (categorieProvider.isLoading) {
       return const Scaffold(
@@ -71,31 +90,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.blue),
         title: Text(
-          "Crear publicación",
+          "Editar publicación",
           style: AppTypography.title.copyWith(color: AppColors.orange),
         ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16.w),
-            child: CircleAvatar(
-              radius: 18.r,
-              backgroundColor: AppColors.blue.withValues(alpha: 0.1),
-              backgroundImage: fotoPerfil != null && fotoPerfil.isNotEmpty
-                  ? NetworkImage(fotoPerfil)
-                  : null,
-              child: fotoPerfil == null || fotoPerfil.isEmpty
-                  ? Padding(
-                      padding: EdgeInsets.all(8.r),
-                      child: Image.asset(
-                        'assets/icons/iconNodoBlue.png',
-                        fit: BoxFit.contain,
-                      ),
-                    )
-                  : null,
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Form(
@@ -105,8 +104,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const HeaderInfoWidget(), // Muestra el nombre y la profesión del usuario
-                SizedBox(height: 16.h),
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 18.w),
                   padding: EdgeInsets.all(18.r),
@@ -181,8 +178,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       CustomDatePicker(
                         label: "Fecha límite *",
                         controller: controller.fechaLimiteController,
-                        initialDate:
-                            DateTime.now().add(const Duration(days: 7)),
                         firstDate: DateTime.now(),
                         lastDate: DateTime(2100),
                         emptyFocusNode: _emptyFocusNode,
@@ -192,11 +187,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           controller: controller.descripcionController),
                       SizedBox(height: 20.h),
                       _sectionLabel(
-                          Icons.photo_library_outlined, "Fotos (opcional)"),
+                          Icons.photo_library_outlined, "Fotos"),
+                      _buildExistingPhotos(controller.existingPhotos),
                       UploadPhotoWidget(
-                        key: ValueKey(controller.localImages),
-                        onImagesSelected: controller.setLocalImages,
-                        initialImages: controller.localImages,
+                        key: ValueKey(controller.newLocalImages),
+                        onImagesSelected: controller.setNewLocalImages,
+                        initialImages: controller.newLocalImages,
                       ),
                       if (controller.errorMessage != null) ...[
                         SizedBox(height: 12.h),
@@ -230,13 +226,21 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: CustomElevatedButton(
-                          text: "Publicar",
-                          icon: Icons.send_outlined,
+                          text: "Guardar cambios",
+                          icon: Icons.save_outlined,
                           onPressed: controller.isLoading
                               ? null
                               : () async {
-                                  await controller.createPost(
-                                      context, userProvider);
+                                  final success =
+                                      await controller.saveChanges(context);
+                                  if (success && context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Publicación actualizada correctamente')),
+                                    );
+                                    Navigator.pop(context);
+                                  }
                                 },
                           loading: controller.isLoading,
                         ),
