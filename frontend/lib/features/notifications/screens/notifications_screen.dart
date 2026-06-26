@@ -76,10 +76,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       appBar: AppBar(
         title: Text(
           'Notificaciones',
-          style: TextStyle(
-              color: AppColors.blue,
-              fontFamily: 'GothamMedium',
-              fontSize: 14.sp),
+          style: AppTypography.body.copyWith(color: AppColors.blue),
         ),
         elevation: 0,
         actions: [
@@ -121,12 +118,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     child: Text(
                       tabs[index],
-                      style: TextStyle(
-                          color: isSelected
-                              ? Colors.white
-                              : AppColors.blue,
-                          fontFamily: 'GothamMedium',
-                          fontSize: 10.sp),
+                      style: AppTypography.caption.copyWith(
+                        color: isSelected ? Colors.white : AppColors.blue,
+                      ),
                     ),
                   ),
                 );
@@ -157,11 +151,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           child: Center(
                             child: Text(
                               'No hay notificaciones',
-                              style: TextStyle(
-                                color: AppColors.blue,
-                                fontFamily: 'GothamMedium',
-                                fontSize: 14.sp,
-                              ),
+                              style: AppTypography.body
+                                  .copyWith(color: AppColors.blue),
                             ),
                           ),
                         ),
@@ -236,31 +227,19 @@ class _NotificationItem extends StatelessWidget {
               children: [
                 Text(
                   notification['titulo'],
-                  style: TextStyle(
-                    color: AppColors.blue,
-                    fontFamily: 'GothamMedium',
-                    fontSize: 12.sp,
-                  ),
+                  style: AppTypography.label.copyWith(color: AppColors.blue),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   notification['mensaje'],
-                  style: TextStyle(
-                    color: AppColors.blue,
-                    fontFamily: 'GothamBook',
-                    fontSize: 10.sp,
-                  ),
+                  style: AppTypography.caption.copyWith(color: AppColors.blue),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _formatDate(notification['fecha']),
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontFamily: 'GothamBook',
-                    fontSize: 8.sp,
-                  ),
+                  style: AppTypography.caption.copyWith(color: Colors.grey),
                 ),
               ],
             ),

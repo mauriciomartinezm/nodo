@@ -153,7 +153,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             foregroundColor: AppColors.white,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 6),
-                            textStyle: const TextStyle(fontSize: 13),
+                            textStyle: AppTypography.label,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20)),
                             elevation: 2,
@@ -191,33 +191,31 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                       children: [
                         Text(
                           titulo,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: AppTypography.title,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           descripcion,
-                          style: const TextStyle(fontSize: 15, height: 1.4),
+                          style: AppTypography.body.copyWith(height: 1.4),
                         ),
                         const SizedBox(height: 8),
                         Text(ubicacion,
-                            style: TextStyle(color: Colors.grey[700])),
+                            style: AppTypography.body
+                                .copyWith(color: Colors.grey[700])),
                         Text(
                           fechaLimite,
-                          style: const TextStyle(
-                              color: Colors.redAccent, fontSize: 13),
+                          style: AppTypography.label
+                              .copyWith(color: Colors.redAccent),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           presupuesto,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                          style: AppTypography.title,
                         ),
                         const Divider(height: 32),
-                        const Text(
+                        Text(
                           "Información del cliente",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 14),
+                          style: AppTypography.body,
                         ),
                         const SizedBox(height: 12),
                         Row(
@@ -236,7 +234,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             const SizedBox(width: 10),
                             Text(
                               clienteNombre,
-                              style: const TextStyle(fontSize: 15),
+                              style: AppTypography.body,
                             ),
                           ],
                         ),

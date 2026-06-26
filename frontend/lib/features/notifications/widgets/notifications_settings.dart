@@ -26,11 +26,8 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
     //  child:
       Text(
         text,
-        style: TextStyle(
-            fontFamily: 'GothamMedium',
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.blue),
+        style: AppTypography.label
+            .copyWith(color: AppColors.blue),
       );
     //  ,
     //);
@@ -65,21 +62,13 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
                     ),
                     Text(
                       title,
-                      style: TextStyle(
-                        fontFamily: 'GothamMedium',
-                        fontSize: 12.sp,
-                        color: AppColors.blue,
-                      ),
+                      style: AppTypography.label.copyWith(color: AppColors.blue),
                     ),
                   ],
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    fontFamily: 'GothamBook',
-                    color: AppColors.blue,
-                  ),
+                  style: AppTypography.caption.copyWith(color: AppColors.blue),
                 ),
               ],
             ),
@@ -95,11 +84,7 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
       contentPadding: EdgeInsets.symmetric(horizontal: 0.w),
       title: Text(
         text,
-        style: TextStyle(
-          fontSize: 10.sp,
-          color: AppColors.blue,
-          fontFamily: 'GothamBook',
-        ),
+        style: AppTypography.caption.copyWith(color: AppColors.blue),
       ),
       value: selectedFrequency == value,
       onChanged: (bool? selected) {
@@ -116,11 +101,7 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
       appBar: AppBar(
         title: Text(
           'Configura tus notificaciones',
-          style: TextStyle(
-            color: AppColors.blue,
-            fontFamily: 'GothamMedium',
-            fontSize: 14.sp,
-          ),
+          style: AppTypography.body.copyWith(color: AppColors.blue),
         ),
         elevation: 0,
         leading: IconButton(
@@ -136,10 +117,7 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
           children: [
             Text(
               'Elige cómo quieres recibir notificaciones sobre nuevas publicaciones y actualizaciones de tu cuenta.',
-              style: TextStyle(
-                  fontSize: 13.sp,
-                  fontFamily: 'GothamBook',
-                  color: AppColors.blue),
+              style: AppTypography.label.copyWith(color: AppColors.blue),
             ),
             Divider(height: 12.h, thickness: 1, color: AppColors.orange),
             _buildSwitchTile(
@@ -172,10 +150,7 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
               padding: EdgeInsets.symmetric(vertical: 4.h),
               child: Text(
                 'Frecuencia:',
-                style: TextStyle(
-                    fontFamily: 'GothamMedium',
-                    fontSize: 10.sp,
-                    color: AppColors.blue),
+                style: AppTypography.caption.copyWith(color: AppColors.blue),
               ),
             ),
             _buildFrequencyOption('Cada 2 horas', '2h'),
@@ -203,11 +178,7 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
           },
           child: Text(
             'Guardar preferencias',
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: AppColors.white,
-              fontFamily: 'GothamMedium',
-            ),
+            style: AppTypography.label.copyWith(color: AppColors.white),
           ),
         ),
       ),

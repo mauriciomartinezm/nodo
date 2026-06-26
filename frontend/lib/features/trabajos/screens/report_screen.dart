@@ -5,6 +5,7 @@ import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class ReportScreen extends StatefulWidget {
   final String jobId; // UUID como String
@@ -96,9 +97,9 @@ class _ReportScreenState extends State<ReportScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Reportar',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: AppTypography.title,
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -110,18 +111,17 @@ class _ReportScreenState extends State<ReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               '¿Por qué quieres reportar esta publicación?',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: Color(0xFF003366),
+              style: AppTypography.body.copyWith(
+                color: const Color(0xFF003366),
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Ayúdanos a mantener la plataforma segura eligiendo el motivo del reporte.',
-              style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 16, 57, 98)),
+              style: AppTypography.label
+                  .copyWith(color: const Color.fromARGB(255, 16, 57, 98)),
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -135,18 +135,14 @@ class _ReportScreenState extends State<ReportScreen> {
                     activeColor: Colors.orange,
                     title: Text(
                       titulo,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: Color(0xFF003366),
+                      style: AppTypography.label.copyWith(
+                        color: const Color(0xFF003366),
                       ),
                     ),
                     subtitle: Text(
                       descripcion,
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        color: Colors.grey.shade600,
-                      ),
+                      style: AppTypography.label
+                          .copyWith(color: Colors.grey.shade600),
                     ),
                     value: selectedOption == titulo,
                     onChanged: (_) {
@@ -167,16 +163,16 @@ class _ReportScreenState extends State<ReportScreen> {
                 elevation: 0,
                 minimumSize: const Size(double.infinity, 48),
               ),
-              child: const Text(
+              child: Text(
                 'Reportar',
-                style: TextStyle(fontSize: 14),
+                style: AppTypography.body,
               ),
             ),
             const SizedBox(height: 6),
-            const Center(
+            Center(
               child: Text(
                 'Botón solo se habilita cuando se selecciona una opción',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+                style: AppTypography.label.copyWith(color: Colors.grey),
               ),
             ),
           ],

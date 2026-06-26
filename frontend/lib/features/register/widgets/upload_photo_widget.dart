@@ -37,7 +37,7 @@ class _SubirFotoWidgetState extends State<SubirFotoWidget> {
       children: [
         Text(
           "Fotos (Máximo 10)",
-          style: TextStyle(fontSize: 10.sp, color: AppColors.slateGrey),
+          style: AppTypography.caption.copyWith(color: AppColors.slateGrey),
         ),
         const SizedBox(height: 8),
         GestureDetector(

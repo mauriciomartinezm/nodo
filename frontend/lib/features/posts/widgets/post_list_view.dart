@@ -42,30 +42,21 @@ class PostListView extends StatelessWidget {
 
   Future<void> _showPublicationDetail(
     BuildContext context, dynamic item, PostsController controller) async {
-  // Cerrar el teclado antes de abrir el modal
-  FocusManager.instance.primaryFocus?.unfocus();
-  
-  await showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    useRootNavigator: true,
-    builder: (context) {
-      return GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        behavior: HitTestBehavior.opaque,
-        child: PostDetail(
+    // Cerrar el teclado antes de abrir el detalle
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (context) => PostDetail(
           publicacion: item,
           postsController: controller,
           onDelete: () => _confirmDelete(context, item, controller),
         ),
-      );
-    },
-  ).then((_) {
-    // Cerrar el teclado después de cerrar el modal
+      ),
+    );
+
     FocusManager.instance.primaryFocus?.unfocus();
-  });
-}
+  }
 
   Future<void> _confirmDelete(
       BuildContext context, dynamic item, PostsController controller) async {

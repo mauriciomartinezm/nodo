@@ -13,7 +13,6 @@ class JobsScreen1 extends StatelessWidget {
           'Trabajos',
           style: TextStyle(
             color: Color(0xFF003366), // Azul oscuro
-            fontWeight: FontWeight.bold,
           ),
         ),
         elevation: 0,
@@ -32,22 +31,19 @@ class JobsScreen1 extends StatelessWidget {
                 color: Color(0xFF90A4AE), 
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Esta sección es exclusiva para trabajadores',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color.fromARGB(255, 246, 107, 65), 
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                style: AppTypography.subtitle.copyWith(
+                  color: const Color.fromARGB(255, 246, 107, 65),
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Parece que aún no eres trabajador en la plataforma. Aquí podrás gestionar los trabajos en los que te hayas postulado y los que hayas completado. Conviértete en trabajador y accede a oportunidades laborales',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF90A4AE), // Gris azulado
-                  fontSize: 14,
+                style: AppTypography.body.copyWith(
+                  color: const Color(0xFF90A4AE),
                 ),
               ),
             ],

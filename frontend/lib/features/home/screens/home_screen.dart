@@ -231,15 +231,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                 },
                 child: Row(
-                  children: const [
-                    Icon(Icons.power_settings_new_rounded,
+                  children: [
+                    const Icon(Icons.power_settings_new_rounded,
                         color: AppColors.blue),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text("Cerrar sesión",
-                        style: TextStyle(color: AppColors.blue)),
-                    Spacer(),
+                        style: AppTypography.body.copyWith(color: AppColors.blue)),
+                    const Spacer(),
                     Text("Versión 1.0",
-                        style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        style: AppTypography.label.copyWith(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -261,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget drawerTile(IconData icon, String title, String routeName) {
     return ListTile(
       leading: Icon(icon, color: AppColors.blue),
-      title: Text(title, style: const TextStyle(fontSize: 16)),
+      title: Text(title, style: AppTypography.subtitle),
       onTap: () {
         Navigator.pushNamed(context, routeName);
       },

@@ -4,6 +4,7 @@ import 'package:nodo/features/trabajos/screens/location_filter_screen.dart';
 import 'package:nodo/features/trabajos/screens/price_filter_screen.dart';
 import 'package:nodo/features/trabajos/screens/post_time_screen.dart';
 import 'package:nodo/features/trabajos/screens/start_date_filter.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 
 class CategoryFilterScreen extends StatelessWidget {
@@ -38,21 +39,16 @@ class CategoryFilterScreen extends StatelessWidget {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text(
                     'Filtrar',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Color(0xFF003366),
-                    ),
+                    style: AppTypography.title
+                        .copyWith(color: const Color(0xFF003366)),
                   ),
                   Text(
                     'Restablecer',
-                    style: TextStyle(
-                      fontSize: 14,
+                    style: AppTypography.body.copyWith(
                       color: Colors.orange,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -119,7 +115,7 @@ class _FilterItem extends StatelessWidget {
       leading: Icon(icon, color: Color(0xFF003366)),
       title: Text(
         label,
-        style: const TextStyle(fontSize: 16, color: Color(0xFF003366)),
+        style: AppTypography.subtitle.copyWith(color: const Color(0xFF003366)),
       ),
       onTap: () async {
         if (label == 'Categoría') {

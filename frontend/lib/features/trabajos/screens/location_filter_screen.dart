@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class LocationFilterScreen extends StatefulWidget {
   const LocationFilterScreen({super.key});
@@ -48,7 +49,7 @@ class _LocationFilterScreenState extends State<LocationFilterScreen> {
                   ),
                 ),
               ),
-              const Text('Ubicación', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF003366))),
+              Text('Ubicación', style: AppTypography.title.copyWith(color: const Color(0xFF003366))),
               SwitchListTile(
                 title: const Text("Solo mostrar trabajos cerca de mí", style: TextStyle(color: Color(0xFF003366))),
                 value: soloCercaDeMi,

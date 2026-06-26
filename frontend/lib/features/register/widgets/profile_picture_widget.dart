@@ -32,8 +32,7 @@ class ProfilePictureWidget extends StatelessWidget {
           Text(
             'Tu foto de perfil es importante para generar confianza con los clientes.'
             'Asegúrate de subir una imagen clara y profesional.',
-            style: AppTypography.label
-                .copyWith(color: AppColors.blue, fontWeight: FontWeight.normal),
+            style: AppTypography.label.copyWith(color: AppColors.blue),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -74,10 +73,7 @@ class ProfilePictureWidget extends StatelessWidget {
               Expanded(
                 child: RichText(
                   text: TextSpan(
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontSize: 14),
+                    style: AppTypography.body,
                     children: [
                       TextSpan(
                           text: 'Acepto los ',
@@ -87,8 +83,7 @@ class ProfilePictureWidget extends StatelessWidget {
                       TextSpan(
                         text: 'Términos y Condiciones',
                         style: AppTypography.caption.copyWith(
-                            color: AppColors.orange,
-                            fontWeight: FontWeight.bold),
+                            color: AppColors.orange),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -105,8 +100,7 @@ class ProfilePictureWidget extends StatelessWidget {
                       TextSpan(
                         text: 'Política de Privacidad',
                         style: AppTypography.caption.copyWith(
-                            color: AppColors.orange,
-                            fontWeight: FontWeight.bold),
+                            color: AppColors.orange),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             ScaffoldMessenger.of(context).showSnackBar(

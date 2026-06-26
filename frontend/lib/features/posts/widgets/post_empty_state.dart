@@ -51,21 +51,15 @@ class PostEmptyState extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(
-                color: AppColors.orange.withOpacity(0.6),
-                fontFamily: 'GothamMedium',
-                fontSize: 18.sp,
-              ),
+              style: AppTypography.title
+                  .copyWith(color: AppColors.orange.withOpacity(0.6)),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 16.h),
             Text(
               description,
-              style: TextStyle(
-                color: AppColors.blue.withOpacity(0.6),
-                fontFamily: 'GothamBook',
-                fontSize: 15.sp,
-              ),
+              style: AppTypography.body
+                  .copyWith(color: AppColors.blue.withOpacity(0.6)),
               textAlign: TextAlign.center,
             ),
           ],

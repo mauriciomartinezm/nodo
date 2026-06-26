@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:nodo/features/trabajos/screens/category_filter_screen.dart';
 import 'package:nodo/features/trabajos/logic/job_service.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class JobList extends StatelessWidget {
   final List publicaciones;
@@ -49,18 +50,12 @@ class JobList extends StatelessWidget {
                       Text.rich(
                         TextSpan(
                           text: "${publicacion['title']}: ",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
+                          style: AppTypography.label,
                           children: [
                             TextSpan(
                               text: publicacion['description'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 11,
-                                color: Colors.black87,
-                              ),
+                              style: AppTypography.caption
+                                  .copyWith(color: Colors.black87),
                             ),
                           ],
                         ),
@@ -68,24 +63,15 @@ class JobList extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         "\$${publicacion['budget']}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
+                        style: AppTypography.label,
                       ),
                       Text(
                         publicacion['location'],
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 11,
-                        ),
+                        style: AppTypography.caption.copyWith(color: Colors.grey),
                       ),
                       Text(
                         "${JobService.formatTimeAgo(publicacion['postDate'])} · ${publicacion['status']}",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 10,
-                        ),
+                        style: AppTypography.caption.copyWith(color: Colors.grey),
                       ),
                     ],
                   ),
@@ -97,7 +83,7 @@ class JobList extends StatelessWidget {
                     backgroundColor: Colors.orange.shade300,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle: const TextStyle(fontSize: 12),
+                    textStyle: AppTypography.label,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

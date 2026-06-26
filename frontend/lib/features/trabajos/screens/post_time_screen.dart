@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class PostTimeFilter extends StatelessWidget {
   const PostTimeFilter({super.key});
@@ -64,12 +65,10 @@ class _PostTimeScreenState extends State<PostTimeScreen> {
             child: ListView(
               controller: widget.scrollController,
               children: [
-                const Text(
+                Text(
                   'Tiempo de publicación',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF003366),
+                  style: AppTypography.subtitle.copyWith(
+                    color: const Color(0xFF003366),
                   ),
                 ),
                 const Divider(),

@@ -1,6 +1,7 @@
 //import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -125,9 +126,9 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('MLP KEHIBER', style: TextStyle(fontSize: 16, color: Colors.white)),
-                Text('Joder la vida', style: TextStyle(fontSize: 12, color: Colors.white70)),
+              children: [
+                Text('MLP KEHIBER', style: AppTypography.subtitle.copyWith(color: Colors.white)),
+                Text('Joder la vida', style: AppTypography.label.copyWith(color: Colors.white70)),
               ],
             ),
           ],
@@ -168,8 +169,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         const SizedBox(height: 4),
                         Text(
                           msg.time,
-                          style: TextStyle(
-                            fontSize: 10,
+                          style: AppTypography.caption.copyWith(
                             color: msg.isMe ? Colors.white70 : Colors.black54,
                           ),
                         ),

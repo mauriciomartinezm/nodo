@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class ThanksScreen extends StatelessWidget {
   const ThanksScreen({super.key});
@@ -15,32 +16,25 @@ class ThanksScreen extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  const Text(
+                  Text(
                     'Gracias por tu reporte',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Color(0xFF003366),
-                    ),
+                    style: AppTypography.title
+                        .copyWith(color: const Color(0xFF003366)),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
+                      style: AppTypography.body.copyWith(color: Colors.black54),
                       children: [
                         const TextSpan(
                             text:
                                 'Gracias por tomarte el tiempo de reportar esta publicación. El equipo de moderación revisará tu reporte en las próximas horas y tomará las '),
                         TextSpan(
                           text: 'medidas necesarias',
-                          style: const TextStyle(
+                          style: AppTypography.body.copyWith(
                             color: Colors.orange,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const TextSpan(

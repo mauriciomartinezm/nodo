@@ -45,8 +45,7 @@ class _ValidationWidgetState extends State<ValidationWidget> {
               SizedBox(height: 5.h),
               Text(
                 'Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación.',
-                style: AppTypography.label.copyWith(
-                    color: AppColors.blue, fontWeight: FontWeight.normal),
+                style: AppTypography.label.copyWith(color: AppColors.blue),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 24.h),
@@ -64,7 +63,7 @@ class _ValidationWidgetState extends State<ValidationWidget> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       maxLength: 1,
-                      style: const TextStyle(fontSize: 20),
+                      style: AppTypography.title,
                       decoration: InputDecoration(
                         counterText: "",
                         contentPadding: const EdgeInsets.all(10),
@@ -116,7 +115,6 @@ class _ValidationWidgetState extends State<ValidationWidget> {
                       text: 'Reenviar',
                       style: AppTypography.caption.copyWith(
                         color: AppColors.orange,
-                        fontWeight: FontWeight.bold,
                       ),
                       recognizer: controller.canResend
                           ? (TapGestureRecognizer()

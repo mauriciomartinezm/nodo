@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class StartDateFilter extends StatefulWidget {
   const StartDateFilter({super.key});
@@ -76,22 +77,17 @@ class _StartDateFilterState extends State<StartDateFilter> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Fecha de inicio',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Color(0xFF003366),
-                    ),
+                    style: AppTypography.title
+                        .copyWith(color: const Color(0xFF003366)),
                   ),
                   GestureDetector(
                     onTap: _reset,
-                    child: const Text(
+                    child: Text(
                       'Restablecer',
-                      style: TextStyle(
-                        fontSize: 14,
+                      style: AppTypography.body.copyWith(
                         color: Colors.orange,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -116,10 +112,8 @@ class _StartDateFilterState extends State<StartDateFilter> {
                             selectedRange != null
                                 ? '${DateFormat('dd/MM/yyyy').format(selectedRange!.start)} - ${DateFormat('dd/MM/yyyy').format(selectedRange!.end)}'
                                 : 'Selector de intervalo de fecha',
-                            style: const TextStyle(
-                              color: Color(0xFF003366),
-                              fontSize: 16,
-                            ),
+                            style: AppTypography.subtitle
+                                .copyWith(color: const Color(0xFF003366)),
                           ),
                         ),
                       ),

@@ -35,10 +35,8 @@ class PostTabs extends StatelessWidget {
               ),
               child: Text(
                 tabs[index],
-                style: TextStyle(
+                style: AppTypography.caption.copyWith(
                   color: isSelected ? Colors.white : AppColors.blue,
-                  fontFamily: 'GothamMedium',
-                  fontSize: 10.sp,
                 ),
               ),
             ),

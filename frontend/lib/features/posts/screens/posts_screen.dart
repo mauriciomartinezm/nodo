@@ -33,10 +33,7 @@ class _PostsScreenState extends State<PostsScreen> {
       appBar: AppBar(
         title: Text(
           'Mis Publicaciones',
-          style: TextStyle(
-              color: AppColors.blue,
-              fontFamily: 'GothamMedium',
-              fontSize: 14.sp),
+          style: AppTypography.subtitle.copyWith(color: AppColors.blue),
         ),
         elevation: 0,
         actions: [

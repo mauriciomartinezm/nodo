@@ -138,18 +138,17 @@ class _JobsScreen2State extends State<JobsScreen2> {
         backgroundColor: AppColors.white,
         appBar: AppBar(
           backgroundColor: AppColors.white,
-          title: const Text(
+          title: Text(
             'Trabajos',
-            style: TextStyle(
-              color: Color(0xFF003366),
-              fontWeight: FontWeight.bold,
+            style: AppTypography.subtitle.copyWith(
+              color: const Color(0xFF003366),
             ),
           ),
-          bottom: const TabBar(
-            labelColor: Color(0xFF003366),
+          bottom: TabBar(
+            labelColor: const Color(0xFF003366),
             unselectedLabelColor: Colors.grey,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
-            indicatorColor: Color(0xFF003366),
+            labelStyle: AppTypography.body,
+            indicatorColor: const Color(0xFF003366),
             indicatorWeight: 3,
             indicatorSize: TabBarIndicatorSize.tab,
             tabs: [
@@ -253,25 +252,23 @@ class _JobsScreen2State extends State<JobsScreen2> {
                         Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.work_outline,
+                            children: [
+                              const Icon(Icons.work_outline,
                                   size: 80, color: Colors.grey),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               Text(
                                 'Aún no te has postulado a ningún trabajo',
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF003366),
+                                style: AppTypography.title.copyWith(
+                                  color: const Color(0xFF003366),
                                 ),
                               ),
-                              SizedBox(height: 12),
+                              const SizedBox(height: 12),
                               Text(
                                 'Explora las oportunidades disponibles y postúlate para comenzar a trabajar. Postúlate a los trabajos que mejor se adapten a tus habilidades y experiencia.',
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.black87),
+                                style: AppTypography.subtitle
+                                    .copyWith(color: Colors.black87),
                               ),
                             ],
                           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:nodo/core/constants/api_constants.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class CategoryFilterDetailScreen extends StatefulWidget {
   const CategoryFilterDetailScreen({super.key});
@@ -100,7 +101,7 @@ class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen>
                   ),
                 ),
               ),
-              const Text('Categoría', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF003366))),
+              Text('Categoría', style: AppTypography.title.copyWith(color: const Color(0xFF003366))),
               
               if (_isLoading)
                 const Center(child: CircularProgressIndicator())
@@ -129,9 +130,9 @@ class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Selecciona las categorías que deseas filtrar',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: AppTypography.label.copyWith(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),

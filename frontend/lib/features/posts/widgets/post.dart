@@ -69,22 +69,14 @@ class PostCard extends StatelessWidget {
           SizedBox(height: 8.h),
           Text(
             item['title'] ?? 'Sin título',
-            style: TextStyle(
-              color: AppColors.blue,
-              fontFamily: 'GothamMedium',
-              fontSize: 10.sp,
-            ),
+            style: AppTypography.caption.copyWith(color: AppColors.blue),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 4.h),
           Text(
             _formatDate(item['postDate']),
-            style: TextStyle(
-              color: AppColors.blue,
-              fontFamily: 'GothamBook',
-              fontSize: 10.sp,
-            ),
+            style: AppTypography.caption.copyWith(color: AppColors.blue),
           ),
         ],
       ),

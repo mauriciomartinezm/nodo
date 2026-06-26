@@ -44,11 +44,7 @@ class CategoryDropdown extends StatelessWidget {
             value: category['nombre'],
             child: Text(
               category['nombre']!,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: Colors.black,
-                fontFamily: "GothamBook",
-              ),
+              style: AppTypography.label.copyWith(color: Colors.black),
             ),
           );
         }).toList(),

@@ -26,10 +26,10 @@ class _PostDetailState extends State<PostDetail> {
   late List<String> imageList;
   final CarouselSliderController _carouselController =
       CarouselSliderController();
+
   @override
   void initState() {
     super.initState();
-    // Parsear las imágenes de la publicación
     imageList = _parseImages(widget.publicacion['photos']);
   }
 
@@ -42,47 +42,92 @@ class _PostDetailState extends State<PostDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            width: 40.w,
-            height: 8.h,
-            decoration: BoxDecoration(
-              color: AppColors.blue,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          _buildImageCarousel(),
-          Padding(
-            padding: EdgeInsets.all(16.r),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.publicacion['title'] ?? 'Sin título',
-                  style: AppTypography.label.copyWith(color: AppColors.blue),
+    return Scaffold(
+      backgroundColor: Color.alphaBlend(
+          AppColors.blue.withValues(alpha: 0.03), Colors.white),
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.blue),
+        title: Text(
+          'Detalle de publicación',
+          style: AppTypography.title.copyWith(color: AppColors.orange),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildImageCarousel(),
+            Padding(
+              padding: EdgeInsets.all(16.r),
+              child: Container(
+                padding: EdgeInsets.all(18.r),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.blue.withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 8.h),
-                _buildDetailInfo(
-                    widget.publicacion['description'] ?? 'Sin descripción',
-                    isDescription: true),
-                _buildDetailInfo(
-                    'Publicado: ${_formatDate(widget.publicacion['postDate'])}'),
-                _buildDetailInfo(
-                    'Ubicación: ${widget.publicacion['location'] ?? 'Sin ubicación'}'),
-                _buildDetailInfo(
-                    'Fecha límite: ${_formatDate(widget.publicacion['deadline'])}'),
-                _buildDetailInfo(
-                    'Presupuesto: \$${widget.publicacion['budget']?.toString() ?? '0'}'),
-                _buildStatusInfo(widget.publicacion['status']),
-                _buildActionButtons(),
-              ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.publicacion['title'] ?? 'Sin título',
+                            style: AppTypography.title
+                                .copyWith(color: AppColors.blue),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        _buildStatusChip(widget.publicacion['status']),
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+                    Text(
+                      widget.publicacion['description'] ?? 'Sin descripción',
+                      style: AppTypography.body
+                          .copyWith(color: AppColors.blue.withValues(alpha: 0.85)),
+                    ),
+                    SizedBox(height: 16.h),
+                    Divider(color: AppColors.slateGrey.withValues(alpha: 0.3)),
+                    SizedBox(height: 8.h),
+                    _buildInfoRow(
+                      Icons.calendar_today_outlined,
+                      'Publicado',
+                      _formatDate(widget.publicacion['postDate']),
+                    ),
+                    _buildInfoRow(
+                      Icons.location_on_outlined,
+                      'Ubicación',
+                      widget.publicacion['location'] ?? 'Sin ubicación',
+                    ),
+                    _buildInfoRow(
+                      Icons.event_outlined,
+                      'Fecha límite',
+                      _formatDate(widget.publicacion['deadline']),
+                    ),
+                    _buildInfoRow(
+                      Icons.attach_money,
+                      'Presupuesto',
+                      '\$${widget.publicacion['budget']?.toString() ?? '0'}',
+                    ),
+                    SizedBox(height: 16.h),
+                    _buildActionButtons(),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -90,13 +135,22 @@ class _PostDetailState extends State<PostDetail> {
   Widget _buildImageCarousel() {
     if (imageList.isEmpty) {
       return Container(
-        height: 180.h,
+        height: 220.h,
         width: double.infinity,
+        color: AppColors.blue.withValues(alpha: 0.06),
         alignment: Alignment.center,
-        child: Text(
-          'Esta publicación no tiene imágenes',
-          style: AppTypography.subtitle.copyWith(color: AppColors.blue),
-          textAlign: TextAlign.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.image_not_supported_outlined,
+                size: 36.sp, color: AppColors.blue.withValues(alpha: 0.4)),
+            SizedBox(height: 8.h),
+            Text(
+              'Esta publicación no tiene imágenes',
+              style: AppTypography.body.copyWith(color: AppColors.blue),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       );
     }
@@ -106,20 +160,17 @@ class _PostDetailState extends State<PostDetail> {
         CarouselSlider(
           carouselController: _carouselController,
           items: imageList.map((imageUrl) {
-            return ClipRRect(
-              //borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                width: double.infinity,
-              ),
+            return Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
             );
           }).toList(),
           options: CarouselOptions(
-            height: 180.h,
-            viewportFraction: 0.9,
-            enlargeCenterPage: true,
-            enableInfiniteScroll: false,
+            height: 220.h,
+            viewportFraction: 1,
+            enlargeCenterPage: false,
+            enableInfiniteScroll: imageList.length > 1,
             onPageChanged: (index, reason) {
               setState(() {
                 _currentIndex = index;
@@ -127,130 +178,147 @@ class _PostDetailState extends State<PostDetail> {
             },
           ),
         ),
-
-        // Indicadores sobre la imagen
-        Positioned(
-          bottom: 10.h,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: imageList.asMap().entries.map((entry) {
-              final bool isActive = _currentIndex == entry.key;
-              return GestureDetector(
-                onTap: () => _carouselController.animateToPage(entry.key),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  width: isActive
-                      ? 7.w
-                      : 7.w, //cambiar el primer valor para ajustar tamaño
-                  height: isActive
-                      ? 7.w
-                      : 7.w, //cambiar el primer valor para ajustar tamaño
-                  margin: EdgeInsets.symmetric(horizontal: 2.w),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isActive ? AppColors.orange : AppColors.blue,
-                    border: Border.all(color: AppColors.white, width: 0.5),
+        if (imageList.length > 1)
+          Positioned(
+            bottom: 12.h,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: imageList.asMap().entries.map((entry) {
+                final bool isActive = _currentIndex == entry.key;
+                return GestureDetector(
+                  onTap: () => _carouselController.animateToPage(entry.key),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: isActive ? 9.w : 7.w,
+                    height: isActive ? 9.w : 7.w,
+                    margin: EdgeInsets.symmetric(horizontal: 3.w),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isActive ? AppColors.orange : AppColors.white,
+                      border: Border.all(color: AppColors.white, width: 1),
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
-        ),
       ],
     );
   }
 
-  Widget _buildDetailInfo(String texto, {bool isDescription = false}) {
+  Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
-      child: isDescription
-          ? Text(
-              texto,
-              style: AppTypography.body.copyWith(color: AppColors.blue),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            )
-          : Row(
-              children: [
-                Text(texto,
-                    style: AppTypography.body.copyWith(color: AppColors.blue)),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildStatusInfo(String status) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
+      padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(icon, size: 18.sp, color: AppColors.orange),
+          SizedBox(width: 10.w),
           Text(
-            'Estado: ',
-            style: AppTypography.body.copyWith(color: AppColors.blue),
+            '$label: ',
+            style: AppTypography.body.copyWith(
+              color: AppColors.blue
+            ),
           ),
-          Text(
-            _translateStatus(status),
-            style: AppTypography.body.copyWith(color: AppColors.blue),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTypography.body.copyWith(color: AppColors.blue),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildStatusChip(String status) {
+    final color = _statusColor(status);
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        _translateStatus(status),
+        style: AppTypography.caption.copyWith(
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'pending':
+        return AppColors.orange;
+      case 'in_progress':
+        return AppColors.blue;
+      case 'finished':
+        return AppColors.success;
+      case 'cancelled':
+        return AppColors.error;
+      default:
+        return AppColors.grey;
+    }
   }
 
   Widget _buildActionButtons() {
     final estado = widget.publicacion['status'];
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          if (estado != 'in_progress' && estado != 'finished')
-            _buildActionButton(
-              Icons.edit_outlined,
-              'Editar',
-              AppColors.white,
-              AppColors.blue,
-              () {
-                // Acción editar
-              },
-            ),
-          if (estado != 'in_progress' && estado != 'finished')
-            _buildActionButton(
-              Icons.person,
-              'Postulaciones',
-              AppColors.blue,
-              AppColors.blue.withOpacity(0.2),
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ApplicationsScreen(
-                      postId: widget.publicacion['id'],
-                    ),
-                  ),
-                );
-              },
-            ),
-          if (estado == 'in_progress' && estado != 'finished')
-            _buildActionButton(
-              Icons.check_circle_outline,
-              'Completado',
-              AppColors.blue,
-              AppColors.blue.withOpacity(0.2), // fondo azul
-              () => _confirmarFinalizacion(widget.publicacion['id']),
-            ),
-          if (estado != 'in_progress' && estado != 'finished')
-            _buildActionButton(
-              Icons.delete_outline,
-              'Eliminar',
-              AppColors.blue,
-              AppColors.blue.withOpacity(0.2), // fondo azul
-              () {
-                widget.onDelete();
-              },
-            ),
-        ],
-      ),
+    final buttons = <Widget>[
+      if (estado != 'in_progress' && estado != 'finished')
+        _buildActionButton(
+          Icons.edit_outlined,
+          'Editar',
+          AppColors.blue,
+          AppColors.blue.withValues(alpha: 0.1),
+          () {
+            // Acción editar
+          },
+        ),
+      if (estado != 'in_progress' && estado != 'finished')
+        _buildActionButton(
+          Icons.person_outline,
+          'Postulaciones',
+          AppColors.blue,
+          AppColors.blue.withValues(alpha: 0.1),
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ApplicationsScreen(
+                  postId: widget.publicacion['id'],
+                ),
+              ),
+            );
+          },
+        ),
+      if (estado == 'in_progress')
+        _buildActionButton(
+          Icons.check_circle_outline,
+          'Completado',
+          AppColors.success,
+          AppColors.success.withValues(alpha: 0.12),
+          () => _confirmarFinalizacion(widget.publicacion['id']),
+        ),
+      if (estado != 'in_progress' && estado != 'finished')
+        _buildActionButton(
+          Icons.delete_outline,
+          'Eliminar',
+          AppColors.error,
+          AppColors.error.withValues(alpha: 0.1),
+          () {
+            widget.onDelete();
+          },
+        ),
+    ];
+
+    if (buttons.isEmpty) return const SizedBox.shrink();
+
+    return Wrap(
+      spacing: 10.w,
+      runSpacing: 10.h,
+      children: buttons,
     );
   }
 
@@ -261,27 +329,19 @@ class _PostDetailState extends State<PostDetail> {
     Color backgroundColor,
     VoidCallback onPressed,
   ) {
-    return SizedBox(
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 20.sp, color: textColor),
-        label: Text(
-          text,
-          style: AppTypography.body.copyWith(color: textColor),
-        ),
-        style: ElevatedButton.styleFrom(
-          minimumSize: Size.zero,
-          tapTargetSize:
-              MaterialTapTargetSize.shrinkWrap, // 🔹 Compacta el espacio
-          backgroundColor: backgroundColor,
-          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(5),
-              topRight: Radius.circular(5),
-              bottomLeft: Radius.circular(5),
-            ),
-          ),
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18.sp, color: textColor),
+      label: Text(
+        text,
+        style: AppTypography.body.copyWith(color: textColor),
+      ),
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: backgroundColor,
+        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 14.w),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
@@ -313,7 +373,7 @@ class _PostDetailState extends State<PostDetail> {
             .finishJob(idPublicacion.toString());
 
         if (success) {
-          Navigator.pop(context);
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Trabajo marcado como finalizado.')),
           );
@@ -323,6 +383,7 @@ class _PostDetailState extends State<PostDetail> {
           widget.publicacion['status'] = 'finished';
         });
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al actualizar: ${e.toString()}')),
         );

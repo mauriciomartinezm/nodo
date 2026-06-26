@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class PriceFilter extends StatelessWidget {
   const PriceFilter({super.key});
@@ -53,12 +54,10 @@ class PriceFilterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Rango de precios',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003366),
+                    style: AppTypography.subtitle.copyWith(
+                      color: const Color(0xFF003366),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -68,9 +67,9 @@ class PriceFilterScreen extends StatelessWidget {
                       Expanded(
                         child: _buildPriceInputField(controller: minController, label: 'Min'),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('-', style: TextStyle(fontSize: 20)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text('-', style: AppTypography.title),
                       ),
                       Expanded(
                         child: _buildPriceInputField(controller: maxController, label: 'Max'),
