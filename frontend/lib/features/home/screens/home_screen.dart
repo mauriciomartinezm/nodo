@@ -65,10 +65,14 @@ class _HomeScreenState extends State<HomeScreen> {
     _screens = [
       const PostsScreen(),
       trabajosScreen,
-      const CreatePostScreen(),
       const NotificationsScreen(),
-      //const CreatePostScreen(),
     ];
+  }
+
+  void _openCreatePost() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const CreatePostScreen()),
+    );
   }
 
   @override
@@ -81,6 +85,12 @@ class _HomeScreenState extends State<HomeScreen> {
         index: currentPageIndex,
         children: _screens,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openCreatePost,
+        backgroundColor: AppColors.orange,
+        child: const Icon(Icons.add, color: AppColors.white),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       endDrawer: Drawer(
         width: MediaQuery.of(context).size.width * 0.75,
         child: Column(
@@ -115,10 +125,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? NetworkImage(fotoPerfil)
                                   : null,
                           child: (fotoPerfil == null || fotoPerfil.isEmpty)
-                              ? Icon(
-                                  Icons.person,
-                                  size: 90,
-                                  color: AppColors.white,
+                              ? Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Image.asset(
+                                    'assets/icons/iconNodoBlue.png',
+                                    fit: BoxFit.contain,
+                                  ),
                                 )
                               : null,
                         );

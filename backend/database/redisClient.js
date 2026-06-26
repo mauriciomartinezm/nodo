@@ -10,11 +10,12 @@ const redis = createClient({
         host: process.env.REDIS_HOST,
         port: process.env.REDIS_PORT,
         reconnectStrategy: (retries) => {
-            if (retries > 3) {
-                console.log('Redis: no se pudo conectar tras varios intentos, se deja de reintentar. La app sigue sin notificaciones.');
-                return false; // deja de reintentar, no tumba el proceso
-            }
-            return Math.min(retries * 200, 2000);
+            // Reintenta indefinidamente con backoff creciente (tope 5s).
+            // Antes se rendía tras 3 intentos y el cliente quedaba "cerrado"
+            // para siempre hasta reiniciar el proceso.
+            const delay = Math.min(retries * 200, 5000);
+            console.log(`Redis: reintentando conexión (intento ${retries}), próximo intento en ${delay}ms`);
+            return delay;
         }
     }
 });

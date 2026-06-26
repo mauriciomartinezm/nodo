@@ -97,8 +97,14 @@ class ProfileScreen extends StatelessWidget {
                                       ? NetworkImage(fotoPerfil)
                                       : null,
                               child: (fotoPerfil == null || fotoPerfil.isEmpty)
-                                  ? const Icon(Icons.person,
-                                      size: 90, color: AppColors.white)
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(32.0),
+                                      child: Image(
+                                        image: AssetImage(
+                                            'assets/icons/iconNodoBlue.png'),
+                                        fit: BoxFit.contain,
+                                      ),
+                                    )
                                   : null,
                             );
                           },

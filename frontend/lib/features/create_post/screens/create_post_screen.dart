@@ -56,11 +56,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final fotoPerfil = userProvider.user?.fotoPerfil;
 
     if (categorieProvider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Scaffold(
-      backgroundColor: AppColors.blue.withValues(alpha: 0.03),
+      backgroundColor:
+          Color.alphaBlend(AppColors.blue.withValues(alpha: 0.03), Colors.white),
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -78,7 +81,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   ? NetworkImage(fotoPerfil)
                   : null,
               child: fotoPerfil == null || fotoPerfil.isEmpty
-                  ? Icon(Icons.person, color: AppColors.orange, size: 18.r)
+                  ? Padding(
+                      padding: EdgeInsets.all(8.r),
+                      child: Image.asset(
+                        'assets/icons/iconNodoBlue.png',
+                        fit: BoxFit.contain,
+                      ),
+                    )
                   : null,
             ),
           ),

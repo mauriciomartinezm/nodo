@@ -114,7 +114,13 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           children: [
             const CircleAvatar(
-              backgroundImage: AssetImage('assets/icons/iconNodoBlue.png'),
+              child: Padding(
+                padding: EdgeInsets.all(11.0),
+                child: Image(
+                  image: AssetImage('assets/icons/iconNodoBlue.png'),
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
             const SizedBox(width: 10),
             Column(

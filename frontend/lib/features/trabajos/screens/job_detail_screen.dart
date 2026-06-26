@@ -223,9 +223,15 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                         Row(
                           children: [
                             const CircleAvatar(
-                              backgroundImage:
-                                  AssetImage('assets/icons/iconNodoBlue.png'),
                               radius: 20,
+                              child: Padding(
+                                padding: EdgeInsets.all(10.0),
+                                child: Image(
+                                  image: AssetImage(
+                                      'assets/icons/iconNodoBlue.png'),
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 10),
                             Text(
