@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class JobService {
   static Future<void> apply(
       String publicacionId, String trabajadorId) async {
-    print("💬Postulando...");
+    debugPrint("💬Postulando...");
     try {
       final response = await http.post(
         Uri.parse(ApiConstants.apply),
@@ -19,25 +19,25 @@ class JobService {
           'workerId': trabajadorId,
         }),
       );
-      print("💬Respuesta del servidor: ");
+      debugPrint("💬Respuesta del servidor: ");
 
-      print(response.body);
+      debugPrint(response.body);
       if (response.statusCode == 200) {
         // Postulación exitosa
         final responseData = jsonDecode(response.body);
-        print('✅ Postulación exitosa: $responseData');
+        debugPrint('✅ Postulación exitosa: $responseData');
       } else {
         // Error en la postulación
         throw Exception('Error al postularse: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error en postularse: $e');
+      debugPrint('Error en postularse: $e');
       rethrow; // Re-lanzamos la excepción para manejarla en el UI
     }
   }
 
   static Future<void> deleteApplication(String applicationId) async {
-    print("💬Eliminando postulación...");
+    debugPrint("💬Eliminando postulación...");
     try {
       final response = await http.delete(
         Uri.parse(ApiConstants.deleteApplication(applicationId)),
@@ -45,19 +45,19 @@ class JobService {
           'Content-Type': 'application/json',
         },
       );
-      print("💬Respuesta del servidor: ");
+      debugPrint("💬Respuesta del servidor: ");
 
-      print(response.body);
+      debugPrint(response.body);
       if (response.statusCode == 200) {
         // Postulación exitosa
         final responseData = jsonDecode(response.body);
-        print('✅ Postulación exitosa: $responseData');
+        debugPrint('✅ Postulación exitosa: $responseData');
       } else {
         // Error en la postulación
         throw Exception('Error al postularse: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error en postularse: $e');
+      debugPrint('Error en postularse: $e');
       rethrow; // Re-lanzamos la excepción para manejarla en el UI
     }
   }
@@ -74,20 +74,20 @@ class JobService {
     );
 
     if (response.statusCode == 200) {
-      print("❕❕❕Status code 200");
+      debugPrint("❕❕❕Status code 200");
     } else {
-      print("❕❕❕Error");
+      debugPrint("❕❕❕Error");
     }
   }
 
   static Future<List<dynamic>> fetchPosts() async {
-    print("💬 Haciendo fetch a publicaciones");
+    debugPrint("💬 Haciendo fetch a publicaciones");
     final response = await http.get(
       Uri.parse(ApiConstants.getPosts),
       headers: {'Content-Type': 'application/json'},
     );
-    print("💬 PubLicaciones: ");
-    print(response.body);
+    debugPrint("💬 PubLicaciones: ");
+    debugPrint(response.body);
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -98,7 +98,7 @@ class JobService {
 
   static Future<Map<String, String>> fetchClientNames(
       List posts) async {
-    print("💬 Haciendo fetch a usuarios");
+    debugPrint("💬 Haciendo fetch a usuarios");
 
     final Map<String, String> names = {};
     final clientIds =
@@ -108,19 +108,19 @@ class JobService {
         Uri.parse(ApiConstants.getUser(clientId)),
         headers: {'Content-Type': 'application/json'},
       );
-      print("Usuario");
-      print(response.body);
+      debugPrint("Usuario");
+      debugPrint(response.body);
       if (response.statusCode == 200) {
         final clientData = json.decode(response.body);
-        print("Client Data");
-        print(clientData);
+        debugPrint("Client Data");
+        debugPrint(clientData);
         names[clientId] = clientData['firstName'];
       } else {
         names[clientId] = 'Cliente $clientId';
       }
     }
-    print("Nombres: ");
-    print(names);
+    debugPrint("Nombres: ");
+    debugPrint(names.toString());
 
     return names;
   }
@@ -133,15 +133,15 @@ class JobService {
         'Content-Type': 'application/json',
       },
     );
-    print("💬 Postulaciones: ");
-    print(response.statusCode);
+    debugPrint("💬 Postulaciones: ");
+    debugPrint(response.statusCode.toString());
 
     if (response.statusCode == 200) {
-      print("✅ Se encontraron postulaciones");
+      debugPrint("✅ Se encontraron postulaciones");
 
       return jsonDecode(response.body);
     } else if (response.statusCode == 204) {
-      print("⚠️ No se encontraron postulaciones");
+      debugPrint("⚠️ No se encontraron postulaciones");
       return [];
     } else {
       throw Exception('Error al cargar postulaciones');
@@ -180,7 +180,7 @@ class JobService {
   }
 
   static Future<void> markAsFinished(String applicationId) async {
-    print("❕❕❕❕Finalizando trabajo");
+    debugPrint("❕❕❕❕Finalizando trabajo");
 
     final url = Uri.parse(ApiConstants.finishJob);
 
@@ -191,8 +191,8 @@ class JobService {
         'applicationId': applicationId,
       }),
     );
-    print("STATUS CODE: ");
-    print(response.statusCode);
+    debugPrint("STATUS CODE: ");
+    debugPrint(response.statusCode.toString());
   }
 
   static Future<void> cancelJob(String? applicationId) async {

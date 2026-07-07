@@ -79,8 +79,9 @@ enum ReportStatus {
 
 // ===== CATEGORIES =====
 
-// Lookup/auxiliary table: low cardinality, heavily joined, never a target
-// of authorization checks, so a sequential int id is fine performance-wise.
+// Tabla auxiliar/de consulta: baja cardinalidad, se une frecuentemente y
+// nunca es objeto de validaciones de autorización, así que un id entero
+// secuencial es seguro y mejor para el rendimiento.
 model GeneralCategory {
   id   Int    @id @default(autoincrement())
   name String

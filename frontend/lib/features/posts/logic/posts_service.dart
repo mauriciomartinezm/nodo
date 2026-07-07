@@ -58,8 +58,12 @@ class PostsService {
     if (response.statusCode == 200) {
       return true;
     } else {
-      print('Error al actualizar publicación: ${response.body}');
-      return false;
+      String mensaje = 'No se pudo actualizar la publicación.';
+      try {
+        final body = jsonDecode(response.body);
+        if (body['message'] != null) mensaje = body['message'];
+      } catch (_) {}
+      throw Exception(mensaje);
     }
   }
 }

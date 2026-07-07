@@ -151,6 +151,7 @@ export const login = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
+    const userId = req.params.id;
     const data = { ...req.body };
 
     if (data.password) {
@@ -161,16 +162,85 @@ export const updateUser = async (req, res) => {
       data.birthDate = parseBirthDate(data.birthDate);
     }
 
-    await prisma.appUser.update({
-      where: { id: req.params.id },
-      data,
-    });
+    // Estos dos viven en Worker/WorkerCategory, no en AppUser, así que no
+    // pueden pasar por prisma.appUser.update junto con el resto de `data`.
+    const description = data.description;
+    delete data.description;
+    const generalCategoryIds = data.generalCategoryIds;
+    delete data.generalCategoryIds;
+
+    if (Object.keys(data).length > 0) {
+      await prisma.appUser.update({ where: { id: userId }, data });
+    }
+
+    if (description !== undefined) {
+      await prisma.worker.update({ where: { userId }, data: { description } });
+    }
+
+    if (Array.isArray(generalCategoryIds)) {
+      const categoryIds = generalCategoryIds.map(Number);
+      await prisma.workerCategory.deleteMany({ where: { workerId: userId } });
+      await prisma.workerCategory.createMany({
+        data: categoryIds.map((generalCategoryId) => ({ workerId: userId, generalCategoryId })),
+        skipDuplicates: true,
+      });
+    }
 
     res.json({ message: "Data updated successfully" });
   } catch (error) {
     if (error.code === "P2025") {
       return res.status(404).json({ message: "Record not found" });
     }
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Convierte a un cliente existente en trabajador: crea su fila en Worker
+// (si todavía no la tiene) y le asigna los rubros elegidos. Es idempotente,
+// así que también sirve si alguien reintenta tras un error de red.
+export const activateWorker = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { description, generalCategoryIds, location } = req.body;
+
+    if (!description || !Array.isArray(generalCategoryIds) || generalCategoryIds.length === 0) {
+      return res.status(400).json({
+        message: "'description' y al menos un rubro en 'generalCategoryIds' son obligatorios.",
+      });
+    }
+
+    const user = await prisma.appUser.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ message: "El usuario no existe." });
+    }
+
+    const categoryIds = generalCategoryIds.map(Number);
+    const matchingCategories = await prisma.generalCategory.findMany({
+      where: { id: { in: categoryIds } },
+    });
+    if (matchingCategories.length !== categoryIds.length) {
+      return res.status(404).json({ message: "Uno o más rubros no existen." });
+    }
+
+    await prisma.worker.upsert({
+      where: { userId },
+      create: { userId, description },
+      update: { description },
+    });
+
+    if (location) {
+      await prisma.appUser.update({ where: { id: userId }, data: { location } });
+    }
+
+    await prisma.workerCategory.deleteMany({ where: { workerId: userId } });
+    await prisma.workerCategory.createMany({
+      data: categoryIds.map((generalCategoryId) => ({ workerId: userId, generalCategoryId })),
+      skipDuplicates: true,
+    });
+
+    res.json({ message: "Perfil de trabajador activado correctamente" });
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
   }

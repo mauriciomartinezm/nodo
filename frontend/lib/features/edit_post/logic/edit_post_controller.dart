@@ -111,7 +111,8 @@ class EditPostController extends ChangeNotifier {
       }
       return success;
     } catch (e) {
-      setErrorMessage("Error al actualizar la publicación: $e");
+      final mensaje = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
+      setErrorMessage(mensaje);
       return false;
     } finally {
       setLoading(false);

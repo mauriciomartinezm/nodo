@@ -20,7 +20,12 @@ class CreatePostService {
       final data = jsonDecode(response.body);
       return data['id']; // asegúrate de que tu backend devuelva esto
     } else {
-      throw Exception('Error al crear publicación: ${response.body}');
+      String mensaje = 'No se pudo crear la publicación.';
+      try {
+        final body = jsonDecode(response.body);
+        if (body['message'] != null) mensaje = body['message'];
+      } catch (_) {}
+      throw Exception(mensaje);
     }
   }
 
@@ -33,34 +38,45 @@ class CreatePostService {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Error al actualizar fotos: ${response.body}');
+      throw Exception('No se pudieron guardar las fotos de la publicación.');
     } else {
       return true;
     }
+  }
+
+  // Borra una publicación. Se usa para deshacer la creación si algo falla
+  // después (p. ej. la subida de imágenes), así no queda una publicación
+  // huérfana sin fotos.
+  Future<void> deletePost(String postId) async {
+    await http.delete(Uri.parse(ApiConstants.deletePost(postId)));
   }
 
   Future<List<String>> uploadImagesToFirebase(
       String postId, List<File> localImages) async {
     List<String> urls = [];
 
-    for (final imagen in localImages) {
-      // Convertir a WebP antes de subir
-      final imagenWebP = await ImageUtils.convertToAWebP(imagen);
+    try {
+      for (final imagen in localImages) {
+        // Convertir a WebP antes de subir
+        final imagenWebP = await ImageUtils.convertToAWebP(imagen);
 
-      final fileName = basename(imagenWebP.path);
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child('publicaciones/$postId/$fileName');
+        final fileName = basename(imagenWebP.path);
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('publicaciones/$postId/$fileName');
 
-      final uploadTask = ref.putFile(imagenWebP);
-      final snapshot = await uploadTask;
-      final url = await snapshot.ref.getDownloadURL();
-      urls.add(url);
+        final uploadTask = ref.putFile(imagenWebP);
+        final snapshot = await uploadTask;
+        final url = await snapshot.ref.getDownloadURL();
+        urls.add(url);
 
-      // Eliminar archivo temporal después de subir
-      if (await imagenWebP.exists()) {
-        await imagenWebP.delete();
+        // Eliminar archivo temporal después de subir
+        if (await imagenWebP.exists()) {
+          await imagenWebP.delete();
+        }
       }
+    } catch (e) {
+      throw Exception('No se pudo cargar la imagen. Inténtalo de nuevo.');
     }
 
     return urls;

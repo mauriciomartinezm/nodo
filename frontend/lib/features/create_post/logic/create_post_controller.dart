@@ -89,6 +89,8 @@ class CreatePostController extends ChangeNotifier {
   ) async {
     if (!validateFields()) return;
 
+    String? createdPostId;
+
     try {
       setLoading(true);
 
@@ -103,18 +105,29 @@ class CreatePostController extends ChangeNotifier {
       };
 
       final id = await _service.createPost(data);
-      // 🔹 Subir imágenes solo ahora
-      final urls = await _service.uploadImagesToFirebase(id!, localImages);
-      // 2️⃣ Actualizar con fotos si existen
-      if (urls.isNotEmpty) {
-        await _service.updatePhotos(id, urls);
+      createdPostId = id;
+
+      if (localImages.isNotEmpty) {
+        final urls = await _service.uploadImagesToFirebase(id!, localImages);
+        if (urls.isNotEmpty) {
+          await _service.updatePhotos(id, urls);
+        }
       }
+
       clearForm();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Publicación creada correctamente')),
       );
     } catch (e) {
-      setErrorMessage("Error al crear la publicación: $e");
+      // Si la publicación ya se había creado pero algo falló después (subir
+      // o guardar las fotos), no debe quedar una publicación a medias.
+      if (createdPostId != null) {
+        try {
+          await _service.deletePost(createdPostId);
+        } catch (_) {}
+      }
+      final mensaje = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
+      setErrorMessage(mensaje);
     } finally {
       setLoading(false);
     }

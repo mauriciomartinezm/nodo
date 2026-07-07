@@ -44,11 +44,8 @@ class PostsController extends ChangeNotifier {
     }
   }
 
-  //Sí debería exister pero para el editar - falta modificarlo
   Future<bool> updatePost(
       String postId, Map<String, dynamic> updatedFields) async {
-    print("❕❕❕❕Publicacion id");
-    print(postId);
     try {
       _setLoading(true);
       final success =
@@ -59,7 +56,7 @@ class PostsController extends ChangeNotifier {
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error al actualizar: ${e.toString()}';
+      _errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
       return false;
     } finally {
       _setLoading(false);

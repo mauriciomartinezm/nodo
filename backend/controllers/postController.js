@@ -168,7 +168,7 @@ export const updatePost = async (req, res) => {
       });
     }
 
-    // Categories are a relation, not a scalar column: replace the set.
+    // Las categorías son una relación, no una columna escalar: se reemplaza el conjunto.
     if (data.specificCategoryIds) {
       const categoryIds = data.specificCategoryIds.map(Number);
       delete data.specificCategoryIds;

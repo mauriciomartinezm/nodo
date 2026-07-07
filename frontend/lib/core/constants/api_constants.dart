@@ -7,6 +7,7 @@ class ApiConstants {
   static String get createUser => "$baseUrl/createUser";
   static String updateUser(String id) => "$baseUrl/updateUser/$id";
   static String getUser(String id) => "$baseUrl/getUser/$id";
+  static String activateWorker(String id) => "$baseUrl/activateWorker/$id";
   static String get getWorkerByUserId => "$baseUrl/getWorkerByUserId";
 
   static String get createPost => "$baseUrl/createPost";
