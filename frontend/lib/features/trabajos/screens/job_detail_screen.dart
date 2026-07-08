@@ -34,7 +34,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   @override
   void initState() {
     super.initState();
-    print("DEBUG JOB => ${widget.job}");
+    debugPrint("DEBUG JOB => ${widget.job}");
   }
 
   @override
@@ -56,8 +56,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     final String fechaLimite = widget.job["time"] ?? "";
     final String estadoPostulacion =
         widget.postulacion?['status'].toString() ?? '';
-    print("Estado de la postulacion: ");
-    print(estadoPostulacion);
+    debugPrint("Estado de la postulacion: ");
+    debugPrint(estadoPostulacion);
     // final int? jobId = widget.job["id"];
     //   if (jobId == null) {
     //     return const Center(child: Text('Error: Trabajo sin ID'));

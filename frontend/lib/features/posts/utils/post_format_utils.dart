@@ -1,6 +1,3 @@
-/// Helpers compartidos para mostrar datos de una publicación,
-/// usados tanto en la tarjeta de la grilla como en el detalle.
-
 List<String> parsePostImages(dynamic photos) {
   if (photos is List) {
     return photos.map((url) => url.toString()).toList();

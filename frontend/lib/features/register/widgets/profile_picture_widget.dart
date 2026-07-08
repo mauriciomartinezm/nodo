@@ -4,8 +4,8 @@ import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/features/register/logic/profile_picture_controller.dart';
-import 'package:nodo/features/login/screens/login_screen.dart';
-import 'package:nodo/shared/providers/user_provider.dart';
+// import 'package:nodo/features/login/screens/login_screen.dart';
+// import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfilePictureWidget extends StatelessWidget {
@@ -15,7 +15,6 @@ class ProfilePictureWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<ProfilePictureController>(context);
-    final isWorker = Provider.of<UserProvider>(context).isWorker;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -43,11 +42,8 @@ class ProfilePictureWidget extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 60,
-                  backgroundImage: controller.imageFile != null
-                      ? FileImage(controller.imageFile!)
-                      : const AssetImage('assets/icons/iconNodoBlue.png')
-                          as ImageProvider,
-                  backgroundColor: Colors.grey.shade400.withOpacity(0.4),
+                  backgroundImage: FileImage(controller.imageFile),
+                  backgroundColor: Colors.grey.shade400.withValues(alpha: 0.4),
                 ),
                 Positioned(
                   bottom: 4,

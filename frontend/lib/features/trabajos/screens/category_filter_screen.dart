@@ -129,7 +129,7 @@ class _FilterItem extends StatelessWidget {
           );
 
           if (resultado != null) {
-            print('Categorías seleccionadas: $resultado');
+            debugPrint('Categorías seleccionadas: $resultado');
           }
         } else if (label == 'Ubicación') {
           final resultado = await showModalBottomSheet<Map<String, dynamic>>(
@@ -140,7 +140,7 @@ class _FilterItem extends StatelessWidget {
           );
 
           if (resultado != null) {
-            print('Ubicación seleccionada: $resultado');
+            debugPrint('Ubicación seleccionada: $resultado');
           }
         }else if (label == 'Rango de Precio') {
           final resultado = await showModalBottomSheet<Map<String, dynamic>>(
@@ -151,7 +151,7 @@ class _FilterItem extends StatelessWidget {
           );
 
           if (resultado != null) {
-            print('Precio mínimo: ${resultado['min']}, máximo: ${resultado['max']}');
+            debugPrint('Precio mínimo: ${resultado['min']}, máximo: ${resultado['max']}');
           }
         }else if (label == 'Tiempo de Publicación') {
           final resultado = await showModalBottomSheet<String>(
@@ -162,7 +162,7 @@ class _FilterItem extends StatelessWidget {
           );
 
           if (resultado != null) {
-            print('Tiempo seleccionado: $resultado');
+            debugPrint('Tiempo seleccionado: $resultado');
           }
         }else if (label == 'Fecha de Inicio') {
           final resultado = await showModalBottomSheet<DateTimeRange>(
@@ -173,7 +173,7 @@ class _FilterItem extends StatelessWidget {
           );
 
           if (resultado != null) {
-            print('Rango seleccionado: ${resultado.start} hasta ${resultado.end}');
+            debugPrint('Rango seleccionado: ${resultado.start} hasta ${resultado.end}');
           }
         }
       },

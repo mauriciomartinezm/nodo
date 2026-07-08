@@ -105,7 +105,7 @@ class NotificationService {
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("Notificación en segundo plano: ${message.messageId}");
+  debugPrint("Notificación en segundo plano: ${message.messageId}");
   
   // Opcional: Mostrar notificación local en segundo plano
   if (message.notification != null) {

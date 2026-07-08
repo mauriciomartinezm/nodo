@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nodo/core/constants/api_constants.dart';
@@ -9,8 +9,8 @@ import 'package:nodo/shared/providers/register_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:nodo/shared/providers/user_provider.dart';
-import 'package:mime/mime.dart';
+// import 'package:nodo/shared/providers/user_provider.dart';
+// import 'package:mime/mime.dart';
 
 class ProfilePictureController extends ChangeNotifier {
   bool acceptedTerms = false;
@@ -64,15 +64,15 @@ class ProfilePictureController extends ChangeNotifier {
         }
 
         if (putResponse.statusCode == 200) {
-          print('✅ Imagen subida correctamente');
+          debugPrint('✅ Imagen subida correctamente');
         } else {
-          print('❌ Error subiendo imagen: ${putResponse.statusCode}');
+          debugPrint('❌ Error subiendo imagen: ${putResponse.statusCode}');
         }
       } else {
-        print('❌ Error obteniendo URL firmada: ${response.statusCode}');
+        debugPrint('❌ Error obteniendo URL firmada: ${response.statusCode}');
       }
     } catch (e) {
-      print('⚠️ Error: $e');
+      debugPrint('⚠️ Error: $e');
     }
   }
 

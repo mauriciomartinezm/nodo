@@ -38,7 +38,7 @@ class PostCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: tieneImagenes
                     ? Colors.transparent
-                    : AppColors.blue.withOpacity(0.2),
+                    : AppColors.blue.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: tieneImagenes

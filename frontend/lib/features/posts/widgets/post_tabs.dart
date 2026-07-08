@@ -30,7 +30,7 @@ class PostTabs extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.blue
-                    : AppColors.blue.withOpacity(0.2),
+                    : AppColors.blue.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(

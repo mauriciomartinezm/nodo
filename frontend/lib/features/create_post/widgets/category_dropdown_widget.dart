@@ -35,7 +35,7 @@ class CategoryDropdown extends StatelessWidget {
             horizontal: 10.w,
           ),
         ),
-        value: value,
+        initialValue: value,
         style: AppTypography.body,
         dropdownColor: Colors.white,
         icon: const Icon(Icons.arrow_drop_down),

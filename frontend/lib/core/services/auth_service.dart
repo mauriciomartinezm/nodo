@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -30,7 +31,7 @@ class AuthService {
       try {
         await _guardarTokenFCM(usuario.id);
       } catch (e) {
-        print('No se pudo guardar el token FCM: $e');
+        debugPrint('No se pudo guardar el token FCM: $e');
       }
       return usuario;
     }
@@ -46,7 +47,7 @@ class AuthService {
     try {
       await _deleteTokenFCM(userId);
     } catch (e) {
-      print('Error al cerrar sesión: $e');
+      debugPrint('Error al cerrar sesión: $e');
     }
   }
 
@@ -68,7 +69,7 @@ class AuthService {
     if (response.statusCode == 200) {
       await prefs.setString('fcm_token', nuevoToken);
     } else {
-      print('Error al guardar token FCM: ${response.body}');
+      debugPrint('Error al guardar token FCM: ${response.body}');
     }
   }
 

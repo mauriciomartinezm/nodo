@@ -50,7 +50,7 @@ class _NotificationsSettingsState extends State<NotificationsSettings> {
                       child: Switch(
                         value: value,
                         onChanged: onChanged,
-                        activeColor: Colors
+                        activeThumbColor: Colors
                             .white, // Color del círculo cuando está activo
                         activeTrackColor: AppColors
                             .blue, // Color del fondo cuando está activo

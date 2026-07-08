@@ -199,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Ejecuta el logout (que ahora incluye toda la limpieza)
                     await Provider.of<UserProvider>(context, listen: false)
                         .logout();
-                    print("Usuario desloggeado");
+                    debugPrint("Usuario desloggeado");
                     // Navega al login
                     // 5. Navegar al login - FORMA CORREGIDA
                     Navigator.of(context, rootNavigator: true)

@@ -27,7 +27,7 @@ class DescripcionField extends StatelessWidget {
         //       size: 18.r, color: AppColors.slateGrey),
         // ),
         filled: true,
-        fillColor: AppColors.blue.withOpacity(0.04),
+        fillColor: AppColors.blue.withValues(alpha: 0.04),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -35,7 +35,7 @@ class DescripcionField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-              width: 1.r, color: AppColors.slateGrey.withOpacity(0.4)),
+              width: 1.r, color: AppColors.slateGrey.withValues(alpha: 0.4)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

@@ -4,7 +4,7 @@ import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/features/register/logic/validation_controller.dart';
-import 'package:nodo/features/register/widgets/profile_picture_widget.dart';
+// import 'package:nodo/features/register/widgets/profile_picture_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ValidationWidget extends StatefulWidget {

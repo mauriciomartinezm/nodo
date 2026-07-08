@@ -12,7 +12,7 @@ class HeaderInfoWidget extends StatefulWidget {
 }
 
 class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
-  final String _profesion = '';
+  // final String _profesion = '';
   bool _loadingCategoria = false;
 
   @override
