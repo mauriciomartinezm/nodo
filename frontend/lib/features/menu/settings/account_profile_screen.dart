@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
+import 'widgets/settings_sub_header.dart';
 
 class AccountProfileScreen extends StatefulWidget {
   const AccountProfileScreen({super.key});
@@ -9,204 +11,284 @@ class AccountProfileScreen extends StatefulWidget {
 }
 
 class _AccountProfileScreenState extends State<AccountProfileScreen> {
-  String phone = '0000000000';
-  String email = 'user@mail.com';
-
-    @override
+  @override
   Widget build(BuildContext context) {
-    // final width = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Cuenta y perfil',
-            style: 
-                AppTypography.title.copyWith(color: AppColors.blue)),
-        leading: const BackButton(),
+      backgroundColor:
+          Color.alphaBlend(AppColors.blue.withValues(alpha: 0.03), Colors.white),
+      body: Column(
+        children: [
+          const SettingsSubHeader(
+            title: 'Cuenta y perfil',
+            subtitle: 'Gestiona tus datos personales',
+            icon: Icons.person_outline_rounded,
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(16.r),
+              children: [
+                _card([
+                  _tile(
+                    icon: Icons.edit_outlined,
+                    color: AppColors.blue,
+                    title: 'Editar perfil',
+                    subtitle: 'Nombres, contacto, descripción y rubros',
+                    onTap: () => Navigator.pushNamed(context, '/editProfile'),
+                  ),
+                  _tile(
+                    icon: Icons.lock_outline_rounded,
+                    color: const Color(0xFF1565C0),
+                    title: 'Cambiar contraseña',
+                    subtitle: 'Actualiza tu contraseña de acceso',
+                    onTap: _changePassword,
+                  ),
+                ]),
+                SizedBox(height: 12.h),
+                _card([
+                  _tile(
+                    icon: Icons.delete_outline_rounded,
+                    color: AppColors.error,
+                    title: 'Eliminar cuenta',
+                    subtitle: 'Esta acción es permanente e irreversible',
+                    onTap: _deleteModal,
+                    titleColor: AppColors.error,
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
+    );
+  }
+
+  Widget _card(List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.blue.withValues(alpha: 0.07),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: List.generate(children.length, (i) {
+          final isLast = i == children.length - 1;
+          return Column(
+            children: [
+              children[i],
+              if (!isLast)
+                Divider(
+                  height: 1,
+                  indent: 56.w,
+                  color: AppColors.slateGrey.withValues(alpha: 0.15),
+                ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _tile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    Color? titleColor,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        child: Row(
           children: [
-            ListTile(
-              title: Text('Editar Perfil',
-                  style:
-                      AppTypography.subtitle.copyWith(color: AppColors.blue)),
-              onTap: () {
-                Navigator.pushNamed(context, '/editProfile');
-              },
+            Container(
+              padding: EdgeInsets.all(10.r),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 20.r),
             ),
-            ListTile(
-              title: Text('Cambiar contraseña',
-                  style:
-                      AppTypography.subtitle.copyWith(color: AppColors.blue)),
-              onTap: _changePassword,
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: AppTypography.label.copyWith(
+                        color: titleColor ?? AppColors.blue,
+                        fontFamily: 'GothamMedium',
+                      )),
+                  SizedBox(height: 2.h),
+                  Text(subtitle,
+                      style: AppTypography.caption
+                          .copyWith(color: AppColors.slateGrey)),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: _deleteModal,
-              child:  Text('Eliminar cuenta',
-                  style: AppTypography.subtitle.copyWith(color: AppColors.orange)),
-            ),
+            Icon(Icons.chevron_right_rounded,
+                color: AppColors.slateGrey, size: 20.r),
           ],
         ),
       ),
     );
   }
 
-  //Cambiar contraseña
   void _changePassword() {
-    final TextEditingController currentPasswordController =
-        TextEditingController();
-    final TextEditingController newPasswordController = TextEditingController();
-    final TextEditingController confirmPasswordController =
-        TextEditingController();
+    final currentCtrl = TextEditingController();
+    final newCtrl = TextEditingController();
+    final confirmCtrl = TextEditingController();
 
     showDialog(
       context: context,
-      barrierDismissible: true,
-      // barrierColor: const Color.fromARGB(150, 6, 54, 102),
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          title: Text(
-            'Cambiar Contraseña',
+      builder: (_) => AlertDialog(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Cambiar contraseña',
             style: AppTypography.title.copyWith(color: AppColors.blue),
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.center),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _passwordField(currentCtrl, 'Contraseña actual'),
+              SizedBox(height: 12.h),
+              _passwordField(newCtrl, 'Nueva contraseña'),
+              SizedBox(height: 12.h),
+              _passwordField(confirmCtrl, 'Confirmar nueva contraseña'),
+            ],
           ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-
-                //Contraseña actual
-                TextField(
-                  controller: currentPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Contraseña actual',
-                    labelStyle:
-                        AppTypography.body.copyWith(color: AppColors.blue),
-                  ),
-                  obscureText: true,
-                ),
-                const SizedBox(height: 12),
-
-                //Nueva contraseña
-                TextField(
-                  controller: newPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Contraseña nueva',
-                    labelStyle:
-                        AppTypography.body.copyWith(color: AppColors.blue),
-                  ),
-                  obscureText: true,
-                ),
-                const SizedBox(height: 12),
-
-                //Confirmar contraseña
-                TextField(
-                  controller: confirmPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar contraseña nueva',
-                    labelStyle:
-                        AppTypography.body.copyWith(color: AppColors.blue),
-                  ),
-                  obscureText: true,
-                ),
-              ],
-            ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar',
+                style: AppTypography.label.copyWith(color: AppColors.slateGrey)),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar',
-                  style: AppTypography.label.copyWith(color: AppColors.blue)),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.blue,
+              foregroundColor: AppColors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
             ),
-            ElevatedButton(
-              onPressed: () {
-                if (newPasswordController.text !=
-                    confirmPasswordController.text) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Las contraseñas no coinciden',
-                          style: AppTypography.label
-                              .copyWith(color: AppColors.white),
-                        textAlign: TextAlign.center,
-                      ),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
-                  return;
-                }
-
-                //Aquí iría la lógica real para actualizar la contraseña
-
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Contraseña actualizada',
-                        style: AppTypography.label
-                            .copyWith(color: AppColors.white),
-                        textAlign: TextAlign.center,),
-                            backgroundColor: AppColors.blue,
-
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.orange,
-                foregroundColor: AppColors.white,
-              ),
-              child: Text('Actualizar', style: AppTypography.subtitle),
-            ),
-          ],
-        );
-      },
+            onPressed: () {
+              if (newCtrl.text != confirmCtrl.text) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Las contraseñas no coinciden'),
+                  backgroundColor: AppColors.error,
+                ));
+                return;
+              }
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Contraseña actualizada'),
+                backgroundColor: AppColors.success,
+              ));
+            },
+            child: Text('Actualizar', style: AppTypography.label),
+          ),
+        ],
+      ),
     );
   }
 
+  Widget _passwordField(TextEditingController ctrl, String label) {
+    return TextField(
+      controller: ctrl,
+      obscureText: true,
+      style: AppTypography.body,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: AppTypography.body.copyWith(color: AppColors.slateGrey),
+        border:
+            OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              const BorderSide(color: AppColors.blue, width: 1.5),
+        ),
+      ),
+    );
+  }
 
   void _deleteModal() {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (_) {
-          return Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 32.h),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40.w,
+              height: 4.h,
+              margin: EdgeInsets.only(bottom: 20.h),
+              decoration: BoxDecoration(
+                color: AppColors.slateGrey.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Eliminar Cuenta',
-                    style: AppTypography.title.copyWith(color: AppColors.orange)),
-                const SizedBox(height: 5),
-                Text('¿Estás seguro de que deseas eliminar tu cuenta?',
-                    style: AppTypography.body.copyWith(color: AppColors.blue)),
-                const SizedBox(height: 10),
-                Text(
-                  'Eliminar tu cuenta es una acción PERMANENTE. Perderás el acceso a tu perfil, publicaciones,historial de trabajos, calificaciones y cualquier otro dato asociado a tu cuenta en NODO',
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.blue,
-                  ),
-                  textAlign: TextAlign.justify,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.orange,
-                    foregroundColor: AppColors.white,
-                  ),
-                  child: const Text('Eliminar mi cuenta de NODO'),
-                ),
-              ],
+            Container(
+              padding: EdgeInsets.all(16.r),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.warning_amber_rounded,
+                  color: AppColors.error, size: 36.r),
             ),
-          );
-        },
-      );
-    }
+            SizedBox(height: 16.h),
+            Text('Eliminar cuenta',
+                style:
+                    AppTypography.title.copyWith(color: AppColors.error)),
+            SizedBox(height: 8.h),
+            Text(
+              'Esta acción es PERMANENTE. Perderás tu perfil, publicaciones, historial, calificaciones y todos tus datos en NODO.',
+              style: AppTypography.body.copyWith(color: AppColors.slateGrey),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24.h),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: Text('Eliminar mi cuenta',
+                    style: AppTypography.label
+                        .copyWith(color: AppColors.white)),
+              ),
+            ),
+            SizedBox(height: 8.h),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancelar',
+                  style: AppTypography.label
+                      .copyWith(color: AppColors.slateGrey)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
-

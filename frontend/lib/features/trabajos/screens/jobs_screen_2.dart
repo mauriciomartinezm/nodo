@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-
 import 'package:nodo/features/trabajos/screens/job_detail_screen.dart';
 import 'package:nodo/features/trabajos/screens/category_filter_screen.dart';
-import 'package:nodo/features/trabajos/logic/job_service.dart'; // Asegúrate de importar aquí
+import 'package:nodo/features/trabajos/logic/job_service.dart';
 import 'package:nodo/features/trabajos/widgets/joblist.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -21,9 +21,15 @@ class _JobsScreen2State extends State<JobsScreen2> {
   bool _isLoading = true;
   String _errorMessage = '';
   List<dynamic> _postulaciones = [];
-
   bool _isLoadingPostulaciones = true;
   String _errorMessagePostulaciones = '';
+  int _selectedTab = 0;
+
+  static const _tabs = [
+    (label: 'Disponibles', icon: Icons.search_rounded),
+    (label: 'Postulaciones', icon: Icons.send_outlined),
+    (label: 'Mis trabajos', icon: Icons.construction_outlined),
+  ];
 
   @override
   void initState() {
@@ -40,13 +46,14 @@ class _JobsScreen2State extends State<JobsScreen2> {
     try {
       final publicaciones = await JobService.fetchPosts();
       final nombres = await JobService.fetchClientNames(publicaciones);
-
+      if (!mounted) return;
       setState(() {
         _publicaciones = publicaciones;
         _nombresClientes = nombres;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
         _errorMessage = 'Error: $e';
@@ -58,15 +65,16 @@ class _JobsScreen2State extends State<JobsScreen2> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final currentId = userProvider.user?.id;
     if (currentId == null) return;
-
     try {
-      final postulaciones = await JobService.fetchApplicationsByUser(currentId);
-
+      final postulaciones =
+          await JobService.fetchApplicationsByUser(currentId);
+      if (!mounted) return;
       setState(() {
         _postulaciones = postulaciones;
         _isLoadingPostulaciones = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoadingPostulaciones = false;
         _errorMessagePostulaciones = 'Error: $e';
@@ -105,7 +113,7 @@ class _JobsScreen2State extends State<JobsScreen2> {
           postulacion: postulacion,
           scrollController: scrollController,
           desdePostulaciones: desdePostulaciones,
-          onPostulacionCambiada: _loadAllData, // <--- LLAMADO AL REFRESCO
+          onPostulacionCambiada: _loadAllData,
         ),
       ),
     );
@@ -117,8 +125,8 @@ class _JobsScreen2State extends State<JobsScreen2> {
       (p) => p['postId'] == publicacion['id'],
       orElse: () => null,
     );
-
-    final nombreCliente = _nombresClientes[idCliente.toString()] ?? 'Cliente';
+    final nombreCliente =
+        _nombresClientes[idCliente.toString()] ?? 'Cliente';
     _mostrarDetalleTrabajo(publicacion, nombreCliente, postulacion, true);
   }
 
@@ -126,225 +134,349 @@ class _JobsScreen2State extends State<JobsScreen2> {
     if (photos is List && photos.isNotEmpty) {
       return photos.map((url) => url.toString()).toList();
     }
-    return ['assets/images/diomedes_joven.jpg']; // Imagen por defecto
+    return ['assets/images/diomedes_joven.jpg'];
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        appBar: AppBar(
-          backgroundColor: AppColors.white,
-          title: Text(
-            'Trabajos',
-            style: AppTypography.subtitle.copyWith(
-              color: const Color(0xFF003366),
-            ),
-          ),
-          bottom: TabBar(
-            labelColor: const Color(0xFF003366),
-            unselectedLabelColor: Colors.grey,
-            labelStyle: AppTypography.body,
-            indicatorColor: const Color(0xFF003366),
-            indicatorWeight: 3,
-            indicatorSize: TabBarIndicatorSize.tab,
-            tabs: [
-              Tab(text: 'Disponibles'),
-              Tab(text: 'Mis postulaciones'),
-              Tab(text: 'Mis trabajos'),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.filter_alt_outlined,
-                  color: AppColors.orange),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => const CategoryFilterScreen(),
-                );
-              },
-            ),
-          ],
-        ),
-        body: TabBarView(
-          children: [
-            _buildJobList(context),
-            _buildPostulacionesList(context),
-            _buildMisTrabajosList(context),
-          ],
-        ),
+    final disponiblesCount = _publicaciones
+        .where((pub) => !_postulaciones.any((p) => p['postId'] == pub['id']))
+        .length;
+    final postulacionesCount =
+        _postulaciones.where((p) => p['status'] != 'accepted').length;
+    final misTrabajosCount =
+        _postulaciones.where((p) => p['status'] == 'accepted').length;
+    final counts = [disponiblesCount, postulacionesCount, misTrabajosCount];
+
+    return Scaffold(
+      backgroundColor: Color.alphaBlend(
+          AppColors.blue.withValues(alpha: 0.03), Colors.white),
+      body: Column(
+        children: [
+          _buildHeader(context),
+          _buildTabs(counts),
+          Expanded(child: _buildTabBody()),
+        ],
       ),
     );
   }
 
-  Widget _buildJobList(BuildContext context) {
+  Widget _buildHeader(BuildContext context) {
+    final isLoadingAny = _isLoading || _isLoadingPostulaciones;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+          20.w, MediaQuery.of(context).padding.top + 16.h, 16.w, 20.h),
+      decoration: const BoxDecoration(
+        color: AppColors.blue,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Trabajos',
+                    style:
+                        AppTypography.title.copyWith(color: AppColors.white)),
+                SizedBox(height: 4.h),
+                Text(
+                  'Encuentra oportunidades cerca de ti',
+                  style: AppTypography.caption.copyWith(
+                      color: AppColors.white.withValues(alpha: 0.7)),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.filter_alt_outlined,
+                color: AppColors.white, size: 22.r),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const CategoryFilterScreen(),
+              );
+            },
+          ),
+          IconButton(
+            icon: isLoadingAny
+                ? SizedBox(
+                    width: 18.r,
+                    height: 18.r,
+                    child: const CircularProgressIndicator(
+                        color: AppColors.white, strokeWidth: 2),
+                  )
+                : Icon(Icons.refresh_rounded,
+                    color: AppColors.white, size: 22.r),
+            onPressed: isLoadingAny ? null : _loadAllData,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabs(List<int> counts) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      padding: EdgeInsets.all(4.r),
+      decoration: BoxDecoration(
+        color: AppColors.blue.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: List.generate(_tabs.length, (i) {
+          final isSelected = _selectedTab == i;
+          final count = counts[i];
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedTab = i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.blue : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: AppColors.blue.withValues(alpha: 0.18),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      : [],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(
+                          _tabs[i].icon,
+                          size: 18.r,
+                          color: isSelected
+                              ? AppColors.white
+                              : AppColors.blue.withValues(alpha: 0.5),
+                        ),
+                        if (count > 0)
+                          Positioned(
+                            top: -4,
+                            right: -8,
+                            child: Container(
+                              padding: EdgeInsets.all(2.r),
+                              constraints: BoxConstraints(
+                                  minWidth: 14.r, minHeight: 14.r),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.orange
+                                    : AppColors.blue.withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(7),
+                              ),
+                              child: Text(
+                                '$count',
+                                style: TextStyle(
+                                  fontFamily: 'GothamBold',
+                                  fontSize: 8.sp,
+                                  color: isSelected
+                                      ? AppColors.white
+                                      : AppColors.blue,
+                                  height: 1,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: 3.h),
+                    Text(
+                      _tabs[i].label,
+                      style: AppTypography.caption.copyWith(
+                        color: isSelected
+                            ? AppColors.white
+                            : AppColors.blue.withValues(alpha: 0.6),
+                        fontFamily:
+                            isSelected ? 'GothamMedium' : 'GothamBook',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildTabBody() {
+    return IndexedStack(
+      index: _selectedTab,
+      children: [
+        _buildJobList(),
+        _buildPostulacionesList(),
+        _buildMisTrabajosList(),
+      ],
+    );
+  }
+
+  Widget _buildJobList() {
+    final disponibles = _publicaciones
+        .where((pub) =>
+            !_postulaciones.any((p) => p['postId'] == pub['id']))
+        .toList();
+
     return RefreshIndicator(
       onRefresh: _loadAllData,
-      color: Colors.orange,
+      color: AppColors.orange,
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage.isNotEmpty
-              ? ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.8,
-                      child: Center(child: Text(_errorMessage)),
-                    ),
-                  ],
-                )
-              : _publicaciones.isEmpty
-                  ? ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          child: const Center(
-                            child: Text('No hay publicaciones disponibles'),
-                          ),
-                        ),
-                      ],
+              ? _errorState(_errorMessage)
+              : disponibles.isEmpty
+                  ? _emptyState(
+                      Icons.search_off_outlined,
+                      'Sin trabajos disponibles',
+                      'No hay solicitudes publicadas en este momento. Vuelve más tarde.',
                     )
                   : JobList(
-                      publicaciones: _publicaciones.where((pub) {
-                        // Verifica si hay alguna postulación para esta publicación
-                        final yaPostulado = _postulaciones.any(
-                          (post) => post['postId'] == pub['id'],
-                        );
-                        return !yaPostulado; // Mostrar solo si NO hay postulación
-                      }).toList(),
+                      publicaciones: disponibles,
                       nombresClientes: _nombresClientes,
-                      onVerDetalles: (publicacion, nombreCliente) {
-                        _mostrarDetalleTrabajo(
-                            publicacion, nombreCliente, null, false);
-                      },
+                      onVerDetalles: (pub, nombre) =>
+                          _mostrarDetalleTrabajo(pub, nombre, null, false),
                     ),
     );
   }
 
-  Widget _buildPostulacionesList(BuildContext context) {
+  Widget _buildPostulacionesList() {
+    final pendientes = _postulaciones
+        .where((p) => p['status'] != 'accepted')
+        .map((p) {
+          final pub = _publicaciones.firstWhere(
+              (pub) => pub['id'] == p['postId'],
+              orElse: () => null);
+          if (pub != null) pub['estado_postulacion'] = p['status'];
+          return pub;
+        })
+        .where((pub) => pub != null)
+        .toList();
+
     return RefreshIndicator(
       onRefresh: _loadPostulaciones,
-      color: Colors.orange,
+      color: AppColors.orange,
       child: _isLoadingPostulaciones
           ? const Center(child: CircularProgressIndicator())
           : _errorMessagePostulaciones.isNotEmpty
-              ? ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.8,
-                      child: Center(child: Text(_errorMessagePostulaciones)),
-                    ),
-                  ],
-                )
-              : _postulaciones.isEmpty
-                  ? ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24.0, vertical: 40.0),
-                      children: [
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.work_outline,
-                                  size: 80, color: Colors.grey),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Aún no te has postulado a ningún trabajo',
-                                textAlign: TextAlign.center,
-                                style: AppTypography.title.copyWith(
-                                  color: const Color(0xFF003366),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Explora las oportunidades disponibles y postúlate para comenzar a trabajar. Postúlate a los trabajos que mejor se adapten a tus habilidades y experiencia.',
-                                textAlign: TextAlign.center,
-                                style: AppTypography.subtitle
-                                    .copyWith(color: Colors.black87),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+              ? _errorState(_errorMessagePostulaciones)
+              : pendientes.isEmpty
+                  ? _emptyState(
+                      Icons.send_outlined,
+                      'Aún no te has postulado',
+                      'Explora los trabajos disponibles y postúlate para comenzar.',
                     )
                   : JobList(
-                      publicaciones: _postulaciones
-                          .where((postulacion) =>
-                              postulacion['status'] != 'accepted')
-                          .map((postulacion) {
-                            final idPublicacion = postulacion['postId'];
-                            final publicacion = _publicaciones.firstWhere(
-                              (pub) => pub['id'] == idPublicacion,
-                              orElse: () => null,
-                            );
-                            if (publicacion != null) {
-                              publicacion['estado_postulacion'] =
-                                  postulacion['status']; // 👈 AÑADIDO
-                            }
-                            return publicacion;
-                          })
-                          .where((pub) => pub != null)
-                          .toList(),
+                      publicaciones: pendientes,
                       nombresClientes: _nombresClientes,
                       onVerDetalles: _mostrarDetalleDesdePostulacion,
                     ),
     );
   }
 
-  Widget _buildMisTrabajosList(BuildContext context) {
-    final trabajos =
-        _postulaciones.where((post) => post['status'] == 'accepted').toList();
+  Widget _buildMisTrabajosList() {
+    final trabajos = _postulaciones
+        .where((p) => p['status'] == 'accepted')
+        .map((p) => _publicaciones.firstWhere(
+            (pub) => pub['id'] == p['postId'],
+            orElse: () => null))
+        .where((pub) => pub != null)
+        .toList();
+
     return RefreshIndicator(
       onRefresh: _loadAllData,
-      color: Colors.orange,
+      color: AppColors.orange,
       child: _isLoadingPostulaciones
           ? const Center(child: CircularProgressIndicator())
           : _errorMessagePostulaciones.isNotEmpty
-              ? ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.8,
-                      child: Center(child: Text(_errorMessagePostulaciones)),
-                    ),
-                  ],
-                )
+              ? _errorState(_errorMessagePostulaciones)
               : trabajos.isEmpty
-                  ? ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          child: const Center(
-                            child: Text(
-                                'Aún no tienes trabajos aceptados ni finalizados'),
-                          ),
-                        ),
-                      ],
+                  ? _emptyState(
+                      Icons.construction_outlined,
+                      'Sin trabajos asignados',
+                      'Cuando un cliente te acepte, el trabajo aparecerá aquí.',
                     )
                   : JobList(
-                      publicaciones: trabajos
-                          .map((postulacion) {
-                            final idPublicacion = postulacion['postId'];
-                            final publicacion = _publicaciones.firstWhere(
-                              (pub) => pub['id'] == idPublicacion,
-                              orElse: () => null,
-                            );
-                            return publicacion;
-                          })
-                          .where((pub) => pub != null)
-                          .toList(),
+                      publicaciones: trabajos,
                       nombresClientes: _nombresClientes,
                       onVerDetalles: _mostrarDetalleDesdePostulacion,
                     ),
+    );
+  }
+
+  Widget _emptyState(IconData icon, String title, String description) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(height: 60.h),
+        Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40.w),
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(24.r),
+                  decoration: BoxDecoration(
+                    color: AppColors.blue.withValues(alpha: 0.06),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon,
+                      size: 52.r,
+                      color: AppColors.blue.withValues(alpha: 0.3)),
+                ),
+                SizedBox(height: 20.h),
+                Text(title,
+                    style: AppTypography.subtitle
+                        .copyWith(color: AppColors.blue.withValues(alpha: 0.7)),
+                    textAlign: TextAlign.center),
+                SizedBox(height: 10.h),
+                Text(description,
+                    style:
+                        AppTypography.body.copyWith(color: AppColors.slateGrey),
+                    textAlign: TextAlign.center),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _errorState(String message) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(height: 60.h),
+        Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.r),
+            child: Column(
+              children: [
+                Icon(Icons.cloud_off_outlined,
+                    size: 48.r, color: AppColors.slateGrey),
+                SizedBox(height: 12.h),
+                Text(message,
+                    style: AppTypography.body
+                        .copyWith(color: AppColors.slateGrey),
+                    textAlign: TextAlign.center),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
