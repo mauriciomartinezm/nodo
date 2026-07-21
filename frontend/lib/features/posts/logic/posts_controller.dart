@@ -8,6 +8,10 @@ class PostsController extends ChangeNotifier {
   String _errorMessage = '';
   int _selectedIndex = 0;
 
+  String? highlightedPostId;
+  int? _requestedHomeTab;
+  int? get requestedHomeTab => _requestedHomeTab;
+
   PostsController(this._service);
 
   List<dynamic> get posts => _posts;
@@ -81,16 +85,44 @@ class PostsController extends ChangeNotifier {
     }
   }
 
+  void highlightPost(String? id) {
+    highlightedPostId = id;
+    notifyListeners();
+  }
+
+  void clearHighlight() {
+    highlightedPostId = null;
+    notifyListeners();
+  }
+
+  void requestHomeTab(int index) {
+    _requestedHomeTab = index;
+    notifyListeners();
+  }
+
+  void consumeHomeTab() {
+    _requestedHomeTab = null;
+  }
+
   void setSelectedIndex(int index) {
     _selectedIndex = index;
     notifyListeners();
   }
 
   List<dynamic> filterPosts(String estado) {
-    return _posts
+    final filtered = _posts
         .where((pub) => pub['status'] == estado.toLowerCase())
         .toList();
+    filtered.sort((a, b) {
+      final dateA = DateTime.tryParse(a['postDate'] ?? '') ?? DateTime(0);
+      final dateB = DateTime.tryParse(b['postDate'] ?? '') ?? DateTime(0);
+      return dateB.compareTo(dateA);
+    });
+    return filtered;
   }
+
+  int countByStatus(String estado) =>
+      _posts.where((p) => p['status'] == estado.toLowerCase()).length;
 
   bool get hasPublications => _posts.isNotEmpty;
 

@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
+import 'package:nodo/features/posts/logic/posts_controller.dart';
+import 'package:nodo/features/posts/utils/post_format_utils.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class CreatePostController extends ChangeNotifier {
   final CreatePostService _service;
@@ -99,7 +102,7 @@ class CreatePostController extends ChangeNotifier {
         "title": tituloController.text,
         "specificCategoryIds": selectedCategories,
         "location": ubicacionController.text,
-        "budget": int.tryParse(presupuestoController.text) ?? 0,
+        "budget": parseBudget(presupuestoController.text),
         "deadline": fechaLimiteController.text,
         "description": descripcionController.text,
       };
@@ -116,9 +119,14 @@ class CreatePostController extends ChangeNotifier {
 
       clearForm();
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Publicación creada correctamente')),
-      );
+
+      final postsController = Provider.of<PostsController>(context, listen: false);
+      await postsController.loadPosts();
+      postsController.setSelectedIndex(0);
+      postsController.highlightPost(createdPostId);
+      postsController.requestHomeTab(0);
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
     } catch (e) {
       // Si la publicación ya se había creado pero algo falló después (subir
       // o guardar las fotos), no debe quedar una publicación a medias.

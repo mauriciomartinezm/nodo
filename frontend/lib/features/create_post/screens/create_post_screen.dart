@@ -9,6 +9,7 @@ import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:nodo/shared/widgets/multi_select_dropdown.dart';
 import 'package:nodo/shared/widgets/searchable_dropdown_field.dart';
+import 'package:nodo/features/posts/utils/post_format_utils.dart';
 import 'package:nodo/models/categorie.dart';
 import 'package:nodo/models/location.dart';
 import 'package:provider/provider.dart';
@@ -176,6 +177,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         controller.presupuestoController,
                         isNumber: true,
                         icon: Icons.attach_money,
+                        inputFormatters: [BudgetInputFormatter()],
                       ),
                       SizedBox(height: 12.h),
                       CustomDatePicker(

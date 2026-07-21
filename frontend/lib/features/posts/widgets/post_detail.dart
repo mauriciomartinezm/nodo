@@ -117,7 +117,7 @@ class _PostDetailState extends State<PostDetail> {
                     _buildInfoRow(
                       Icons.attach_money,
                       'Presupuesto',
-                      '\$${widget.publicacion['budget']?.toString() ?? '0'}',
+                      '\$${formatBudget(widget.publicacion['budget'])}',
                     ),
                     SizedBox(height: 16.h),
                     _buildActionButtons(),

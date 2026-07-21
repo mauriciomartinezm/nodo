@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nodo/features/create_post/widgets/date_picker_widget.dart';
 import 'package:nodo/features/create_post/widgets/descripcion_field_widget.dart';
 import 'package:nodo/features/create_post/widgets/text_field_widget.dart';
+import 'package:nodo/features/posts/utils/post_format_utils.dart';
 import 'package:nodo/features/edit_post/logic/edit_post_controller.dart';
 import 'package:nodo/shared/providers/categorie_provider.dart';
 import 'package:nodo/shared/providers/location_provider.dart';
@@ -173,6 +174,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         controller.presupuestoController,
                         isNumber: true,
                         icon: Icons.attach_money,
+                        inputFormatters: [BudgetInputFormatter()],
                       ),
                       SizedBox(height: 12.h),
                       CustomDatePicker(

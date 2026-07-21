@@ -7,6 +7,7 @@ import 'package:nodo/features/notifications/screens/notifications_screen.dart';
 import 'package:nodo/features/posts/screens/posts_screen.dart';
 import 'package:nodo/features/trabajos/screens/jobs_screen_2.dart';
 import 'package:nodo/features/trabajos/screens/jobs_screen_1.dart';
+import 'package:nodo/features/posts/logic/posts_controller.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -58,6 +59,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.user;
+
+    final postsController = Provider.of<PostsController>(context);
+    final requestedTab = postsController.requestedHomeTab;
+    if (requestedTab != null) {
+      postsController.consumeHomeTab();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => currentPageIndex = requestedTab);
+      });
+    }
 
     return Scaffold(
       body: IndexedStack(

@@ -111,21 +111,44 @@ class PostListView extends StatelessWidget {
       return PostEmptyState.forFilter(_getFilterName(filter));
     }
 
-    return Padding(
+    final rowCount = (items.length / 2).ceil();
+
+    return ListView.builder(
       padding: EdgeInsets.all(16.r),
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8.w,
-        mainAxisSpacing: 8.h,
-        childAspectRatio: 0.82,
-        children: items.map((item) {
+      itemCount: rowCount,
+      itemBuilder: (context, rowIndex) {
+        final leftItem = items[rowIndex * 2];
+        final rightItem =
+            rowIndex * 2 + 1 < items.length ? items[rowIndex * 2 + 1] : null;
+
+        Widget buildCard(dynamic item) {
+          final isHighlighted = controller.highlightedPostId == item['id'];
           return PostCard(
             item: item,
+            isHighlighted: isHighlighted,
+            onHighlightEnd: isHighlighted ? controller.clearHighlight : null,
             onTap: () => _showPublicationDetail(context, item, controller),
             onDelete: () => _confirmDelete(context, item, controller),
           );
-        }).toList(),
-      ),
+        }
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: 10.h),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: buildCard(leftItem)),
+                SizedBox(width: 10.w),
+                if (rightItem != null)
+                  Expanded(child: buildCard(rightItem))
+                else
+                  const Expanded(child: SizedBox()),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

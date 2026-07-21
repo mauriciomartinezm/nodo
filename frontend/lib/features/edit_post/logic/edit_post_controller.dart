@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
 import 'package:nodo/features/posts/logic/posts_controller.dart';
+import 'package:nodo/features/posts/utils/post_format_utils.dart';
 
 class EditPostController extends ChangeNotifier {
   final CreatePostService _service;
@@ -11,7 +12,7 @@ class EditPostController extends ChangeNotifier {
   EditPostController(this._service, this.postsController, this.postId, dynamic post) {
     tituloController.text = post['title'] ?? '';
     ubicacionController.text = post['location'] ?? '';
-    presupuestoController.text = post['budget']?.toString() ?? '';
+    presupuestoController.text = formatBudget(post['budget']);
     descripcionController.text = post['description'] ?? '';
     final deadline = post['deadline'];
     if (deadline != null) {
@@ -20,7 +21,10 @@ class EditPostController extends ChangeNotifier {
     final categories = post['categories'];
     if (categories is List) {
       selectedCategories = categories
-          .map((c) => c['specificCategory']?['id'] ?? c['specificCategoryId'])
+          .map((c) {
+            final id = c['specificCategory']?['id'] ?? c['specificCategoryId'];
+            return id?.toString();
+          })
           .whereType<String>()
           .toList();
     }
@@ -92,7 +96,7 @@ class EditPostController extends ChangeNotifier {
         "title": tituloController.text,
         "specificCategoryIds": selectedCategories,
         "location": ubicacionController.text,
-        "budget": int.tryParse(presupuestoController.text) ?? 0,
+        "budget": parseBudget(presupuestoController.text),
         "deadline": fechaLimiteController.text,
         "description": descripcionController.text,
       };

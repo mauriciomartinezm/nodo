@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
@@ -7,6 +8,7 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final bool isNumber;
   final IconData? icon;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField(
     this.label,
@@ -14,6 +16,7 @@ class CustomTextField extends StatelessWidget {
     super.key,
     this.isNumber = false,
     this.icon,
+    this.inputFormatters,
   });
 
   @override
@@ -21,6 +24,7 @@ class CustomTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      inputFormatters: inputFormatters,
       style: AppTypography.body,
       decoration: InputDecoration(
         labelText: label,
