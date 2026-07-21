@@ -186,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
 
                   if (confirm == true) {
+                    if (!context.mounted) return;
                     // Muestra un indicador de carga
                     showDialog(
                       context: context,
@@ -197,11 +198,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
 
                     // Ejecuta el logout (que ahora incluye toda la limpieza)
-                    await Provider.of<UserProvider>(context, listen: false)
-                        .logout();
+                    final userProvider = Provider.of<UserProvider>(context, listen: false);
+                    await userProvider.logout();
                     debugPrint("Usuario desloggeado");
-                    // Navega al login
-                    // 5. Navegar al login - FORMA CORREGIDA
+                    if (!context.mounted) return;
                     Navigator.of(context, rootNavigator: true)
                         .pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => LoginScreen()),

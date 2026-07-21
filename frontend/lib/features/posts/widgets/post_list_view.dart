@@ -75,8 +75,10 @@ class PostListView extends StatelessWidget {
             onPressed: () async {
               try {
                 final success = await controller.deletePost(item['id']);
+                if (!context.mounted) return;
                 Navigator.of(context).pop(success);
               } catch (e) {
+                if (!context.mounted) return;
                 Navigator.of(context).pop(false);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
@@ -94,6 +96,7 @@ class PostListView extends StatelessWidget {
         const SnackBar(content: Text('Publicación eliminada'), backgroundColor: AppColors.success),
       );
       await controller.loadPosts();
+      if (!context.mounted) return;
       Navigator.of(context).pop(); // Cierra el modal de detalle
     }
   }

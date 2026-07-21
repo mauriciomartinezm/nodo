@@ -75,6 +75,7 @@ class _ReportScreenState extends State<ReportScreen> {
         }),
       );
 
+      if (!mounted) return;
       if (response.statusCode == 201) {
         Navigator.push(
           context,
@@ -86,6 +87,7 @@ class _ReportScreenState extends State<ReportScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error de conexión: $e')),
       );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-import 'package:nodo/features/chat/screens/Chat1.dart';
+import 'package:nodo/features/chat/screens/chat1.dart';
 import 'package:nodo/features/trabajos/logic/job_service.dart';
 import 'package:nodo/features/trabajos/screens/report_screen.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
@@ -273,7 +273,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             await JobService.apply(
                                 publicacionId, trabajadorId);
 
-                            // Opcional: Mostrar un mensaje de éxito
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text(
@@ -286,6 +286,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             // Opcional: Actualizar el estado si es necesario
                             setState(() {});
                           } catch (e) {
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text(
@@ -353,6 +354,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             await JobService.acceptApplication(
                                 widget.postulacion?['id'], 'accepted');
 
+                            if (!context.mounted) return;
                             Navigator.of(context).pop(); // Cierra el modal
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -362,6 +364,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             widget.onPostulacionCambiada
                                 ?.call(); // Refrescar datos
                           } catch (e) {
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text(
@@ -385,6 +388,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             // Aquí deberías llamar a un método que marque el trabajo como terminado
                             await JobService.markAsFinished(
                                 widget.postulacion?['id']);
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content:
@@ -407,6 +411,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             // Aquí deberías llamar a un método que cancele el trabajo
                             await JobService.cancelJob(
                                 widget.postulacion?['id']);
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text('Trabajo cancelado')),
@@ -427,6 +432,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           onPressed: () async {
                             await JobService.deleteApplication(
                                 widget.postulacion?['id']);
+                            if (!context.mounted) return;
                             Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

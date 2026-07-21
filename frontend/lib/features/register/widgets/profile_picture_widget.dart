@@ -117,7 +117,8 @@ class ProfilePictureWidget extends StatelessWidget {
             onPressed: controller.acceptedTerms && !controller.isLoading
                 ? () async {
                     final success = await controller.confirm(context);
-                    if (success && context.mounted) {
+                    if (!context.mounted) return;
+                    if (success) {
                       onContinue();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

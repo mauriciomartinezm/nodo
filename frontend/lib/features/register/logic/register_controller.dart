@@ -89,6 +89,7 @@ class RegisterController extends ChangeNotifier {
         }),
       );
 
+      if (!context.mounted) return;
       if (response.statusCode == 200) {
         debugPrint("✅ Usuario agregado: ${response.body}");
         final body = jsonDecode(response.body);
@@ -109,6 +110,7 @@ class RegisterController extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint("⚠️ Error: $e");
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(

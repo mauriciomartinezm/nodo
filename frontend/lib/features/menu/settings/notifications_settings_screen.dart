@@ -62,7 +62,7 @@ class _NotificationSettingsScreenState
                   }
                 });
               },
-              activeColor: AppColors.white, //Activo: Color de bola
+              activeThumbColor: AppColors.white, //Activo: Color de bola
               activeTrackColor: AppColors.blue, //Activo: Color de fondo
 
               inactiveThumbColor: AppColors.blue, //Inactivo: Color de bola
@@ -191,7 +191,7 @@ class _NotificationSettingsScreenState
       ),
       value: value,
       onChanged: enabled ? (val) => onChanged(val) : null,
-      activeColor: AppColors.white, //Activo: Color de bola
+      activeThumbColor: AppColors.white, //Activo: Color de bola
       activeTrackColor: AppColors.blue, //Activo: Color de fondo
 
       inactiveThumbColor: AppColors.blue, //Inactivo: Color de bola

@@ -12,7 +12,7 @@ class JobsScreen2 extends StatefulWidget {
   const JobsScreen2({super.key});
 
   @override
-  _JobsScreen2State createState() => _JobsScreen2State();
+  State<JobsScreen2> createState() => _JobsScreen2State();
 }
 
 class _JobsScreen2State extends State<JobsScreen2> {

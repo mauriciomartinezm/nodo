@@ -12,24 +12,9 @@ class HeaderInfoWidget extends StatefulWidget {
 }
 
 class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
-  // final String _profesion = '';
-  bool _loadingCategoria = false;
-
   @override
   void initState() {
     super.initState();
-    _loadCategoria();
-  }
-
-  Future<void> _loadCategoria() async {
-    final userProvider = context.read<UserProvider>();
-    final idCategoria = userProvider.user?.categorias;
-
-    if (idCategoria == null || idCategoria.isEmpty) {
-      return;
-    }
-
-    setState(() => _loadingCategoria = true);
   }
 
   @override

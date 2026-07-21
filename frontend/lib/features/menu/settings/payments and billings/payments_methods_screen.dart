@@ -196,6 +196,8 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
                   metodos.add({
                     'titular': titular,
                     'numero': '***$numero',
+                    'fechaCaducidad': fechaCaducidad,
+                    'codigoSeguridad': codigoSeguridad,
                     'predeterminado': 'false',
                   });
                 });

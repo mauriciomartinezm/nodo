@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-import 'package:nodo/features/chat/screens/Chat1.dart';
+import 'package:nodo/features/chat/screens/chat1.dart';
 import 'package:nodo/features/posts/logic/applications_controller.dart';
 import 'package:nodo/features/posts/logic/applications_service.dart';
 import 'package:nodo/features/posts/models/job_application.dart';

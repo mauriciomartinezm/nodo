@@ -115,6 +115,7 @@ class CreatePostController extends ChangeNotifier {
       }
 
       clearForm();
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Publicación creada correctamente')),
       );
