@@ -6,7 +6,8 @@ import {
     deleteUser,
     updateUser,
     activateWorker,
-    login
+    login,
+    resetPassword,
 } from '../controllers/userController.js';
 
 const userRouter = Router ();
@@ -18,5 +19,6 @@ userRouter.delete('/api/deleteUser/:id', deleteUser);
 userRouter.put('/api/updateUser/:id', updateUser);
 userRouter.post('/api/activateWorker/:id', activateWorker);
 userRouter.post('/api/login', login);
+userRouter.post('/api/resetPassword', resetPassword);
 
 export default userRouter;

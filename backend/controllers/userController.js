@@ -246,6 +246,32 @@ export const activateWorker = async (req, res) => {
   }
 };
 
+export const resetPassword = async (req, res) => {
+  const { email, dni, newPassword } = req.body;
+
+  if (!email || !dni || !newPassword) {
+    return res.status(400).json({ message: "Email, cédula y nueva contraseña son requeridos." });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: "La contraseña debe tener al menos 6 caracteres." });
+  }
+
+  try {
+    const user = await prisma.appUser.findFirst({ where: { email, dni } });
+    if (!user) {
+      return res.status(404).json({ message: "No se encontró una cuenta con ese correo y cédula." });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await prisma.appUser.update({ where: { id: user.id }, data: { passwordHash } });
+
+    res.json({ message: "Contraseña actualizada correctamente." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const deleteUser = async (req, res) => {
   try {
     await prisma.appUser.delete({ where: { id: req.params.id } });

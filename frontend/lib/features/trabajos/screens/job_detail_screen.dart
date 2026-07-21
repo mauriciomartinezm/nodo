@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nodo/core/theme/app_theme.dart';
-import 'package:nodo/features/chat/screens/chat1.dart';
+import 'package:nodo/features/chat/screens/chat_1.dart';
 import 'package:nodo/features/trabajos/logic/job_service.dart';
 import 'package:nodo/features/trabajos/screens/report_screen.dart';
 import 'package:nodo/shared/providers/user_provider.dart';

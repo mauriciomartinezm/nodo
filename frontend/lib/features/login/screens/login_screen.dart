@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:nodo/features/login/logic/login_controller.dart';
+import 'package:nodo/features/login/screens/forgot_password_screen.dart';
 import 'package:nodo/features/register/screens/register_screen.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/providers/user_provider.dart';
@@ -118,7 +119,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ForgotPasswordScreen(),
+                          ),
+                        );
+                      },
                       child: Text(
                         "¿Olvidaste tu contraseña?",
                         style: AppTypography.body

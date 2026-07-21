@@ -45,6 +45,8 @@ class ApiConstants {
   static String get saveToken => "$baseUrl/saveToken";
   static String get deleteToken => "$baseUrl/deleteToken";
 
+  static String get resetPassword => "$baseUrl/resetPassword";
+
   static String get createReport => "$baseUrl/createReport";
 
   static String generateUploadUrl(String fileName, String contentType) =>
