@@ -6,37 +6,46 @@ class CustomTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final bool isNumber;
+  final IconData? icon;
 
   const CustomTextField(
     this.label,
     this.controller, {
     super.key,
     this.isNumber = false,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30.h,
-      child: TextField(
-        controller: controller,
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        style: AppTypography.body,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: AppTypography.body.copyWith(color: AppColors.whiteT),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.r, color: AppColors.whiteT),
-          ),
-          contentPadding: EdgeInsets.symmetric(
-            vertical: 6.h,
-            horizontal: 10.w,
-          ),
+    return TextField(
+      controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      style: AppTypography.body,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: AppTypography.body.copyWith(color: AppColors.slateGrey),
+        prefixIcon: icon != null
+            ? Icon(icon, size: 18.r, color: AppColors.slateGrey)
+            : null,
+        filled: true,
+        fillColor: AppColors.blue.withValues(alpha: 0.04),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+              width: 1.r, color: AppColors.slateGrey.withValues(alpha: 0.4)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(width: 1.6.r, color: AppColors.blue),
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          vertical: 12.h,
+          horizontal: 14.w,
         ),
       ),
     );

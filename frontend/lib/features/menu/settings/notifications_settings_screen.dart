@@ -21,7 +21,7 @@ class _NotificationSettingsScreenState
       appBar: AppBar(
         title: Text(
           'Configura tus notificaciones',
-          style: AppTypography.h1.copyWith(color: AppColors.blue),
+          style: AppTypography.title.copyWith(color: AppColors.blue),
         ),
         leading: const BackButton(color: AppColors.blue),
         backgroundColor: Colors.white,
@@ -46,7 +46,7 @@ class _NotificationSettingsScreenState
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 0),
               title: Text('Desactivar todas las notificaciones',
-                  style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
               subtitle: Text(
                 'No se recibirás notificaciones, excepto por notificaciones importantes sobre tu cuenta que recibirás por el medio que hayas elegido.',
                 style: AppTypography.body.copyWith(color: AppColors.blue),
@@ -62,7 +62,7 @@ class _NotificationSettingsScreenState
                   }
                 });
               },
-              activeColor: AppColors.white, //Activo: Color de bola
+              activeThumbColor: AppColors.white, //Activo: Color de bola
               activeTrackColor: AppColors.blue, //Activo: Color de fondo
 
               inactiveThumbColor: AppColors.blue, //Inactivo: Color de bola
@@ -74,7 +74,7 @@ class _NotificationSettingsScreenState
             const SizedBox(height: 8),
 
             Text('Mis publicaciones',
-                style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
             const SizedBox(height: 8),
 
             _buildSwitchTile(
@@ -97,7 +97,7 @@ class _NotificationSettingsScreenState
             _buildSwitchTile(
               title: 'Notificaciones en tiempo real',
               subtitle:
-                  'Recibe una notificación cada vez que un cliente publique un servicio de tu categoría.',
+                  'Recibe una notificación cada vez que un cliente publique un servicio de tu rubro.',
               value: activeNotification == 'tiempoReal',
               onChanged: (val) {
                 if (!disableAll) {
@@ -114,7 +114,7 @@ class _NotificationSettingsScreenState
             _buildSwitchTile(
               title: 'Resumen en tiempo real',
               subtitle:
-                  'Recibe un resumen de las nuevas publicaciones en tu categoría cada cierto tiempo.',
+                  'Recibe un resumen de las nuevas publicaciones en tu rubro cada cierto tiempo.',
               value: activeNotification == 'resumen',
               onChanged: (val) {
                 if (!disableAll) {
@@ -130,7 +130,7 @@ class _NotificationSettingsScreenState
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 8),
                 child: Text('Frecuencia:',
-                    style: AppTypography.h3.copyWith(color: AppColors.blue)),
+                    style: AppTypography.label.copyWith(color: AppColors.blue)),
               ),
               _CheckOption(
                 title: 'Cada 2 horas',
@@ -182,7 +182,7 @@ class _NotificationSettingsScreenState
   }) {
     return SwitchListTile(
       title:
-          Text(title, style: AppTypography.h3.copyWith(color: AppColors.blue)),
+          Text(title, style: AppTypography.label.copyWith(color: AppColors.blue)),
       subtitle: Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
         child: Text(subtitle,
@@ -191,7 +191,7 @@ class _NotificationSettingsScreenState
       ),
       value: value,
       onChanged: enabled ? (val) => onChanged(val) : null,
-      activeColor: AppColors.white, //Activo: Color de bola
+      activeThumbColor: AppColors.white, //Activo: Color de bola
       activeTrackColor: AppColors.blue, //Activo: Color de fondo
 
       inactiveThumbColor: AppColors.blue, //Inactivo: Color de bola

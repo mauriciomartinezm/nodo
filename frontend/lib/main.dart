@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/create_post/logic/create_post_controller.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
@@ -18,20 +19,22 @@ import 'package:nodo/features/menu/settings/profile/edit_profile_screen.dart';
 import 'package:nodo/features/menu/settings/profile/profile_screen.dart';
 import 'package:nodo/features/menu/settings/settings_screen.dart';
 import 'package:nodo/features/menu/work_wt_nodo_screen.dart';
-import 'package:nodo/features/posts/logic/publicaciones_controller.dart';
-import 'package:nodo/features/posts/logic/publicaciones_service.dart';
+import 'package:nodo/features/posts/logic/posts_controller.dart';
+import 'package:nodo/features/posts/logic/posts_service.dart';
 import 'package:nodo/features/register/logic/profile_picture_controller.dart';
 import 'package:nodo/features/register/logic/register_controller.dart';
 import 'package:nodo/features/register/logic/validation_controller.dart';
-import 'package:nodo/features/trabajos/screens/trabajos2.dart';
-import 'package:nodo/features/trabajos/screens/trabajos5.dart';
+import 'package:nodo/features/trabajos/screens/jobs_screen_2.dart';
+import 'package:nodo/features/trabajos/screens/thanks_screen.dart';
 import 'package:nodo/core/services/notification_service.dart';
 import 'package:nodo/shared/providers/categorie_provider.dart';
+import 'package:nodo/shared/providers/general_category_provider.dart';
+import 'package:nodo/shared/providers/location_provider.dart';
 import 'package:nodo/shared/providers/register_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/features/login/screens/login_screen.dart';
-import 'package:nodo/features/welcome/widgets/welcome1.dart';
+import 'package:nodo/features/welcome/screens/welcome_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'shared/providers/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -46,6 +49,7 @@ abstract class AppRoutes {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -65,10 +69,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RegisterProvider()),
         ChangeNotifierProvider(
             create: (_) =>
-                CrearPublicacionController(CrearPublicacionService())),
+                CreatePostController(CreatePostService())),
         ChangeNotifierProvider(
-          create: (context) => PublicacionesController(
-            PublicacionesService(
+          create: (context) => PostsController(
+            PostsService(
               Provider.of<UserProvider>(context, listen: false),
             ),
           ),
@@ -79,6 +83,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ValidationController()),
         ChangeNotifierProvider(create: (_) => ProfilePictureController()),
         ChangeNotifierProvider(create: (_) => CategorieProvider()),
+        ChangeNotifierProvider(create: (_) => GeneralCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
 
       ],
       child: MyApp(firstTime: firstTime),
@@ -102,6 +108,8 @@ class MyApp extends StatelessWidget {
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CategorieProvider>(context, listen: false).cargarCategorias();
+      Provider.of<GeneralCategoryProvider>(context, listen: false).cargarCategorias();
+      Provider.of<LocationProvider>(context, listen: false).cargarUbicaciones();
     });
 
     return ScreenUtilInit(
@@ -136,17 +144,17 @@ class MyApp extends StatelessWidget {
           //home: firstTime ? const Welcome1Screen() : const LoginScreen(),
           // Sistema de rutas combinado
           routes: {
-            AppRoutes.welcome: (context) => const Welcome1Screen(),
+            AppRoutes.welcome: (context) => const WelcomeScreen(),
             AppRoutes.login: (context) => const LoginScreen(),
             '/home': (context) => const HomeScreen(),
-            '/trabajos2': (context) => const TrabajosScreen2(),
-            '/trabajos5': (context) => const GraciasScreen(),
-            '/gracias': (context) => GraciasScreen(),
+            '/trabajos2': (context) => const JobsScreen2(),
+            '/trabajos5': (context) => const ThanksScreen(),
+            '/gracias': (context) => ThanksScreen(),
             '/workWNodo': (context) => const WorkWtNodo(),
             '/SettingsScreen': (context) => const SettingsScreen(),
             '/AccountProfileScreen': (context) => const AccountProfileScreen(),
             '/PreferencesScreen': (context) => const PreferencesScreen(),
-            //'/ProfileScreen': (context) => const ProfileScreen(),
+            '/ProfileScreen': (context) => const ProfileScreen(),
             '/editProfile': (context) => const EditProfileScreen(),
             '/NotificationSettingsScreen': (context) =>
                 const NotificationSettingsScreen(),

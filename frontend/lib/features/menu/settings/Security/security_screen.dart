@@ -10,7 +10,7 @@ class SecuritysScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Seguridad',
-          style: AppTypography.h1,
+          style: AppTypography.title,
         ),
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
@@ -23,7 +23,7 @@ class SecuritysScreen extends StatelessWidget {
           children: [
             ListTile(
               title: Text('Autenticación en dos pasos',
-                  style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: () {
                 // Navigator.pushNamed(context, '/editProfile');
               },
@@ -31,7 +31,7 @@ class SecuritysScreen extends StatelessWidget {
 
             ListTile(
               title: Text('Gesionar dispositivos conectados',
-                  style: AppTypography.h2.copyWith(color: AppColors.blue)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: () {
                 // Navigator.pushNamed(context, '/editProfile');
               },

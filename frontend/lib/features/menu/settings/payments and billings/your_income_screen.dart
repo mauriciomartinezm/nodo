@@ -10,7 +10,7 @@ class YourIncome extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Tus ingresos en NODO',
-          style: AppTypography.h1,
+          style: AppTypography.title,
         ),
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
@@ -51,7 +51,7 @@ class YourIncome extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Período: Último mes',
-                style: AppTypography.h2.copyWith(
+                style: AppTypography.subtitle.copyWith(
                   color: AppColors.blue,
                 ),
               ),
@@ -71,12 +71,12 @@ class YourIncome extends StatelessWidget {
                 children: [
                   Text(
                     'Total ganado:',
-                    style: AppTypography.h3.copyWith(color: AppColors.white),
+                    style: AppTypography.label.copyWith(color: AppColors.white),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     '\$2.200.000 COP',
-                    style: AppTypography.h1.copyWith(color: AppColors.white),
+                    style: AppTypography.title.copyWith(color: AppColors.white),
                   ),
                 ],
               ),

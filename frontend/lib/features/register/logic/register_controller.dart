@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nodo/core/constants/api_constants.dart';
-import 'package:nodo/shared/providers/user_provider.dart';
+// import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:nodo/shared/providers/register_provider.dart';
 
 import 'package:provider/provider.dart';
@@ -39,30 +39,27 @@ class RegisterController extends ChangeNotifier {
 
     _setLoading(true);
     try {
-      final id = idController.text.trim();
-      final nombres = nameController.text.trim();
-      final primerApellido = lastName1Controller.text.trim();
-      final segundoApellido = lastName2Controller.text.trim();
-      final fecha_nacimiento = dateController.text.trim();
-      final contrasena = passwordController.text.trim();
-      final confirmacionContrasena = confirmPasswordController.text.trim();
-      final telefono = phoneController.text.trim();
-      final ubicacion = selectedUserType == "trabajador" &&
-              locationController.text.trim().isNotEmpty
+      final dni = idController.text.trim();
+      final firstName = nameController.text.trim();
+      final lastName = lastName1Controller.text.trim();
+      final secondLastName = lastName2Controller.text.trim();
+      final birthDate = dateController.text.trim();
+      final password = passwordController.text.trim();
+      final confirmPassword = confirmPasswordController.text.trim();
+      final phone = phoneController.text.trim();
+      final isWorker = selectedUserType == "trabajador";
+      final location = isWorker && locationController.text.trim().isNotEmpty
           ? locationController.text.trim()
           : null;
 
-      final descripcion = selectedUserType == "trabajador" &&
-              descriptionController.text.trim().isNotEmpty
+      final description = isWorker && descriptionController.text.trim().isNotEmpty
           ? descriptionController.text.trim()
           : null;
 
-      final categorias = selectedCategories;
+      final categories = selectedCategories;
       final email = emailController.text.trim();
 
-      // Validar que las contraseñas coincidan
-
-      if (contrasena != confirmacionContrasena) {
+      if (password != confirmPassword) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Las contraseñas no coinciden.')),
         );
@@ -72,74 +69,91 @@ class RegisterController extends ChangeNotifier {
 
       final registerProvider = Provider.of<RegisterProvider>(context, listen: false);
 
-      final url = Uri.parse(ApiConstants.createUsuarioEndpoint);
+      final url = Uri.parse(ApiConstants.createUser);
 
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          "id": id,
-          "nombres": nombres,
-          "primer_apellido": primerApellido,
-          "segundo_apellido": segundoApellido,
+          "dni": dni,
+          "firstName": firstName,
+          "lastName": lastName,
+          "secondLastName": secondLastName,
           "email": email,
-          "telefono": telefono,
-          "fecha_nacimiento": fecha_nacimiento,
-          "contrasena": contrasena,
-          "tipo_usuario": selectedUserType,
-          "ubicacion": ubicacion,
-          "descripcion": descripcion,
+          "phone": phone,
+          "birthDate": birthDate,
+          "password": password,
+          "isWorker": isWorker,
+          "location": location,
+          "description": description,
         }),
       );
 
+      if (!context.mounted) return;
       if (response.statusCode == 200) {
         debugPrint("✅ Usuario agregado: ${response.body}");
-        registerProvider.setRegisterData(id: id, email: email, password: contrasena);
-        // 🔹 Si el usuario es trabajador y seleccionó categorías, registrar relación
-        if (selectedUserType == "trabajador" && categorias.isNotEmpty) {
-          await _crearUsuarioCategoria(id, categorias);
+        final body = jsonDecode(response.body);
+        final id = body['user']['id'] as String;
+        registerProvider.setRegisterData(id: id, email: email, password: password);
+        if (isWorker && categories.isNotEmpty) {
+          await _createWorkerCategory(id, categories);
         }
         onContinue();
       } else {
         debugPrint("❌ Error al registrar: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al registrar usuario.')),
+          SnackBar(
+            content: Text(_friendlyRegisterError(response)),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
       debugPrint("⚠️ Error: $e");
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error de conexión.')),
+        const SnackBar(
+          content: Text(
+              'No pudimos conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       _setLoading(false);
     }
   }
 
-  /// 🔹 Función privada para registrar categorías del usuario
-  Future<void> _crearUsuarioCategoria(
-      String idUsuario, List<String> categorias) async {
-    final url = Uri.parse(ApiConstants.createUsuarioCategoriaEndpoint);
+  String _friendlyRegisterError(http.Response response) {
+    switch (response.statusCode) {
+      case 409:
+        return 'Ya existe una cuenta con esa cédula, correo o teléfono.';
+      case 400:
+        return 'Revisa los datos del formulario: hay campos inválidos o incompletos.';
+      default:
+        return 'No pudimos completar el registro. Intenta de nuevo en unos minutos.';
+    }
+  }
 
-      try {
-        final response = await http.post(
-          Uri.parse(ApiConstants.createUsuarioCategoriaEndpoint),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            "id_usuario": idUsuario,
-            "id_categorias": categorias, // Lista de strings
-          }),
-        );
+  /// 🔹 Función privada para registrar las categorías del trabajador
+  Future<void> _createWorkerCategory(
+      String workerId, List<String> generalCategoryIds) async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConstants.createWorkerCategory),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "workerId": workerId,
+          "generalCategoryIds": generalCategoryIds,
+        }),
+      );
 
-        if (response.statusCode == 200) {
-          debugPrint("✅ Usuario-Categorías registrada:");
-        } else {
-          debugPrint(
-              "⚠️ Error registrando usuario-categoría: ${response.body}");
-        }
-      } catch (e) {
-        debugPrint(
-            "⚠️ Error en conexión al registrar categorías: $e");
+      if (response.statusCode == 200) {
+        debugPrint("✅ Worker-Categories registradas:");
+      } else {
+        debugPrint("⚠️ Error registrando worker-category: ${response.body}");
       }
+    } catch (e) {
+      debugPrint("⚠️ Error en conexión al registrar categorías: $e");
+    }
   }
 }

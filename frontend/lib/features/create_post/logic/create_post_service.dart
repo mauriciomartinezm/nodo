@@ -6,61 +6,77 @@ import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../../../core/utils/image_utils.dart';
 
-class CrearPublicacionService {
+class CreatePostService {
   // Crear la publicación y devolver el ID
-  Future<String?> crearPublicacion(
-      Map<String, dynamic> datosPublicacion) async {
+  Future<String?> createPost(
+      Map<String, dynamic> postData) async {
     final response = await http.post(
-      Uri.parse(ApiConstants.createPublicacionEndpoint),
+      Uri.parse(ApiConstants.createPost),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode(datosPublicacion),
+      body: jsonEncode(postData),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = jsonDecode(response.body);
       return data['id']; // asegúrate de que tu backend devuelva esto
     } else {
-      throw Exception('Error al crear publicación: ${response.body}');
+      String mensaje = 'No se pudo crear la publicación.';
+      try {
+        final body = jsonDecode(response.body);
+        if (body['message'] != null) mensaje = body['message'];
+      } catch (_) {}
+      throw Exception(mensaje);
     }
   }
 
   // Actualizar las URLs de las fotos
-  Future<bool> actualizarFotos(String idPublicacion, List<String> urls) async {
+  Future<bool> updatePhotos(String postId, List<String> urls) async {
     final response = await http.put(
-      Uri.parse(ApiConstants.updatePublicacionEndpoint(idPublicacion)),
+      Uri.parse(ApiConstants.updatePost(postId)),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"fotos": urls}),
+      body: jsonEncode({"photos": urls}),
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Error al actualizar fotos: ${response.body}');
+      throw Exception('No se pudieron guardar las fotos de la publicación.');
     } else {
       return true;
     }
   }
 
-  Future<List<String>> subirImagenesAFirebase(
-      String publicacionId, List<File> localImages) async {
+  // Borra una publicación. Se usa para deshacer la creación si algo falla
+  // después (p. ej. la subida de imágenes), así no queda una publicación
+  // huérfana sin fotos.
+  Future<void> deletePost(String postId) async {
+    await http.delete(Uri.parse(ApiConstants.deletePost(postId)));
+  }
+
+  Future<List<String>> uploadImagesToFirebase(
+      String postId, List<File> localImages) async {
     List<String> urls = [];
 
-    for (final imagen in localImages) {
-      // Convertir a WebP antes de subir
-      final imagenWebP = await ImageUtils.convertToAWebP(imagen);
+    try {
+      for (final imagen in localImages) {
+        // Convertir a WebP antes de subir
+        final imagenWebP = await ImageUtils.convertToAWebP(imagen);
 
-      final nombreArchivo = basename(imagenWebP.path);
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child('publicaciones/$publicacionId/$nombreArchivo');
+        final fileName = basename(imagenWebP.path);
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('publicaciones/$postId/$fileName');
 
-      final uploadTask = ref.putFile(imagenWebP);
-      final snapshot = await uploadTask;
-      final url = await snapshot.ref.getDownloadURL();
-      urls.add(url);
+        final uploadTask = ref.putFile(imagenWebP);
+        final snapshot = await uploadTask;
+        final url = await snapshot.ref.getDownloadURL();
+        urls.add(url);
 
-      // Eliminar archivo temporal después de subir
-      if (await imagenWebP.exists()) {
-        await imagenWebP.delete();
+        // Eliminar archivo temporal después de subir
+        if (await imagenWebP.exists()) {
+          await imagenWebP.delete();
+        }
       }
+    } catch (e) {
+      throw Exception('No se pudo cargar la imagen. Inténtalo de nuevo.');
     }
 
     return urls;

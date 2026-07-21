@@ -20,7 +20,7 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
       appBar: AppBar(
         title: Text('Cuenta y perfil',
             style: 
-                AppTypography.h1.copyWith(color: AppColors.blue)),
+                AppTypography.title.copyWith(color: AppColors.blue)),
         leading: const BackButton(),
       ),
       body: Padding(
@@ -30,7 +30,7 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
             ListTile(
               title: Text('Editar Perfil',
                   style:
-                      AppTypography.h2.copyWith(color: AppColors.blue)),
+                      AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: () {
                 Navigator.pushNamed(context, '/editProfile');
               },
@@ -38,14 +38,14 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
             ListTile(
               title: Text('Cambiar contraseña',
                   style:
-                      AppTypography.h2.copyWith(color: AppColors.blue)),
+                      AppTypography.subtitle.copyWith(color: AppColors.blue)),
               onTap: _changePassword,
             ),
             const SizedBox(height: 20),
             GestureDetector(
               onTap: _deleteModal,
               child:  Text('Eliminar cuenta',
-                  style: AppTypography.h2.copyWith(color: AppColors.orange)),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.orange)),
             ),
           ],
         ),
@@ -72,7 +72,7 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
           ),
           title: Text(
             'Cambiar Contraseña',
-            style: AppTypography.h1.copyWith(color: AppColors.blue),
+            style: AppTypography.title.copyWith(color: AppColors.blue),
             textAlign: TextAlign.center,
           ),
           content: SingleChildScrollView(
@@ -121,7 +121,7 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text('Cancelar',
-                  style: AppTypography.h3.copyWith(color: AppColors.blue)),
+                  style: AppTypography.label.copyWith(color: AppColors.blue)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -130,7 +130,7 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Las contraseñas no coinciden',
-                          style: AppTypography.h3
+                          style: AppTypography.label
                               .copyWith(color: AppColors.white),
                         textAlign: TextAlign.center,
                       ),
@@ -146,7 +146,7 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Contraseña actualizada',
-                        style: AppTypography.h3
+                        style: AppTypography.label
                             .copyWith(color: AppColors.white),
                         textAlign: TextAlign.center,),
                             backgroundColor: AppColors.blue,
@@ -158,7 +158,7 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
                 backgroundColor: AppColors.orange,
                 foregroundColor: AppColors.white,
               ),
-              child: Text('Actualizar', style: AppTypography.h2),
+              child: Text('Actualizar', style: AppTypography.subtitle),
             ),
           ],
         );
@@ -181,7 +181,7 @@ class _AccountProfileScreenState extends State<AccountProfileScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('Eliminar Cuenta',
-                    style: AppTypography.h1.copyWith(color: AppColors.orange)),
+                    style: AppTypography.title.copyWith(color: AppColors.orange)),
                 const SizedBox(height: 5),
                 Text('¿Estás seguro de que deseas eliminar tu cuenta?',
                     style: AppTypography.body.copyWith(color: AppColors.blue)),

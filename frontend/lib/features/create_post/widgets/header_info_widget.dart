@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import '../../../shared/providers/user_provider.dart';
-import '../../../core/constants/api_constants.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
 class HeaderInfoWidget extends StatefulWidget {
@@ -16,100 +12,55 @@ class HeaderInfoWidget extends StatefulWidget {
 }
 
 class _HeaderInfoWidgetState extends State<HeaderInfoWidget> {
-  String _profesion = '';
-  bool _loadingCategoria = false;
-
   @override
   void initState() {
     super.initState();
-    _loadCategoria();
-  }
-
-  Future<void> _loadCategoria() async {
-    final userProvider = context.read<UserProvider>();
-    final idCategoria = userProvider.user?.categorias;
-
-    if (idCategoria == null || idCategoria.isEmpty) {
-      return;
-    }
-
-    setState(() => _loadingCategoria = true);
-/*
-    try {
-      
-      final response = await http.get(
-        Uri.parse(ApiConstants.getCategoriaEndpoint(idCategoria)),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() => _profesion = data['nombre_cat'] ?? '');
-      } else {
-        setState(() => _profesion = 'Profesional');
-      }
-    } catch (e) {
-      setState(() => _profesion = 'Profesional');
-      debugPrint('Error cargando categoría: $e');
-    } finally {
-      setState(() => _loadingCategoria = false);
-    }*/
   }
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final nombre = '${userProvider.user?.nombres ?? ''} ${userProvider.user?.primerApellido ?? ''}'.trim();
-    final fotoPerfil = userProvider.user?.fotoPerfil;
+    final nombre =
+        '${userProvider.user?.nombres ?? ''} ${userProvider.user?.primerApellido ?? ''}'
+            .trim();
 
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 15.r),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 15.r),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 30.r,
-                backgroundImage: fotoPerfil != null && fotoPerfil.isNotEmpty
-                    ? NetworkImage(fotoPerfil) as ImageProvider
-                    : const AssetImage('assets/images/default_profile.jpg'), //innecesario porque ya la imgen tiene un url por defecto
+              Text(
+                '$nombre,',
+                style: AppTypography.subtitle.copyWith(color: AppColors.blue),
               ),
-              SizedBox(width: 10.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    nombre,
-                    style: AppTypography.h2.copyWith(color: AppColors.blue),
-                  ),
-                  if (_loadingCategoria)
-                    SizedBox(
-                      width: 20.r,
-                      height: 20.r,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.r,
-                        color: AppColors.blue,
-                      ),
-                    )
-                  else if (_profesion.isNotEmpty)
-                    Text(
-                      _profesion,
-                      style: AppTypography.h3.copyWith(color: AppColors.blue, fontWeight: FontWeight.w100,),
-                    ),
-                ],
+              // if (_loadingCategoria)
+              //   SizedBox(
+              //     width: 20.r,
+              //     height: 20.r,
+              //     child: CircularProgressIndicator(
+              //       strokeWidth: 2.r,
+              //       color: AppColors.blue,
+              //     ),
+              //   )
+              // else if (_profesion.isNotEmpty)
+              // Text(
+              //   _profesion,
+              //   style: AppTypography.label.copyWith(
+              //     color: AppColors.blue,
+              //     fontWeight: FontWeight.w100,
+              //   ),
+              // ),
+              Text(
+                "describe lo que necesitas y deja que los mejores trabajadores te contacten",
+                style: AppTypography.label.copyWith(color: AppColors.blue),
               ),
             ],
           ),
-          SizedBox(height: 10.h),
-          Text(
-            "Publica tu solicitud y encuentra al profesional ideal",
-            style: AppTypography.h2.copyWith(color: AppColors.blue),
-          ),
-          Text(
-            "Describe lo que necesitas y deja que los mejores trabajadores te contacten",
-            style: AppTypography.h3.copyWith(color: AppColors.orange),
-          ),
-        ],
+        ),
       ),
     );
   }

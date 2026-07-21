@@ -1,18 +1,18 @@
 // routes/storageRoutes.js
 import express from "express";
-import { generarUrlSubida } from "../services/storageService.js";
+import { generateUploadUrl } from "../services/storageService.js";
 
 const storageRoutes = express.Router();
 
-storageRoutes.get("/api/generarUrlSubida", async (req, res) => {
+storageRoutes.get("/api/generateUploadUrl", async (req, res) => {
   try {
-    const { nombreArchivo } = req.query;
+    const { fileName } = req.query;
 
-    if (!nombreArchivo) {
-      return res.status(400).json({ error: "Falta el parámetro nombreArchivo" });
+    if (!fileName) {
+      return res.status(400).json({ error: "Falta el parámetro fileName" });
     }
 
-    const url = await generarUrlSubida(nombreArchivo);
+    const url = await generateUploadUrl(fileName);
     res.json({ url });
   } catch (error) {
     console.error("Error generando URL firmada:", error);

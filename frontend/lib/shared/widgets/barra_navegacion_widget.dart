@@ -32,20 +32,20 @@ class BarraNavegacionWidget extends StatelessWidget {
             indicatorColor: AppColors.blue,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
             destinations: [
-              const NavigationDestination(icon: Icon(Icons.web, color: AppColors.white), label: ""),
-              const NavigationDestination(icon: Icon(Icons.work, color: AppColors.white), label: ""),
               const NavigationDestination(
-                  icon: Icon(Icons.add_box_rounded, color: AppColors.white), label: ""),
+                  icon: Icon(Icons.apps_rounded, color: AppColors.white), label: ""),
               const NavigationDestination(
-                  icon: Icon(Icons.notifications, color: AppColors.white), label: ""),
+                  icon: Icon(Icons.work_outline_rounded, color: AppColors.white), label: ""),
+              const NavigationDestination(
+                  icon: Icon(Icons.notifications_none_sharp, color: AppColors.white),
+                  label: ""),
               NavigationDestination(
                 icon: SizedBox.expand(
-                  //le expandimos el hoyo para que abaque to
                   child: GestureDetector(
-                    behavior: HitTestBehavior
-                        .opaque,//Pa que no haga tpas fantasmas
+                    behavior:
+                        HitTestBehavior.opaque, // Asegura que el área completa sea clickeable
                     onTap: () => _openEndDrawer(context),
-                    child: const Icon(Icons.menu, color: AppColors.white),
+                    child: const Icon(Icons.menu_sharp, color: AppColors.white),
                   ),
                 ),
                 label: "",
@@ -53,7 +53,7 @@ class BarraNavegacionWidget extends StatelessWidget {
             ],
             selectedIndex: currentIndex,
             onDestinationSelected: (index) {
-              if (index != 4) onIndexChanged(index);
+              if (index != 3) onIndexChanged(index);
             },
           ),
         ],

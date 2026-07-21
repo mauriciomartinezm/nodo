@@ -59,7 +59,7 @@ Total recibido: \$${finalAmount.toStringAsFixed(0)}
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Calculadora de ganancias', style: AppTypography.h1),
+        title: Text('Calculadora de ganancias', style: AppTypography.title),
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
         surfaceTintColor: AppColors.white,
@@ -71,7 +71,7 @@ Total recibido: \$${finalAmount.toStringAsFixed(0)}
         child: Column(
           children: [
             Text('Ingresa el valor acordado con el cliente en COP:',
-                style: AppTypography.h3.copyWith(color: AppColors.blue)),
+                style: AppTypography.label.copyWith(color: AppColors.blue)),
             TextField(
               controller: _controller,
               keyboardType: TextInputType.number,
@@ -100,7 +100,7 @@ Total recibido: \$${finalAmount.toStringAsFixed(0)}
                 foregroundColor: Colors.white,
               ),
               onPressed: _calculateCommission,
-              child: Text('Calcular', style: AppTypography.h2,
+              child: Text('Calcular', style: AppTypography.subtitle,
               ),
             ),
 

@@ -11,7 +11,7 @@ class Credits extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
-        title: Text('Créditos / equipo de trabajo', style: AppTypography.h1),
+        title: Text('Créditos / equipo de trabajo', style: AppTypography.title),
         // leading: Icon(Icons.arrow_back),
       ),
       body: SingleChildScrollView(
@@ -20,7 +20,7 @@ class Credits extends StatelessWidget {
           children: [
             Text(
               'Conoce al equipo detrás de NODO',
-              style: AppTypography.h2.copyWith(color: AppColors.blue),
+              style: AppTypography.subtitle.copyWith(color: AppColors.blue),
               textAlign: TextAlign.justify,
             ),
             SizedBox(height: 8),
@@ -31,12 +31,12 @@ class Credits extends StatelessWidget {
             ),
 
             SizedBox(height: 24),
-            ...equipo.map((miembro) => TarjetaMiembro(miembro)),
+            ...team.map((member) => MemberCard(member)),
             SizedBox(height: 80),
 
             Text(
               'Agradecimientos especiales a todas las personas que han probado, aportado ideas y creído en Nodo desde el inicio.',
-              style: AppTypography.h2.copyWith(color: AppColors.blue),
+              style: AppTypography.subtitle.copyWith(color: AppColors.blue),
               textAlign: TextAlign.center,
             ),
 
@@ -44,18 +44,18 @@ class Credits extends StatelessWidget {
 
             Text(
               'Hecho con 🧡 desde las bananeras de Urabá',
-              style: AppTypography.h3.copyWith(color: AppColors.blue),
+              style: AppTypography.label.copyWith(color: AppColors.blue),
             ),
 
             SizedBox(height: 80),
 
             Text(
               'Versión Nodo 2025',
-              style: AppTypography.body2.copyWith(color: AppColors.blue),
+              style: AppTypography.caption.copyWith(color: AppColors.blue),
             ),
             Text(
               'Todos los derechos reservados.',
-              style: AppTypography.body2.copyWith(color: AppColors.blue),
+              style: AppTypography.caption.copyWith(color: AppColors.blue),
             ),
           ],
         ),
@@ -65,52 +65,52 @@ class Credits extends StatelessWidget {
   }
 }
 
-  
-final List<MiembroEquipo> equipo = [
-  //MiembroEquipo(
-  //  nombre: 'Lusho Moreno',
-  //  rol: 'Creador de la idea, dirección general del proyecto',
-  //  imagen: 'assets/icons/iconNodoBlue.png',
+
+final List<TeamMember> team = [
+  //TeamMember(
+  //  name: 'Lusho Moreno',
+  //  role: 'Creador de la idea, dirección general del proyecto',
+  //  image: 'assets/icons/iconNodoBlue.png',
   //),
-  MiembroEquipo(
-    nombre: 'Kehiber Leandro Morelo Ricardo',
-    rol: 'Estudiante de Ingeniería Informática',
-    imagen: 'assets/icons/iconNodoBlue.png',
+  TeamMember(
+    name: 'Kehiber Leandro Morelo Ricardo',
+    role: 'Estudiante de Ingeniería Informática',
+    image: 'assets/icons/iconNodoBlue.png',
   ),
-  MiembroEquipo(
-    nombre: 'Luis Felipe Salgado Manco',
-    rol: 'Estudiante de Ingeniería Informática',
-    imagen: 'assets/icons/iconNodoBlue.png',
+  TeamMember(
+    name: 'Luis Felipe Salgado Manco',
+    role: 'Estudiante de Ingeniería Informática',
+    image: 'assets/icons/iconNodoBlue.png',
   ),
-  MiembroEquipo(
-    nombre: 'Mauricio Martínez Martínez',
-    rol: 'Estudiante de Ingeniería Informática',
-    imagen: 'assets/icons/iconNodoBlue.png',
+  TeamMember(
+    name: 'Mauricio Martínez Martínez',
+    role: 'Estudiante de Ingeniería Informática',
+    image: 'assets/icons/iconNodoBlue.png',
   ),
-  MiembroEquipo(
-    nombre: 'Tomás Muñoz Galvez',
-    rol: 'Estudiante de Ingeniería Informática',
-    imagen: 'assets/icons/iconNodoBlue.png',
+  TeamMember(
+    name: 'Tomás Muñoz Galvez',
+    role: 'Estudiante de Ingeniería Informática',
+    image: 'assets/icons/iconNodoBlue.png',
   ),
 ];
 
 
-class MiembroEquipo {
-  final String nombre;
-  final String rol;
-  final String imagen;
+class TeamMember {
+  final String name;
+  final String role;
+  final String image;
 
-  MiembroEquipo({
-    required this.nombre,
-    required this.rol,
-    required this.imagen,
+  TeamMember({
+    required this.name,
+    required this.role,
+    required this.image,
   });
 }
 
-class TarjetaMiembro extends StatelessWidget {
-  final MiembroEquipo miembro;
+class MemberCard extends StatelessWidget {
+  final TeamMember member;
 
-  const TarjetaMiembro(this.miembro, {super.key});
+  const MemberCard(this.member, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +121,7 @@ class TarjetaMiembro extends StatelessWidget {
         children: [
           ClipOval(
             child: Image.asset(
-              miembro.imagen,
+              member.image,
               width: 64,
               height: 64,
               fit: BoxFit.cover,
@@ -133,11 +133,11 @@ class TarjetaMiembro extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  miembro.nombre,
+                  member.name,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 Text(
-                  miembro.rol,
+                  member.role,
                   style: TextStyle(color: Colors.grey[700]),
                 ),
                 Text('"Inserte palabras emotivas"'),

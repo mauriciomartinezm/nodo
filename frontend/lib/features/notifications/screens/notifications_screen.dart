@@ -8,14 +8,14 @@ import 'package:provider/provider.dart';
 import '../../../shared/providers/user_provider.dart';
 import '../../../core/constants/api_constants.dart';
 
-class NotificacionesScreen extends StatefulWidget {
-  const NotificacionesScreen({super.key});
+class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
 
   @override
-  _NotificacionesScreenState createState() => _NotificacionesScreenState();
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _NotificacionesScreenState extends State<NotificacionesScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen> {
   int _selectedIndex = 0;
   late Future<List<dynamic>> _notificationsFuture;
 
@@ -29,7 +29,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final response = await http.get(
       Uri.parse(
-          '${ApiConstants.baseUrl}/getNotificacionesByUserId/${userProvider.user?.id}'),
+          ApiConstants.getNotificationsByUserId(userProvider.user?.id ?? '')),
     );
 
     if (response.statusCode == 200) {
@@ -76,10 +76,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
       appBar: AppBar(
         title: Text(
           'Notificaciones',
-          style: TextStyle(
-              color: AppColors.blue,
-              fontFamily: 'GothamMedium',
-              fontSize: 14.sp),
+          style: AppTypography.subtitle.copyWith(color: AppColors.blue),
         ),
         elevation: 0,
         actions: [
@@ -93,7 +90,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const NotificacionesSettings()),
+                    builder: (context) => const NotificationsSettings()),
               );
             },
           ),
@@ -116,17 +113,14 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.blue
-                          : AppColors.blue.withOpacity(0.2),
+                          : AppColors.blue.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       tabs[index],
-                      style: TextStyle(
-                          color: isSelected
-                              ? Colors.white
-                              : AppColors.blue,
-                          fontFamily: 'GothamMedium',
-                          fontSize: 10.sp),
+                      style: AppTypography.caption.copyWith(
+                        color: isSelected ? Colors.white : AppColors.blue,
+                      ),
                     ),
                   ),
                 );
@@ -157,11 +151,8 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                           child: Center(
                             child: Text(
                               'No hay notificaciones',
-                              style: TextStyle(
-                                color: AppColors.blue,
-                                fontFamily: 'GothamMedium',
-                                fontSize: 14.sp,
-                              ),
+                              style: AppTypography.body
+                                  .copyWith(color: AppColors.blue),
                             ),
                           ),
                         ),
@@ -220,7 +211,7 @@ class _NotificationItem extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: AppColors.blue.withOpacity(0.2),
+              color: AppColors.blue.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -236,31 +227,19 @@ class _NotificationItem extends StatelessWidget {
               children: [
                 Text(
                   notification['titulo'],
-                  style: TextStyle(
-                    color: AppColors.blue,
-                    fontFamily: 'GothamMedium',
-                    fontSize: 12.sp,
-                  ),
+                  style: AppTypography.label.copyWith(color: AppColors.blue),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   notification['mensaje'],
-                  style: TextStyle(
-                    color: AppColors.blue,
-                    fontFamily: 'GothamBook',
-                    fontSize: 10.sp,
-                  ),
+                  style: AppTypography.caption.copyWith(color: AppColors.blue),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _formatDate(notification['fecha']),
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontFamily: 'GothamBook',
-                    fontSize: 8.sp,
-                  ),
+                  style: AppTypography.caption.copyWith(color: Colors.grey),
                 ),
               ],
             ),

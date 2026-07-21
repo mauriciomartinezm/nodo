@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-//import 'package:nodo/features/trabajos/screens/trabajos6.dart';
-import 'package:nodo/features/trabajos/logic/TrabajoService.dart';
+//import 'package:nodo/features/trabajos/screens/category_filter_screen.dart';
+import 'package:nodo/features/trabajos/logic/job_service.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 
 class JobList extends StatelessWidget {
   final List publicaciones;
@@ -22,7 +23,10 @@ class JobList extends StatelessWidget {
       itemBuilder: (context, index) {
         final publicacion = publicaciones[index];
         final nombreCliente =
-            nombresClientes[publicacion['id_cliente']] ?? 'Cargando nombre...';
+            nombresClientes[publicacion['clientId']] ?? 'Cargando nombre...';
+        final categories = (publicacion['categories'] as List?) ?? [];
+        final firstCategoryId =
+            categories.isNotEmpty ? categories[0]['specificCategoryId'] : '';
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -34,8 +38,7 @@ class JobList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  TrabajoService.getIconForCategory(
-                      publicacion['id_categoria']),
+                  JobService.getIconForCategory(firstCategoryId),
                   size: 35,
                   color: const Color(0xFF003366),
                 ),
@@ -46,64 +49,29 @@ class JobList extends StatelessWidget {
                     children: [
                       Text.rich(
                         TextSpan(
-                          text: "${publicacion['titulo']}: ",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
+                          text: "${publicacion['title']}: ",
+                          style: AppTypography.label,
                           children: [
                             TextSpan(
-                              text: publicacion['descripcion_necesidad'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 11,
-                                color: Colors.black87,
-                              ),
+                              text: publicacion['description'],
+                              style: AppTypography.caption
+                                  .copyWith(color: Colors.black87),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "\$${publicacion['presupuesto']}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                      if (publicacion['estado_postulacion'] ==
-                          'considerado') ...[
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.green[100],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'Esperando tu aceptación',
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                      Text(
-                        publicacion['ubicacion'],
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 11,
-                        ),
+                        "\$${publicacion['budget']}",
+                        style: AppTypography.label,
                       ),
                       Text(
-                        "${TrabajoService.formatTimeAgo(publicacion['fecha_publicacion'])} · ${publicacion['estado']}",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 10,
-                        ),
+                        publicacion['location'],
+                        style: AppTypography.caption.copyWith(color: Colors.grey),
+                      ),
+                      Text(
+                        "${JobService.formatTimeAgo(publicacion['postDate'])} · ${publicacion['status']}",
+                        style: AppTypography.caption.copyWith(color: Colors.grey),
                       ),
                     ],
                   ),
@@ -115,7 +83,7 @@ class JobList extends StatelessWidget {
                     backgroundColor: Colors.orange.shade300,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle: const TextStyle(fontSize: 12),
+                    textStyle: AppTypography.label,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

@@ -8,7 +8,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ajustes', style: AppTypography.h1, ),
+        title: Text('Ajustes', style: AppTypography.title, ),
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
         elevation: 0,
@@ -64,7 +64,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Icon(icon, color: AppColors.blue, size: 25),
       title: Text(
         title,
-        style: AppTypography.h2.copyWith(color: AppColors.blue),
+        style: AppTypography.subtitle.copyWith(color: AppColors.blue),
       ),
       onTap: onTap,
     );

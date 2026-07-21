@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:nodo/core/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../logic/publicaciones_controller.dart';
+import '../logic/posts_controller.dart';
 import 'post.dart';
 import 'post_detail.dart';
 import 'post_empty_state.dart';
 
-class PublicacionListView extends StatelessWidget {
+class PostListView extends StatelessWidget {
   final int filter;
 
-  const PublicacionListView({
+  const PostListView({
     super.key,
     required this.filter,
   });
@@ -17,13 +18,13 @@ class PublicacionListView extends StatelessWidget {
   String _getEstadoForFilter(int filterIndex) {
     switch (filterIndex) {
       case 0:
-        return 'pendiente';
+        return 'pending';
       case 1:
-        return 'en proceso';
+        return 'in_progress';
       case 2:
-        return 'finalizada';
+        return 'finished';
       default:
-        return 'pendiente';
+        return 'pending';
     }
   }
 
@@ -41,34 +42,25 @@ class PublicacionListView extends StatelessWidget {
   }
 
   Future<void> _showPublicationDetail(
-    BuildContext context, dynamic item, PublicacionesController controller) async {
-  // Cerrar el teclado antes de abrir el modal
-  FocusManager.instance.primaryFocus?.unfocus();
-  
-  await showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    useRootNavigator: true,
-    builder: (context) {
-      return GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        behavior: HitTestBehavior.opaque,
-        child: PublicacionDetail(
+    BuildContext context, dynamic item, PostsController controller) async {
+    // Cerrar el teclado antes de abrir el detalle
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (context) => PostDetail(
           publicacion: item,
-          publicacionesController: controller,
+          postsController: controller,
           onDelete: () => _confirmDelete(context, item, controller),
         ),
-      );
-    },
-  ).then((_) {
-    // Cerrar el teclado después de cerrar el modal
+      ),
+    );
+
     FocusManager.instance.primaryFocus?.unfocus();
-  });
-}
+  }
 
   Future<void> _confirmDelete(
-      BuildContext context, dynamic item, PublicacionesController controller) async {
+      BuildContext context, dynamic item, PostsController controller) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -82,12 +74,14 @@ class PublicacionListView extends StatelessWidget {
           TextButton(
             onPressed: () async {
               try {
-                final success = await controller.deletePublicacion(item['id']);
+                final success = await controller.deletePost(item['id']);
+                if (!context.mounted) return;
                 Navigator.of(context).pop(success);
               } catch (e) {
+                if (!context.mounted) return;
                 Navigator.of(context).pop(false);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
+                  SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
                 );
               }
             },
@@ -99,31 +93,33 @@ class PublicacionListView extends StatelessWidget {
 
     if (confirmed == true && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Publicación eliminada')),
+        const SnackBar(content: Text('Publicación eliminada'), backgroundColor: AppColors.success),
       );
-      await controller.loadPublicaciones();
+      await controller.loadPosts();
+      if (!context.mounted) return;
       Navigator.of(context).pop(); // Cierra el modal de detalle
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<PublicacionesController>(context);
+    final controller = Provider.of<PostsController>(context);
     final estado = _getEstadoForFilter(filter);
-    final items = controller.filterPublicaciones(estado);
+    final items = controller.filterPosts(estado);
 
     if (items.isEmpty) {
-      return PublicacionEmptyState.forFilter(_getFilterName(filter));
+      return PostEmptyState.forFilter(_getFilterName(filter));
     }
 
     return Padding(
       padding: EdgeInsets.all(16.r),
       child: GridView.count(
         crossAxisCount: 2,
-        crossAxisSpacing: 20.w,
-        mainAxisSpacing: 10.h,
+        crossAxisSpacing: 8.w,
+        mainAxisSpacing: 8.h,
+        childAspectRatio: 0.82,
         children: items.map((item) {
-          return PublicacionCard(
+          return PostCard(
             item: item,
             onTap: () => _showPublicationDetail(context, item, controller),
             onDelete: () => _confirmDelete(context, item, controller),

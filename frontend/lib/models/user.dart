@@ -1,4 +1,5 @@
 import 'package:nodo/models/categorie.dart';
+
 class User {
   final String id;
   final String nombres;
@@ -7,12 +8,11 @@ class User {
   final String email;
   final String telefono;
   final String fechaNacimiento;
-  final String contrasena;
   final String fechaRegistro;
   final String fotoPerfil;
   final bool verificado;
   final String tipoUsuario;
-  final List<Categorie> categorias; // <-- Aquí el cambio
+  final List<Categorie> categorias;
   final dynamic ubicacion;
   final dynamic descripcion;
   final dynamic calificacionPromedio;
@@ -26,7 +26,6 @@ class User {
     required this.email,
     required this.telefono,
     required this.fechaNacimiento,
-    required this.contrasena,
     required this.fechaRegistro,
     required this.fotoPerfil,
     required this.verificado,
@@ -39,47 +38,44 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    final worker = json['worker'] as Map<String, dynamic>?;
+    final workerCategories = (worker?['workerCategories'] as List?) ?? [];
+
     return User(
       id: json['id'],
-      nombres: json['nombres'],
-      primerApellido: json['primer_apellido'],
-      segundoApellido: json['segundo_apellido'],
+      nombres: json['firstName'] ?? '',
+      primerApellido: json['lastName'] ?? '',
+      segundoApellido: json['secondLastName'] ?? '',
       email: json['email'],
-      telefono: json['telefono'],
-      fechaNacimiento: json['fecha_nacimiento'] ?? '',
-      contrasena: json['contrasena'] ?? '',
-      fechaRegistro: json['fecha_registro'] ?? '',
-      fotoPerfil: json['foto_perfil'] ?? '',
-      verificado: json['verificado'] ?? false,
-      tipoUsuario: json['tipo_usuario'] ?? 'cliente',
-      categorias: (json['categorias'] as List?)
-              ?.map((e) => Categorie.fromJson(e))
-              .toList() ??
-          [], // ✅ Maneja [] o null sin errores
-      ubicacion: json['ubicacion'],
-      descripcion: json['descripcion'],
-      calificacionPromedio: json['calificacion_promedio'],
-      trabajosCompletados: json['trabajos_completados'],
+      telefono: json['phone'],
+      fechaNacimiento: json['birthDate'] ?? '',
+      fechaRegistro: json['registrationDate'] ?? '',
+      fotoPerfil: json['profilePhoto'] ?? '',
+      verificado: json['verified'] ?? false,
+      tipoUsuario: worker != null ? 'trabajador' : 'cliente',
+      categorias: workerCategories
+          .map((wc) => Categorie.fromJson(wc['generalCategory']))
+          .toList(),
+      ubicacion: json['location'],
+      descripcion: worker?['description'],
+      // No son columnas reales (son agregados calculables), por ahora el
+      // backend no los expone.
+      calificacionPromedio: null,
+      trabajosCompletados: null,
     );
   }
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'nombres': nombres,
-        'primer_apellido': primerApellido,
-        'segundo_apellido': segundoApellido,
+        'firstName': nombres,
+        'lastName': primerApellido,
+        'secondLastName': segundoApellido,
         'email': email,
-        'telefono': telefono,
-        'fecha_nacimiento': fechaNacimiento,
-        'contrasena': contrasena,
-        'fecha_registro': fechaRegistro,
-        'foto_perfil': fotoPerfil,
-        'verificado': verificado,
-        'tipo_usuario': tipoUsuario,
-        'categorias': categorias.map((c) => c.toJson()).toList(),
-        'ubicacion': ubicacion,
-        'descripcion': descripcion,
-        'calificacion_promedio': calificacionPromedio,
-        'trabajos_completados': trabajosCompletados,
+        'phone': telefono,
+        'birthDate': fechaNacimiento,
+        'registrationDate': fechaRegistro,
+        'profilePhoto': fotoPerfil,
+        'verified': verificado,
+        'location': ubicacion,
       };
 }

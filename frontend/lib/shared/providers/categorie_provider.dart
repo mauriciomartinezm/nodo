@@ -33,7 +33,7 @@ class CategorieProvider extends ChangeNotifier {
   Categorie? obtenerPorId(String id) {
     return _categories.firstWhere(
       (c) => c.id == id,
-      orElse: () => Categorie(id: '', nombre: 'Desconocida', descripcion: ''),
+      orElse: () => Categorie(id: '', name: 'Unknown'),
     );
   }
 }

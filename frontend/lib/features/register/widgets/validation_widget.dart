@@ -4,7 +4,7 @@ import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:nodo/features/register/logic/validation_controller.dart';
-import 'package:nodo/features/register/widgets/profile_picture_widget.dart';
+// import 'package:nodo/features/register/widgets/profile_picture_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ValidationWidget extends StatefulWidget {
@@ -39,14 +39,13 @@ class _ValidationWidgetState extends State<ValidationWidget> {
             children: [
               Text(
                 'Verificación de identidad',
-                style: AppTypography.h1.copyWith(color: AppColors.blue),
+                style: AppTypography.title.copyWith(color: AppColors.blue),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 5.h),
               Text(
                 'Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación.',
-                style: AppTypography.h3.copyWith(
-                    color: AppColors.blue, fontWeight: FontWeight.normal),
+                style: AppTypography.label.copyWith(color: AppColors.blue),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 24.h),
@@ -64,7 +63,7 @@ class _ValidationWidgetState extends State<ValidationWidget> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       maxLength: 1,
-                      style: const TextStyle(fontSize: 20),
+                      style: AppTypography.title,
                       decoration: InputDecoration(
                         counterText: "",
                         contentPadding: const EdgeInsets.all(10),
@@ -108,15 +107,14 @@ class _ValidationWidgetState extends State<ValidationWidget> {
                   children: [
                     TextSpan(
                       text: '¿No recibiste el código? ',
-                      style: AppTypography.body2.copyWith(
+                      style: AppTypography.caption.copyWith(
                         color: AppColors.blue,
                       ),
                     ),
                     TextSpan(
                       text: 'Reenviar',
-                      style: AppTypography.body2.copyWith(
+                      style: AppTypography.caption.copyWith(
                         color: AppColors.orange,
-                        fontWeight: FontWeight.bold,
                       ),
                       recognizer: controller.canResend
                           ? (TapGestureRecognizer()
@@ -133,7 +131,7 @@ class _ValidationWidgetState extends State<ValidationWidget> {
                     if (!controller.canResend)
                       TextSpan(
                         text: ' en ${controller.secondsRemaining}s',
-                        style: AppTypography.body2.copyWith(
+                        style: AppTypography.caption.copyWith(
                           color: AppColors.blue,
                         ),
                       ),

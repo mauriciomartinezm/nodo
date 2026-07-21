@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
 
-class CrearPublicacionController extends ChangeNotifier {
-  final CrearPublicacionService _service;
+class CreatePostController extends ChangeNotifier {
+  final CreatePostService _service;
 
-  CrearPublicacionController(this._service);
+  CreatePostController(this._service);
 
   bool isLoading = false;
   String? errorMessage;
@@ -20,7 +20,7 @@ class CrearPublicacionController extends ChangeNotifier {
 
   List<String> selectedCategories = [];
   List<File> localImages = []; // imágenes locales
-  List<String> urlsImagenes = []; // URLs tras subida
+  List<String> imageUrls = []; // URLs tras subida
 
   void setErrorMessage(String? message) {
     errorMessage = message;
@@ -32,12 +32,22 @@ class CrearPublicacionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleCategoria(String idCategoria) {
-    if (selectedCategories.contains(idCategoria)) {
-      selectedCategories.remove(idCategoria);
+  void toggleCategory(String categoryId) {
+    if (selectedCategories.contains(categoryId)) {
+      selectedCategories.remove(categoryId);
     } else {
-      selectedCategories.add(idCategoria);
+      selectedCategories.add(categoryId);
     }
+    notifyListeners();
+  }
+
+  void setCategories(List<String> categoryIds) {
+    selectedCategories = categoryIds;
+    notifyListeners();
+  }
+
+  void setUbicacion(String value) {
+    ubicacionController.text = value;
     notifyListeners();
   }
 
@@ -46,7 +56,7 @@ class CrearPublicacionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void limpiarFormulario() {
+  void clearForm() {
     tituloController.clear();
     ubicacionController.clear();
     presupuestoController.clear();
@@ -54,12 +64,12 @@ class CrearPublicacionController extends ChangeNotifier {
     descripcionController.clear();
     selectedCategories.clear();
     localImages.clear();
-    urlsImagenes.clear();
+    imageUrls.clear();
     errorMessage = null;
     notifyListeners();
   }
 
-  bool validarCampos() {
+  bool validateFields() {
     if (tituloController.text.isEmpty ||
         selectedCategories.isEmpty ||
         ubicacionController.text.isEmpty ||
@@ -73,38 +83,52 @@ class CrearPublicacionController extends ChangeNotifier {
     return true;
   }
 
-  Future<void> crearPublicacion(
+  Future<void> createPost(
     BuildContext context,
     UserProvider userProvider,
   ) async {
-    if (!validarCampos()) return;
+    if (!validateFields()) return;
+
+    String? createdPostId;
 
     try {
       setLoading(true);
 
-      final datos = {
-        "id_cliente": userProvider.user?.id,
-        "titulo": tituloController.text,
-        "id_categorias": selectedCategories,
-        "ubicacion": ubicacionController.text,
-        "presupuesto": int.tryParse(presupuestoController.text) ?? 0,
-        "fecha_limite": fechaLimiteController.text,
-        "descripcion_necesidad": descripcionController.text,
+      final data = {
+        "clientId": userProvider.user?.id,
+        "title": tituloController.text,
+        "specificCategoryIds": selectedCategories,
+        "location": ubicacionController.text,
+        "budget": int.tryParse(presupuestoController.text) ?? 0,
+        "deadline": fechaLimiteController.text,
+        "description": descripcionController.text,
       };
 
-      final id = await _service.crearPublicacion(datos);
-      // 🔹 Subir imágenes solo ahora
-      final urls = await _service.subirImagenesAFirebase(id!, localImages);
-      // 2️⃣ Actualizar con fotos si existen
-      if (urls.isNotEmpty) {
-        await _service.actualizarFotos(id, urls);
+      final id = await _service.createPost(data);
+      createdPostId = id;
+
+      if (localImages.isNotEmpty) {
+        final urls = await _service.uploadImagesToFirebase(id!, localImages);
+        if (urls.isNotEmpty) {
+          await _service.updatePhotos(id, urls);
+        }
       }
-      limpiarFormulario();
+
+      clearForm();
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Publicación creada correctamente')),
       );
     } catch (e) {
-      setErrorMessage("Error al crear la publicación: $e");
+      // Si la publicación ya se había creado pero algo falló después (subir
+      // o guardar las fotos), no debe quedar una publicación a medias.
+      if (createdPostId != null) {
+        try {
+          await _service.deletePost(createdPostId);
+        } catch (_) {}
+      }
+      final mensaje = e is Exception ? e.toString().replaceFirst('Exception: ', '') : e.toString();
+      setErrorMessage(mensaje);
     } finally {
       setLoading(false);
     }

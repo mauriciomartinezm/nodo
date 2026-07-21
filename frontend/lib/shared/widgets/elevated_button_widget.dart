@@ -6,12 +6,14 @@ class CustomElevatedButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final bool loading;
+  final IconData? icon;
 
   const CustomElevatedButton({
     super.key,
     required this.text,
     required this.onPressed,
     this.loading = false,
+    this.icon,
   });
   @override
   Widget build(BuildContext context) {
@@ -24,12 +26,21 @@ class CustomElevatedButton extends StatelessWidget {
                 maxHeight: MediaQuery.of(context).size.height * 0.025,
               ),
               child: Center(
-                child: AutoSizeText(
-                  text,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  minFontSize: 5,
-                  maxFontSize: 28,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, color: AppColors.white, size: 16),
+                      const SizedBox(width: 8),
+                    ],
+                    AutoSizeText(
+                      text,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      minFontSize: 5,
+                      maxFontSize: 28,
+                    ),
+                  ],
                 ),
               ),
             ),

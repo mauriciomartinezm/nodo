@@ -3,10 +3,10 @@ import bucket from "../utils/firebase.js";
 import path from "path";
 import { lookup } from "mime-types";
 
-export async function generarUrlSubida(nombreArchivo) {
-  const file = bucket.file(`perfiles/${nombreArchivo.toLowerCase()}`);
+export async function generateUploadUrl(fileName) {
+  const file = bucket.file(`perfiles/${fileName.toLowerCase()}`);
 
-  const extension = path.extname(nombreArchivo).toLowerCase();
+  const extension = path.extname(fileName).toLowerCase();
   const contentType = lookup(extension) || "application/octet-stream";
   // Generar URL firmada válida por 15 minutos
   const [url] = await file.getSignedUrl({

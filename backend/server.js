@@ -1,12 +1,13 @@
-import usuarioRouter from "./routes/usuariosRoutes.js";
-import publicacionRouter from "./routes/publicacionesRoutes.js";
-import categoriaRouter from "./routes/categoriasRoutes.js";
-import notificacionRouter from "./routes/notificacionesRoutes.js"; //Con redis
-import postulacionRouter from "./routes/postulacionRoutes.js";
+import userRouter from "./routes/usersRoutes.js";
+import postRouter from "./routes/postsRoutes.js";
+import categoryRouter from "./routes/categoriesRoutes.js";
+import notificationRouter from "./routes/notificationsRoutes.js"; //Con redis
+import applicationRouter from "./routes/applicationsRoutes.js";
 import tokenRouter from "./routes/tokenRoutes.js";
-import reporteRouter from "./routes/reportesRoutes.js";
-import trabajoRouter from "./routes/trabajosRoutes.js";
+import reportRouter from "./routes/reportsRoutes.js";
+import jobRouter from "./routes/jobsRoutes.js";
 import storageRoutes from "./routes/storageRoutes.js";
+import locationRouter from "./routes/locationsRoutes.js";
 import express from "express";
 import cors from "cors";
 
@@ -19,15 +20,16 @@ const PORT = process.env.PORT || 3001;
 // Configuración de CORS
 
 // Configuración del body parser para manejar las solicitudes JSON
-app.use(usuarioRouter);
-app.use(publicacionRouter);
-app.use(categoriaRouter);
-app.use(notificacionRouter);
-app.use(postulacionRouter);
+app.use(userRouter);
+app.use(postRouter);
+app.use(categoryRouter);
+app.use(notificationRouter);
+app.use(applicationRouter);
 app.use(tokenRouter);
-app.use(reporteRouter);
-app.use(trabajoRouter);
+app.use(reportRouter);
+app.use(jobRouter);
 app.use(storageRoutes);
+app.use(locationRouter);
 
 // Inicia el servidor
 app.listen(PORT, "0.0.0.0", () => {

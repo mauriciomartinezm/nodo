@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,34 +8,46 @@ import 'package:nodo/models/user.dart';
 
 class AuthService {
   Future<User?> login(String identificador, String contrasena) async {
+    http.Response response;
     try {
-      final response = await http.post(
-        Uri.parse(ApiConstants.loginEndpoint),
+      response = await http.post(
+        Uri.parse(ApiConstants.login),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'identificador': identificador,
-          'contrasena': contrasena,
+          'identifier': identificador,
+          'password': contrasena,
         }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final usuario = User.fromJson(data['usuario']);
-        await _guardarTokenFCM(usuario.id);
-        return usuario;
-      } else {
-        throw Exception('Credenciales inválidas');
-      }
-    } catch (e) {
-      throw Exception('Error en login: $e');
+      ).timeout(const Duration(seconds: 5));
+    } catch (_) {
+      throw Exception(
+          'No pudimos conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.');
     }
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final usuario = User.fromJson(data['user']);
+      // El registro del token push es secundario: si falla (intermitente,
+      // depende de Play Services/red), no debe bloquear un login exitoso.
+      try {
+        await _guardarTokenFCM(usuario.id);
+      } catch (e) {
+        debugPrint('No se pudo guardar el token FCM: $e');
+      }
+      return usuario;
+    }
+
+    if (response.statusCode == 401) {
+      throw Exception('Usuario o contraseña incorrectos.');
+    }
+
+    throw Exception('Ocurrió un error al iniciar sesión. Intenta de nuevo.');
   }
 
   Future<void> logout(String userId) async {
     try {
       await _deleteTokenFCM(userId);
     } catch (e) {
-      print('Error al cerrar sesión: $e');
+      debugPrint('Error al cerrar sesión: $e');
     }
   }
 
@@ -50,13 +63,13 @@ class AuthService {
     final response = await http.post(
       Uri.parse(ApiConstants.saveToken),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id_usuario': userId, 'token': nuevoToken}),
+      body: jsonEncode({'userId': userId, 'token': nuevoToken}),
     );
 
     if (response.statusCode == 200) {
       await prefs.setString('fcm_token', nuevoToken);
     } else {
-      print('Error al guardar token FCM: ${response.body}');
+      debugPrint('Error al guardar token FCM: ${response.body}');
     }
   }
 
@@ -65,7 +78,7 @@ class AuthService {
     await http.put(
       Uri.parse(ApiConstants.deleteToken),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id_usuario': userId}),
+      body: jsonEncode({'userId': userId}),
     );
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('fcm_token');

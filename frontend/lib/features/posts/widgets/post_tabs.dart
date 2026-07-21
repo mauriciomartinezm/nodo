@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-class PublicacionTabs extends StatelessWidget {
+class PostTabs extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabChanged;
 
-  const PublicacionTabs({
+  const PostTabs({
     super.key,
     required this.selectedIndex,
     required this.onTabChanged,
@@ -30,15 +30,13 @@ class PublicacionTabs extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.blue
-                    : AppColors.blue.withOpacity(0.2),
+                    : AppColors.blue.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 tabs[index],
-                style: TextStyle(
+                style: AppTypography.caption.copyWith(
                   color: isSelected ? Colors.white : AppColors.blue,
-                  fontFamily: 'GothamMedium',
-                  fontSize: 10.sp,
                 ),
               ),
             ),

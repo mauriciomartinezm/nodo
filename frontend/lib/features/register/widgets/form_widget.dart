@@ -2,15 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/register/logic/register_controller.dart';
-import 'package:nodo/shared/providers/categorie_provider.dart';
+import 'package:nodo/shared/providers/general_category_provider.dart';
+import 'package:nodo/shared/providers/location_provider.dart';
+import 'package:nodo/models/categorie.dart';
+import 'package:nodo/models/location.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
+import 'package:nodo/shared/widgets/multi_select_dropdown.dart';
+import 'package:nodo/shared/widgets/password_form_field.dart';
+import 'package:nodo/shared/widgets/searchable_dropdown_field.dart';
 
 class FormWidget extends StatefulWidget {
   final VoidCallback onContinue; // 🔹 callback para avanzar al siguiente paso
+  final String? initialUserType;
 
-  const FormWidget({super.key, required this.onContinue});
+  const FormWidget({
+    super.key,
+    required this.onContinue,
+    this.initialUserType,
+  });
 
   @override
   State<FormWidget> createState() => _FormWidgetState();
@@ -20,6 +31,13 @@ class _FormWidgetState extends State<FormWidget> {
   String? selectedUserType;
   DateTime? selectedDate;
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePasswords = true;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedUserType = widget.initialUserType;
+  }
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lastName1Controller = TextEditingController();
@@ -34,17 +52,12 @@ class _FormWidgetState extends State<FormWidget> {
       TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
-  /*final List<Categorie> availableCategories = [
-    Categorie(id: '1', nombre: 'Carpintería', descripcion: ''),
-    Categorie(id: '2', nombre: 'Electricidad', descripcion: ''),
-    Categorie(id: '3', nombre: 'Fontanería', descripcion: ''),
-    Categorie(id: '4', nombre: 'Jardinería', descripcion: ''),
-  ];*/
   List<String> selectedCategories = [];
 
   @override
   Widget build(BuildContext context) {
-    final categorieProvider = context.watch<CategorieProvider>();
+    final categorieProvider = context.watch<GeneralCategoryProvider>();
+    final locationProvider = context.watch<LocationProvider>();
     if (categorieProvider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -66,20 +79,23 @@ class _FormWidgetState extends State<FormWidget> {
                 // Texto introductorio
                 Text(
                   "En NODO creemos en el poder de unir necesidades con talentos. Regístrate y sé parte de una red que impulsa el trabajo real.",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.body.copyWith(color: AppColors.blue),
+                  textAlign: TextAlign.justify,
                 ),
 
                 SizedBox(height: categorySpacing),
 
                 Text(
                   "¿Cómo quieres comenzar en Nodo?",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.orange),
+                  textAlign: TextAlign.center,
                 ),
                 SizedBox(height: textSpacing),
 
                 Text(
                   "Elige si deseas buscar servicios como cliente o empezar a trabajar ofreciendo tu talento.",
-                  style: AppTypography.h3.copyWith(color: AppColors.blue),
+                  style: AppTypography.body.copyWith(color: AppColors.blue),
+                  textAlign: TextAlign.justify,
                 ),
                 SizedBox(height: textSpacing),
 
@@ -93,7 +109,7 @@ class _FormWidgetState extends State<FormWidget> {
                 DropdownButtonFormField<String>(
                   decoration:
                       const InputDecoration(labelText: "Tipo de usuario"),
-                  value: selectedUserType,
+                  initialValue: selectedUserType,
                   items: const [
                     DropdownMenuItem(value: "cliente", child: Text("Cliente")),
                     DropdownMenuItem(
@@ -117,7 +133,7 @@ class _FormWidgetState extends State<FormWidget> {
                 // Información básica
                 Text(
                   "Información básica",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: fieldSpacing),
 
@@ -193,7 +209,7 @@ class _FormWidgetState extends State<FormWidget> {
                 // Datos de contacto
                 Text(
                   "Datos de contacto y seguridad",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: fieldSpacing),
                 TextFormField(
@@ -265,9 +281,6 @@ class _FormWidgetState extends State<FormWidget> {
                         decoration: InputDecoration(
                           labelText: effectiveLabel,
                           errorText: field.errorText,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
                         ),
                         child: Text(
                           isEmpty
@@ -288,63 +301,49 @@ class _FormWidgetState extends State<FormWidget> {
                 if (selectedUserType == "trabajador") ...[
                   Text(
                     "Datos adicionales",
-                    style: AppTypography.h2.copyWith(color: AppColors.blue),
+                    style:
+                        AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: fieldSpacing),
-                  TextFormField(
-                    controller: locationController,
-                    decoration: const InputDecoration(
-                        labelText: "Ubicación o zona de servicio"),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Este campo es obligatorio';
-                      }
-                      return null;
-                    },
+                  SearchableDropdownField<Location>(
+                    label: "Ubicación o zona de servicio",
+                    icon: Icons.location_on_outlined,
+                    searchHint: "Buscar ubicación...",
+                    emptyMessage: "No se encontraron ubicaciones",
+                    options: locationProvider.locations,
+                    labelBuilder: (location) => location.name,
+                    value: locationProvider.locations.cast<Location?>().firstWhere(
+                          (l) => l!.name == locationController.text,
+                          orElse: () => null,
+                        ),
+                    onChanged: (location) =>
+                        setState(() => locationController.text = location.name),
                   ),
                   SizedBox(height: fieldSpacing),
                   Text(
-                    "Categorías de trabajo",
-                    style: AppTypography.h2.copyWith(color: AppColors.blue),
+                    "Rubros",
+                    style:
+                        AppTypography.subtitle.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: textSpacing),
                   Text(
                     "Selecciona las áreas en las que tienes experiencia o deseas ofrecer tus servicios.",
-                    style: AppTypography.h3.copyWith(color: AppColors.blue),
+                    style: AppTypography.label.copyWith(color: AppColors.blue),
                   ),
                   SizedBox(height: fieldSpacing),
-                  Wrap(
-                    spacing: 8.w,
-                    runSpacing: 8.h,
-                    children: categorieProvider.categories.map((categoria) {
-                      final isSelected =
-                          selectedCategories.contains(categoria.id);
-                      return ChoiceChip(
-                        label: Text(
-                          categoria.nombre,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.blue,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        selected: isSelected,
-                        selectedColor: AppColors.orange,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.r),
-                          side: BorderSide(color: AppColors.orange),
-                        ),
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              selectedCategories.add(categoria.id);
-                            } else {
-                              selectedCategories.remove(categoria.id);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
+                  MultiSelectDropdown<Categorie>(
+                    label: 'Rubros',
+                    hint: 'Selecciona tus rubros',
+                    options: categorieProvider.categories,
+                    selectedValues: categorieProvider.categories
+                        .where((c) => selectedCategories.contains(c.id))
+                        .toList(),
+                    labelBuilder: (categoria) => categoria.name,
+                    onChanged: (selected) {
+                      setState(() {
+                        selectedCategories = selected.map((c) => c.id).toList();
+                      });
+                    },
                   ),
                   SizedBox(height: fieldSpacing),
                   TextFormField(
@@ -365,20 +364,25 @@ class _FormWidgetState extends State<FormWidget> {
                 // Crear contraseña
                 Text(
                   "Crea una contraseña",
-                  style: AppTypography.h2.copyWith(color: AppColors.blue),
+                  style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: textSpacing),
 
                 Text(
-                  "Crea una contraseña segura para proteger tu cuenta. Debe tener mínimo 8 caracteres, combinar letras mayúsculas, minúsculas, números y símbolos.",
-                  style: AppTypography.body.copyWith(color: AppColors.blue),
+                  "Debe tener mínimo 8 caracteres, combinar letras mayúsculas, minúsculas, números y símbolos.",
+                  style: AppTypography.label.copyWith(color: AppColors.blue),
                 ),
                 SizedBox(height: fieldSpacing),
 
-                TextFormField(
+                PasswordFormField(
                   controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: "Contraseña"),
+                  labelText: "Contraseña",
+                  obscureText: _obscurePasswords,
+                  onToggleVisibility: () {
+                    setState(() {
+                      _obscurePasswords = !_obscurePasswords;
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Este campo es obligatorio';
@@ -388,11 +392,10 @@ class _FormWidgetState extends State<FormWidget> {
                 ),
                 SizedBox(height: fieldSpacing),
 
-                TextFormField(
+                PasswordFormField(
                   controller: confirmPasswordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                      labelText: "Confirma tu contraseña"),
+                  labelText: "Confirma tu contraseña",
+                  obscureText: _obscurePasswords,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Este campo es obligatorio';
@@ -405,12 +408,25 @@ class _FormWidgetState extends State<FormWidget> {
                 ),
                 SizedBox(height: categorySpacing * 2),
                 CustomElevatedButton(
-                  text: "Continuar",
+                  text: "Completar registro",
                   onPressed: registerController.isLoading
                       ? null
                       : () async {
                           // Validar formulario general
                           if (!_formKey.currentState!.validate()) return;
+
+                          // Validar ubicación si es trabajador (no es un TextFormField, no la valida el Form)
+                          if (selectedUserType == "trabajador" &&
+                              locationController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('Por favor selecciona tu ubicación'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
 
                           // Validar que seleccione al menos una categoría si es trabajador
                           if (selectedUserType == "trabajador" &&
@@ -418,7 +434,7 @@ class _FormWidgetState extends State<FormWidget> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                    'Por favor selecciona al menos una categoría'),
+                                    'Por favor selecciona al menos un rubro'),
                                 backgroundColor: Colors.red,
                               ),
                             );

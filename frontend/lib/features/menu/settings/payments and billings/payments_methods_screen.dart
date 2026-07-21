@@ -22,7 +22,7 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
         elevation: 0,
-        title: Text('Métodos de pago registrados', style: AppTypography.h1),
+        title: Text('Métodos de pago registrados', style: AppTypography.title),
       ),
       backgroundColor: AppColors.white,
       body: Column(
@@ -57,7 +57,7 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
                       onTap: () => _cardDetails(metodo, index),
                       title: Text(
                         metodo['tipo']!,
-                        style: AppTypography.h3.copyWith(
+                        style: AppTypography.label.copyWith(
                           color: isPredeterminado
                               ? AppColors.white
                               : AppColors.blue,
@@ -65,7 +65,7 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
                       ),
                       trailing: Text(
                         metodo['numero']!,
-                        style: AppTypography.h3.copyWith(
+                        style: AppTypography.label.copyWith(
                           color: isPredeterminado
                               ? AppColors.white
                               : AppColors.blue,
@@ -82,14 +82,14 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
           TextButton(
             onPressed: _formAdd,
             child: Text('+ Añadir método de pago',
-                style: AppTypography.h3.copyWith(color: AppColors.blue)),
+                style: AppTypography.label.copyWith(color: AppColors.blue)),
           ),
           Padding(
             padding: const EdgeInsets.all(8),
             child: Text(
               'Tus datos están protegidos mediante cifrado. Usaremos esta información únicamente para procesar pagos de forma segura.',
               textAlign: TextAlign.center,
-              style: AppTypography.body2.copyWith(color: AppColors.blue),
+              style: AppTypography.caption.copyWith(color: AppColors.blue),
             ),
           ),
         ],
@@ -107,7 +107,7 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Añadir método de pago', 
-          style: AppTypography.h2.copyWith(color: AppColors.blue),
+          style: AppTypography.subtitle.copyWith(color: AppColors.blue),
           textAlign: TextAlign.center,
         ),
         content: Column(
@@ -187,7 +187,7 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Cancelar',
-                style: AppTypography.h3.copyWith(color: AppColors.blue))   
+                style: AppTypography.label.copyWith(color: AppColors.blue))   
           ),
           ElevatedButton(
             onPressed: () {
@@ -196,6 +196,8 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
                   metodos.add({
                     'titular': titular,
                     'numero': '***$numero',
+                    'fechaCaducidad': fechaCaducidad,
+                    'codigoSeguridad': codigoSeguridad,
                     'predeterminado': 'false',
                   });
                 });
@@ -204,7 +206,7 @@ class _PaymentsMethodsState extends State<PaymentsMethods> {
             },
             // backgroundColor: AppColors.blue,
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.blue),
-            child: Text('Agregar', style: AppTypography.h3.copyWith(color: AppColors.white)),
+            child: Text('Agregar', style: AppTypography.label.copyWith(color: AppColors.white)),
           ),
         ],
       ),
@@ -237,7 +239,7 @@ void _cardDetails(Map<String, String> metodo, int index) {
               const SizedBox(height: 10),
               Text(
                 '${metodo['tipo']}',
-                style: AppTypography.h2.copyWith(color: AppColors.blue),
+                style: AppTypography.subtitle.copyWith(color: AppColors.blue),
               ),
               const SizedBox(height: 5),
               Text(

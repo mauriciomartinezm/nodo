@@ -10,7 +10,7 @@ class CommissionsFeesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Comisiones y tarifas',
-          style: AppTypography.h1
+          style: AppTypography.title
         ),
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.blue,
@@ -25,7 +25,7 @@ class CommissionsFeesScreen extends StatelessWidget {
           children: [
             RichText(
               text: TextSpan(
-                style: AppTypography.h2.copyWith(color: AppColors.blue),
+                style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 children: const [
                   TextSpan(text: 'Comisiones y tarifas - '),
                   TextSpan(
@@ -40,7 +40,7 @@ class CommissionsFeesScreen extends StatelessWidget {
 
             Text(
               '¿Cuánto cuesta usar NODO como cliente?',
-              style: AppTypography.h3.copyWith(color: AppColors.blue),
+              style: AppTypography.label.copyWith(color: AppColors.blue),
               textAlign: TextAlign.justify,
             ),
             Padding(
@@ -55,7 +55,7 @@ class CommissionsFeesScreen extends StatelessWidget {
             const SizedBox(height: 15),
             Text(
               'Transparencia total',
-              style: AppTypography.h3.copyWith(color: AppColors.blue),
+              style: AppTypography.label.copyWith(color: AppColors.blue),
             ),
             const SizedBox(height: 4),
             bulletPoint(
@@ -67,7 +67,7 @@ class CommissionsFeesScreen extends StatelessWidget {
 
             Text(
               'Importante saber:',
-              style: AppTypography.h3.copyWith(color: AppColors.blue),
+              style: AppTypography.label.copyWith(color: AppColors.blue),
             ),
             const SizedBox(height: 4),
             bulletPoint(
@@ -81,7 +81,7 @@ class CommissionsFeesScreen extends StatelessWidget {
 
             RichText(
               text: TextSpan(
-                style: AppTypography.h2.copyWith(color: AppColors.blue),
+                style: AppTypography.subtitle.copyWith(color: AppColors.blue),
                 children: const [
                   TextSpan(text: 'Comisiones y tarifas - '),
                   TextSpan(
@@ -107,7 +107,7 @@ class CommissionsFeesScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
               child: Text(
                 'Tarifa de la pasarela de pagos',
-                style: AppTypography.h3.copyWith(color: AppColors.blue),
+                style: AppTypography.label.copyWith(color: AppColors.blue),
               ),
             ),
             const SizedBox(height: 4),
@@ -136,7 +136,7 @@ class CommissionsFeesScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
               child: Text(
                 'Comisión escalonada de NODO',
-                style: AppTypography.h3.copyWith(color: AppColors.blue),
+                style: AppTypography.label.copyWith(color: AppColors.blue),
               ),
             ),
             const SizedBox(height: 8),
@@ -169,7 +169,7 @@ class CommissionsFeesScreen extends StatelessWidget {
                     _buildTableRow(
                       ['Valor del trabajo', 'Comisión de NODO',],
                       backgroundColor: AppColors.blue, // Fondo azul claro
-                      textStyle: AppTypography.h3.copyWith(color: AppColors.white),
+                      textStyle: AppTypography.label.copyWith(color: AppColors.white),
                     ),
                     _buildTableRow(['25.000 a 100.000 COP', '10%']),
                     _buildTableRow(['\$100.000 a \$300.000 COP', '7.5%']),
@@ -185,7 +185,7 @@ class CommissionsFeesScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
               child: Text(
                 'Ejemplo práctico:',
-                style: AppTypography.h3.copyWith(color: AppColors.blue),
+                style: AppTypography.label.copyWith(color: AppColors.blue),
               ),
             ),
             const SizedBox(height: 8),
@@ -209,7 +209,7 @@ class CommissionsFeesScreen extends StatelessWidget {
 
             Text(
               '¿Tienes dudas?',
-              style: AppTypography.h3.copyWith(color: AppColors.blue),
+              style: AppTypography.label.copyWith(color: AppColors.blue),
             ),
             const SizedBox(height: 5),
             linkText('Ver métodos de pago aceptados'),
@@ -230,7 +230,7 @@ class CommissionsFeesScreen extends StatelessWidget {
         children: [
           Text(
             '• ',
-            style: AppTypography.h3.copyWith(color: AppColors.orange),
+            style: AppTypography.label.copyWith(color: AppColors.orange),
           ),
           Expanded(
             child: Text(

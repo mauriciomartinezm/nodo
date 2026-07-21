@@ -1,6 +1,8 @@
 {
   "type": "module",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -11,11 +13,20 @@
     "mysql2": "^3.11.4",
     "nodemon": "^3.1.7",
     "pg": "^8.16.0",
+    "prisma": "^7.8.0",
     "redis": "^5.5.5",
     "uuid": "^11.0.3"
   },
   "scripts": {
     "start": "node -r dotenv/config server.js",
-    "dev": "nodemon -r dotenv/config server.js"
+    "predev": "kill-port 3001",
+    "dev": "nodemon -r dotenv/config server.js",
+    "seed": "node -r dotenv/config prisma/seed.js"
+  },
+  "devDependencies": {
+    "kill-port": "^2.0.1"
+  },
+  "prisma": {
+    "seed": "node -r dotenv/config prisma/seed.js"
   }
 }

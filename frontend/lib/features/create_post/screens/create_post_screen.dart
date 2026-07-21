@@ -4,22 +4,27 @@ import 'package:nodo/features/create_post/widgets/date_picker_widget.dart';
 import 'package:nodo/features/create_post/widgets/descripcion_field_widget.dart';
 import 'package:nodo/features/create_post/widgets/header_info_widget.dart';
 import 'package:nodo/shared/providers/categorie_provider.dart';
+import 'package:nodo/shared/providers/location_provider.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:nodo/shared/widgets/elevated_button_widget.dart';
+import 'package:nodo/shared/widgets/multi_select_dropdown.dart';
+import 'package:nodo/shared/widgets/searchable_dropdown_field.dart';
+import 'package:nodo/models/categorie.dart';
+import 'package:nodo/models/location.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../shared/widgets/foto_widget.dart';
+import '../../../shared/widgets/upload_photo_widget.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import '../widgets/text_field_widget.dart';
 
-class CrearPublicacionScreen extends StatefulWidget {
-  const CrearPublicacionScreen({super.key});
+class CreatePostScreen extends StatefulWidget {
+  const CreatePostScreen({super.key});
 
   @override
-  State<CrearPublicacionScreen> createState() => _CrearPublicacionScreenState();
+  State<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
-class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
+class _CreatePostScreenState extends State<CreatePostScreen> {
   final _formKey = GlobalKey<FormState>();
   final FocusNode _emptyFocusNode = FocusNode();
 
@@ -29,17 +34,69 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
     super.dispose();
   }
 
+  // Widget para mostrar la sección con un ícono y un texto
+  Widget _sectionLabel(IconData icon, String text) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      child: Row(
+        children: [
+          Icon(icon, size: 14.r, color: AppColors.blue),
+          SizedBox(width: 5.w),
+          Text(
+            text,
+            style: AppTypography.label.copyWith(color: AppColors.blue),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<CrearPublicacionController>();
+    final controller = context.watch<CreatePostController>();
     final categorieProvider = context.watch<CategorieProvider>();
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final locationProvider = context.watch<LocationProvider>();
+    final userProvider = context.watch<UserProvider>();
+    final fotoPerfil = userProvider.user?.fotoPerfil;
 
     if (categorieProvider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Scaffold(
+      backgroundColor:
+          Color.alphaBlend(AppColors.blue.withValues(alpha: 0.03), Colors.white),
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        title: Text(
+          "Crear publicación",
+          style: AppTypography.title.copyWith(color: AppColors.orange),
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 16.w),
+            child: CircleAvatar(
+              radius: 18.r,
+              backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+              backgroundImage: fotoPerfil != null && fotoPerfil.isNotEmpty
+                  ? NetworkImage(fotoPerfil)
+                  : null,
+              child: fotoPerfil == null || fotoPerfil.isEmpty
+                  ? Padding(
+                      padding: EdgeInsets.all(8.r),
+                      child: Image.asset(
+                        'assets/icons/iconNodoBlue.png',
+                        fit: BoxFit.contain,
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -48,61 +105,81 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const HeaderInfoWidget(),
-                SizedBox(height: 20.h),
+                const HeaderInfoWidget(), // Muestra el nombre y la profesión del usuario
+                SizedBox(height: 16.h),
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 25.w),
+                  margin: EdgeInsets.symmetric(horizontal: 18.w),
+                  padding: EdgeInsets.all(18.r),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.blue.withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CustomTextField("Título", controller.tituloController),
-                      SizedBox(height: 10.h),
+                      _sectionLabel(Icons.edit_outlined, "¿Qué necesitas?"),
+                      CustomTextField(
+                        "Título *",
+                        controller.tituloController,
+                        icon: Icons.title,
+                      ),
+                      SizedBox(height: 16.h),
                       Text(
-                        "Seleccione la(s) categoría(s) de su servicio",
-                        style: AppTypography.h3.copyWith(color: AppColors.blue),
+                        "Tipo de trabajo *",
+                        style:
+                            AppTypography.label.copyWith(color: AppColors.blue),
                       ),
-                      Wrap(
-                        spacing: 8.w,
-                        children: categorieProvider.categories.map((categoria) {
-                          final isSelected = controller.selectedCategories
-                              .contains(categoria.id);
-                          return ChoiceChip(
-                            label: Text(
-                              categoria.nombre,
-                              style: AppTypography.body.copyWith(
-                                color: isSelected
-                                    ? AppColors.white
-                                    : AppColors.blue,
-                              ),
-                            ),
-                            selected: isSelected,
-                            selectedColor: AppColors.blue,
-                            checkmarkColor: AppColors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
-                              ),
-                              side: BorderSide(color: AppColors.blue),
-                            ),
-                            onSelected: (_) =>
-                                controller.toggleCategoria(categoria.id),
-                          );
-                        }).toList(),
+                      SizedBox(height: 8.h),
+                      MultiSelectDropdown<Categorie>(
+                        label: 'Tipo de trabajo',
+                        hint: 'Selecciona uno o varios tipos de trabajo',
+                        options: categorieProvider.categories,
+                        selectedValues: categorieProvider.categories
+                            .where((c) => controller.selectedCategories
+                                .contains(c.id))
+                            .toList(),
+                        labelBuilder: (categoria) => categoria.name,
+                        onChanged: (selected) => controller
+                            .setCategories(selected.map((c) => c.id).toList()),
                       ),
-                      SizedBox(height: 10.h),
-
+                      SizedBox(height: 20.h),
+                      _sectionLabel(
+                          Icons.info_outline, "Detalles de la solicitud"),
+                      SearchableDropdownField<Location>(
+                        label: "Ubicación *",
+                        icon: Icons.location_on_outlined,
+                        searchHint: "Buscar ubicación...",
+                        emptyMessage: "No se encontraron ubicaciones",
+                        options: locationProvider.locations,
+                        labelBuilder: (location) => location.name,
+                        value: locationProvider.locations
+                            .cast<Location?>()
+                            .firstWhere(
+                              (l) =>
+                                  l!.name ==
+                                  controller.ubicacionController.text,
+                              orElse: () => null,
+                            ),
+                        onChanged: (location) =>
+                            controller.setUbicacion(location.name),
+                      ),
+                      SizedBox(height: 12.h),
                       CustomTextField(
-                          "Ubicación", controller.ubicacionController),
-                      SizedBox(height: 10.h),
-
-                      CustomTextField(
-                          "Presupuesto", controller.presupuestoController,
-                          isNumber: true),
-                      SizedBox(height: 10.h),
-
+                        "Presupuesto *",
+                        controller.presupuestoController,
+                        isNumber: true,
+                        icon: Icons.attach_money,
+                      ),
+                      SizedBox(height: 12.h),
                       CustomDatePicker(
-                        label: "Fecha límite",
+                        label: "Fecha límite *",
                         controller: controller.fechaLimiteController,
                         initialDate:
                             DateTime.now().add(const Duration(days: 7)),
@@ -110,42 +187,60 @@ class _CrearPublicacionScreenState extends State<CrearPublicacionScreen> {
                         lastDate: DateTime(2100),
                         emptyFocusNode: _emptyFocusNode,
                       ),
-                      SizedBox(height: 10.h),
-
+                      SizedBox(height: 12.h),
                       DescripcionField(
                           controller: controller.descripcionController),
-                      SizedBox(height: 10.h),
-
-                      // --- Subida de fotos (locales) ---
-                      SubirFotoWidget(
+                      SizedBox(height: 20.h),
+                      _sectionLabel(
+                          Icons.photo_library_outlined, "Fotos (opcional)"),
+                      UploadPhotoWidget(
                         key: ValueKey(controller.localImages),
                         onImagesSelected: controller.setLocalImages,
                         initialImages: controller.localImages,
                       ),
-
                       if (controller.errorMessage != null) ...[
-                        SizedBox(height: 10.h),
-                        Text(
-                          controller.errorMessage!,
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 10.sp,
+                        SizedBox(height: 12.h),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                              vertical: 8.h, horizontal: 12.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.error.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: AppColors.error.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.error_outline,
+                                  size: 16.r, color: AppColors.error),
+                              SizedBox(width: 6.w),
+                              Expanded(
+                                child: Text(
+                                  controller.errorMessage!,
+                                  style: AppTypography.caption
+                                      .copyWith(color: AppColors.error),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-
-                      SizedBox(height: 15.h),
-
-                      CustomElevatedButton(
-                        text: "Publicar",
-                        onPressed: controller.isLoading
-                            ? null
-                            : () async {
-                                await controller
-                                    .crearPublicacion(context, userProvider);
-                              },
-                        loading: controller.isLoading,
-                      )
+                      SizedBox(height: 20.h),
+                      SizedBox(
+                        width: double.infinity,
+                        child: CustomElevatedButton(
+                          text: "Publicar",
+                          icon: Icons.send_outlined,
+                          onPressed: controller.isLoading
+                              ? null
+                              : () async {
+                                  await controller.createPost(
+                                      context, userProvider);
+                                },
+                          loading: controller.isLoading,
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:nodo/features/login/logic/login_controller.dart';
 import 'package:nodo/features/register/screens/register_screen.dart';
-import 'package:nodo/features/welcome/widgets/welcome3.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/providers/user_provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
@@ -22,6 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController();
   final TextEditingController _contrasenaController = TextEditingController();
 
+  bool _obscurePassword = true;
+
   late LoginController _loginController;
 
   @override
@@ -32,13 +33,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final bool _loading = userProvider.isLoading;
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.3,
+            height: 207.h,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               alignment: Alignment.center,
@@ -57,12 +56,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 55.h,
                   ),
                   ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.15),
+                    constraints: BoxConstraints(maxHeight: 103.5.h),
                     child: AutoSizeText(
                       'Inicia sesión y descubre nuevas oportunidades de trabajo y servicios en un solo lugar',
                       textAlign: TextAlign.center,
-                      style: AppTypography.h2.copyWith(color: AppColors.white),
+                      style: AppTypography.title.copyWith(color: AppColors.white),
                       maxLines: 3,
                       minFontSize: 5,
                       maxFontSize: 22,
@@ -73,17 +71,17 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.7,
+            height: 483.h,
             child: Container(
               margin: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * 0.085,
+                horizontal: 30.6.w,
               ).copyWith(
-                top: MediaQuery.of(context).size.height * 0.15,
+                top: 103.5.h,
               ),
               child: Column(
                 children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.05,
+                    height: 34.5.h,
                     child: TextField(
                       controller: _identificadorController,
                       decoration: InputDecoration(
@@ -93,14 +91,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.015,
+                      top: 10.35.h,
                     ),
-                    height: MediaQuery.of(context).size.height * 0.05,
+                    height: 34.5.h,
                     child: TextField(
                       controller: _contrasenaController,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: "Contraseña",
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: AppColors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -117,19 +128,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.025,
+                      top: 17.25.h,
                     ),
-                    child: CustomElevatedButton(
-                      text: "Iniciar sesión",
-                      onPressed: _loading
-                          ? null
-                          : () async {
-                              await _loginController.login(
-                                _identificadorController.text.trim(),
-                                _contrasenaController.text.trim(),
-                              );
-                            },
-                      loading: _loading,
+                    child: Selector<UserProvider, bool>(
+                      selector: (_, provider) => provider.isLoading,
+                      builder: (_, loading, __) => CustomElevatedButton(
+                        text: "Iniciar sesión",
+                        onPressed: loading
+                            ? null
+                            : () async {
+                                await _loginController.login(
+                                  _identificadorController.text.trim(),
+                                  _contrasenaController.text.trim(),
+                                );
+                              },
+                        loading: loading,
+                      ),
                     ),
                   ),
                   Row(
@@ -148,15 +162,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                         child: Text("Regístrate",
                             style: AppTypography.body.copyWith(
-                                fontFamily: 'GothamMedium',
+                                // fontFamily: 'GothamMedium',
                                 color: AppColors.orange)),
                       ),
                     ],
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.09,
-                        bottom: MediaQuery.of(context).size.height * 0.015),
+                        top: 62.1.h,
+                        bottom: 10.35.h),
                     child: Text("O continua con: ",
                         style: AppTypography.body.copyWith(
                             fontFamily: 'GothamMedium', color: AppColors.blue)),
@@ -168,27 +182,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         onTap: () {},
                         child: Icon(
                           Icons.facebook,
-                          size: MediaQuery.of(context).size.height * 0.03,
+                          size: 20.7.h,
                           color: AppColors.blue,
                         ),
                       ),
-                      SizedBox(
-                          width: MediaQuery.of(context).size.height * 0.03),
+                      SizedBox(width: 20.7.h),
                       InkWell(
                         onTap: () {},
                         child: FaIcon(
                           FontAwesomeIcons.google,
-                          size: MediaQuery.of(context).size.height * 0.03,
+                          size: 20.7.h,
                           color: AppColors.blue,
                         ),
                       ),
-                      SizedBox(
-                          width: MediaQuery.of(context).size.height * 0.03),
+                      SizedBox(width: 20.7.h),
                       InkWell(
                         onTap: () {},
                         child: FaIcon(
                           FontAwesomeIcons.linkedin,
-                          size: MediaQuery.of(context).size.height * 0.03,
+                          size: 20.7.h,
                           color: AppColors.blue,
                         ),
                       ),
