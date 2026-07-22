@@ -1,119 +1,106 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
-class PostTimeFilter extends StatelessWidget {
-  const PostTimeFilter({super.key});
+class PostTimeFilter extends StatefulWidget {
+  final String? initialSelected;
+  const PostTimeFilter({super.key, this.initialSelected});
+
+  @override
+  State<PostTimeFilter> createState() => _PostTimeFilterState();
+}
+
+class _PostTimeFilterState extends State<PostTimeFilter> {
+  String? _selected;
+
+  static const _opciones = ['Última Hora', 'Hoy', 'Esta semana'];
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.initialSelected;
+  }
 
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.55,
-      maxChildSize: 0.8,
+      initialChildSize: 0.45,
+      maxChildSize: 0.7,
       minChildSize: 0.3,
       expand: false,
       builder: (context, scrollController) {
-        return PostTimeScreen(scrollController: scrollController);
-      },
-    );
-  }
-}
-
-class PostTimeScreen extends StatefulWidget {
-  final ScrollController scrollController;
-
-  const PostTimeScreen({super.key, required this.scrollController});
-
-  @override
-  State<PostTimeScreen> createState() => _PostTimeScreenState();
-}
-
-class _PostTimeScreenState extends State<PostTimeScreen> {
-  String? _seleccion;
-
-  final List<String> opciones = [
-    'Última Hora',
-    'Hoy',
-    'Esta semana',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          // Barra superior
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-
-          // Contenido desplazable
-          Expanded(
-            child: ListView(
-              controller: widget.scrollController,
-              children: [
-                Text(
-                  'Tiempo de publicación',
-                  style: AppTypography.subtitle.copyWith(
-                    color: const Color(0xFF003366),
-                  ),
-                ),
-                const Divider(),
-
-                ...opciones.map((opcion) {
-                  return ListTile(
-                    title: Text(
-                      opcion,
-                      style: const TextStyle(color: Color(0xFF003366)),
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          child: Material(
+            color: Colors.white,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: EdgeInsets.only(bottom: 16.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.blue.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                    trailing: _seleccion == opcion
-                        ? const Icon(Icons.check, color: Color(0xFF003366))
-                        : null,
-                    onTap: () {
-                      setState(() {
-                        _seleccion = opcion;
-                      });
-                    },
-                  );
-                }),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Botón aceptar
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context, _seleccion);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF003366),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                  ),
+                  Text('Tiempo de publicación',
+                      style:
+                          AppTypography.title.copyWith(color: AppColors.blue)),
+                  SizedBox(height: 8.h),
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      children: _opciones.map((op) {
+                        final isActive = _selected == op;
+                        return ListTile(
+                          title: Text(op,
+                              style: AppTypography.body.copyWith(
+                                color: isActive
+                                    ? AppColors.orange
+                                    : AppColors.blue,
+                                fontFamily:
+                                    isActive ? 'GothamMedium' : 'GothamBook',
+                              )),
+                          trailing: isActive
+                              ? Icon(Icons.check,
+                                  color: AppColors.orange, size: 18.r)
+                              : null,
+                          onTap: () => setState(() =>
+                              _selected = isActive ? null : op),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48.h,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, _selected ?? ''),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.blue,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text(
+                        _selected != null ? 'Aplicar: $_selected' : 'Aceptar',
+                        style: AppTypography.label
+                            .copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

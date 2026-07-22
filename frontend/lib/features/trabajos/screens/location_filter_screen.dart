@@ -1,106 +1,128 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:nodo/core/theme/app_theme.dart';
+import 'package:nodo/shared/providers/location_provider.dart';
 
 class LocationFilterScreen extends StatefulWidget {
-  const LocationFilterScreen({super.key});
+  final String? initialLocation;
+  const LocationFilterScreen({super.key, this.initialLocation});
 
   @override
   State<LocationFilterScreen> createState() => _LocationFilterScreenState();
 }
 
 class _LocationFilterScreenState extends State<LocationFilterScreen> {
-  bool soloCercaDeMi = false;
-  String? ciudadSeleccionada;
+  String? _selected;
 
-  final List<String> ciudades = [
-    "Chigorodó",
-    "Apartadó",
-    "Carepa",
-    "Turbo",
-    "Necoclí",
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.initialLocation;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LocationProvider>().cargarUbicaciones();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final locations = context.watch<LocationProvider>().locations;
+    final isLoading = context.watch<LocationProvider>().isLoading;
+
     return DraggableScrollableSheet(
-      initialChildSize: 0.55,
-      maxChildSize: 0.8,
+      initialChildSize: 0.6,
+      maxChildSize: 0.85,
       minChildSize: 0.3,
       expand: false,
       builder: (context, scrollController) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: const BoxDecoration(
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          child: Material(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Handler visual
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF003366),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              Text('Ubicación', style: AppTypography.title.copyWith(color: const Color(0xFF003366))),
-              SwitchListTile(
-                title: const Text("Solo mostrar trabajos cerca de mí", style: TextStyle(color: Color(0xFF003366))),
-                value: soloCercaDeMi,
-                onChanged: (val) {
-                  setState(() {
-                    soloCercaDeMi = val;
-                  });
-                },
-              ),
-              const SizedBox(height: 12),
-              const Text("Seleccionar ciudad o zona manualmente", style: TextStyle(color: Color(0xFF003366))),
-              const SizedBox(height: 8),
-              DropdownButton<String>(
-                value: ciudadSeleccionada,
-                hint: const Text("Selecciona una ciudad"),
-                isExpanded: true,
-                items: ciudades.map((ciudad) {
-                  return DropdownMenuItem(
-                    value: ciudad,
-                    child: Text(ciudad),
-                  );
-                }).toList(),
-                onChanged: soloCercaDeMi
-                    ? null
-                    : (val) {
-                        setState(() {
-                          ciudadSeleccionada = val;
-                        });
-                      },
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, {
-                      "soloCercaDeMi": soloCercaDeMi,
-                      "ciudad": ciudadSeleccionada,
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF003366),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: EdgeInsets.only(bottom: 16.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.blue.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
-                  child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
-                ),
+                  Row(
+                    children: [
+                      Text('Ubicación',
+                          style: AppTypography.title
+                              .copyWith(color: AppColors.blue)),
+                      const Spacer(),
+                      if (_selected != null)
+                        TextButton(
+                          onPressed: () => setState(() => _selected = null),
+                          child: Text('Limpiar',
+                              style: AppTypography.body
+                                  .copyWith(color: AppColors.orange)),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  if (isLoading)
+                    const Expanded(
+                        child: Center(child: CircularProgressIndicator()))
+                  else
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: locations.length,
+                        itemBuilder: (_, i) {
+                          final loc = locations[i];
+                          final isActive = _selected == loc.name;
+                          return ListTile(
+                            title: Text(loc.name,
+                                style: AppTypography.body.copyWith(
+                                  color: isActive
+                                      ? AppColors.orange
+                                      : AppColors.blue,
+                                  fontFamily:
+                                      isActive ? 'GothamMedium' : 'GothamBook',
+                                )),
+                            trailing: isActive
+                                ? Icon(Icons.check,
+                                    color: AppColors.orange, size: 18.r)
+                                : null,
+                            onTap: () =>
+                                setState(() => _selected = loc.name),
+                          );
+                        },
+                      ),
+                    ),
+                  SizedBox(height: 8.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48.h,
+                    child: ElevatedButton(
+                      onPressed: () =>
+                          Navigator.pop(context, _selected ?? ''),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.blue,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text(
+                        _selected != null ? 'Aplicar: $_selected' : 'Aceptar',
+                        style: AppTypography.label
+                            .copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },

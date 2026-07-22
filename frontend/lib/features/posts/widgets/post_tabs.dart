@@ -84,7 +84,6 @@ class PostTabs extends StatelessWidget {
                               child: Text(
                                 '$count',
                                 style: TextStyle(
-                                  fontFamily: 'GothamBold',
                                   fontSize: 8.sp,
                                   color: isSelected
                                       ? AppColors.white

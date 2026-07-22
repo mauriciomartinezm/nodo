@@ -22,6 +22,44 @@ export const getPosts = async (req, res) => {
   }
 };
 
+export const getPostsForWorker = async (req, res) => {
+  try {
+    const { workerId } = req.params;
+
+    const workerCategories = await prisma.workerCategory.findMany({
+      where: { workerId },
+      select: { generalCategoryId: true },
+    });
+
+    if (workerCategories.length === 0) return res.json([]);
+
+    const generalCategoryIds = workerCategories.map((wc) => wc.generalCategoryId);
+
+    const hierarchies = await prisma.categoryHierarchy.findMany({
+      where: { generalCategoryId: { in: generalCategoryIds } },
+      select: { specificCategoryId: true },
+    });
+
+    const specificCategoryIds = [...new Set(hierarchies.map((h) => h.specificCategoryId))];
+
+    if (specificCategoryIds.length === 0) return res.json([]);
+
+    const posts = await prisma.post.findMany({
+      where: {
+        categories: {
+          some: { specificCategoryId: { in: specificCategoryIds } },
+        },
+      },
+      include: postInclude,
+    });
+
+    res.json(posts.map(serializePost));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
 export const getPost = async (req, res) => {
   try {
     const post = await prisma.post.findUnique({

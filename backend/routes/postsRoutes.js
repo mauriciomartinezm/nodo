@@ -1,6 +1,7 @@
 import {Router} from 'express';
 import {
     getPosts,
+    getPostsForWorker,
     getPost,
     getPostsByUserId,
     createPost,
@@ -12,6 +13,7 @@ import {
 const postRouter = Router ();
 
 postRouter.get('/api/getPosts', getPosts);
+postRouter.get('/api/getPostsForWorker/:workerId', getPostsForWorker);
 postRouter.get('/api/getPost/:id', getPost);
 postRouter.get('/api/getPostsByUserId/:id', getPostsByUserId);
 postRouter.post('/api/createPost', createPost);

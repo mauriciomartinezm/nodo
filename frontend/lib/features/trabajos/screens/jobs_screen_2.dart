@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/trabajos/screens/job_detail_screen.dart';
 import 'package:nodo/features/trabajos/screens/category_filter_screen.dart';
+import 'package:nodo/features/trabajos/logic/job_filter.dart';
 import 'package:nodo/features/trabajos/logic/job_service.dart';
 import 'package:nodo/features/trabajos/widgets/joblist.dart';
 import 'package:nodo/shared/providers/user_provider.dart';
@@ -24,6 +25,7 @@ class _JobsScreen2State extends State<JobsScreen2> {
   bool _isLoadingPostulaciones = true;
   String _errorMessagePostulaciones = '';
   int _selectedTab = 0;
+  JobFilter _filter = const JobFilter();
 
   static const _tabs = [
     (label: 'Disponibles', icon: Icons.search_rounded),
@@ -43,8 +45,12 @@ class _JobsScreen2State extends State<JobsScreen2> {
   }
 
   Future<void> _loadData() async {
+    final currentId =
+        Provider.of<UserProvider>(context, listen: false).user?.id;
+    if (currentId == null) return;
     try {
-      final publicaciones = await JobService.fetchPosts();
+      final publicaciones =
+          await JobService.fetchPostsForWorker(currentId);
       final nombres = await JobService.fetchClientNames(publicaciones);
       if (!mounted) return;
       setState(() {
@@ -82,11 +88,69 @@ class _JobsScreen2State extends State<JobsScreen2> {
     }
   }
 
+  List<dynamic> _applyFilter(List<dynamic> posts) {
+    if (!_filter.isActive) return posts;
+    return posts.where((pub) {
+      // Categoría
+      if (_filter.categoryIds.isNotEmpty) {
+        final cats = (pub['categories'] as List?) ?? [];
+        final ids = cats
+            .map((c) => c['specificCategoryId'].toString())
+            .toSet();
+        if (!_filter.categoryIds.any((id) => ids.contains(id))) return false;
+      }
+      // Ubicación
+      if (_filter.location != null) {
+        final loc = (pub['location'] ?? '').toString().toLowerCase();
+        if (!loc.contains(_filter.location!.toLowerCase())) return false;
+      }
+      // Precio
+      final budget = (pub['budget'] as num?)?.toDouble() ?? 0;
+      if (_filter.minPrice != null && budget < _filter.minPrice!) return false;
+      if (_filter.maxPrice != null &&
+          _filter.maxPrice! > 0 &&
+          budget > _filter.maxPrice!) return false;
+      // Tiempo de publicación
+      if (_filter.timeFilter != null) {
+        final postDate = DateTime.tryParse(pub['postDate'] ?? '');
+        if (postDate != null) {
+          final now = DateTime.now();
+          switch (_filter.timeFilter) {
+            case 'Última Hora':
+              if (now.difference(postDate).inHours >= 1) return false;
+              break;
+            case 'Hoy':
+              if (!_isSameDay(postDate, now)) return false;
+              break;
+            case 'Esta semana':
+              if (now.difference(postDate).inDays >= 7) return false;
+              break;
+          }
+        }
+      }
+      // Fecha límite
+      if (_filter.dateRange != null) {
+        final deadline = DateTime.tryParse(pub['deadline'] ?? '');
+        if (deadline == null) return false;
+        if (deadline.isBefore(_filter.dateRange!.start)) return false;
+        if (deadline.isAfter(
+            _filter.dateRange!.end.add(const Duration(days: 1)))) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
   void _mostrarDetalleTrabajo(dynamic publicacion, String nombreCliente,
       Map<String, dynamic>? postulacion, bool desdePostulaciones) {
     final categories = (publicacion['categories'] as List?) ?? [];
-    final firstCategoryId =
-        categories.isNotEmpty ? categories[0]['specificCategoryId'] : '';
+    final firstCategoryId = categories.isNotEmpty
+        ? categories[0]['specificCategoryId'].toString()
+        : '';
 
     showModalBottomSheet(
       context: context,
@@ -139,9 +203,10 @@ class _JobsScreen2State extends State<JobsScreen2> {
 
   @override
   Widget build(BuildContext context) {
-    final disponiblesCount = _publicaciones
+    final disponiblesRaw = _publicaciones
         .where((pub) => !_postulaciones.any((p) => p['postId'] == pub['id']))
-        .length;
+        .toList();
+    final disponiblesCount = _applyFilter(disponiblesRaw).length;
     final postulacionesCount =
         _postulaciones.where((p) => p['status'] != 'accepted').length;
     final misTrabajosCount =
@@ -190,17 +255,40 @@ class _JobsScreen2State extends State<JobsScreen2> {
               ],
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.filter_alt_outlined,
-                color: AppColors.white, size: 22.r),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) => const CategoryFilterScreen(),
-              );
-            },
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(Icons.filter_alt_outlined,
+                    color: AppColors.white, size: 22.r),
+                onPressed: () async {
+                  final result =
+                      await showModalBottomSheet<JobFilter>(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => CategoryFilterScreen(
+                      initialFilter: _filter,
+                    ),
+                  );
+                  if (result != null && mounted) {
+                    setState(() => _filter = result);
+                  }
+                },
+              ),
+              if (_filter.isActive)
+                Positioned(
+                  top: 8.r,
+                  right: 8.r,
+                  child: Container(
+                    width: 8.r,
+                    height: 8.r,
+                    decoration: const BoxDecoration(
+                      color: AppColors.orange,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
           ),
           IconButton(
             icon: isLoadingAny
@@ -326,10 +414,12 @@ class _JobsScreen2State extends State<JobsScreen2> {
   }
 
   Widget _buildJobList() {
-    final disponibles = _publicaciones
-        .where((pub) =>
-            !_postulaciones.any((p) => p['postId'] == pub['id']))
-        .toList();
+    final disponibles = _applyFilter(
+      _publicaciones
+          .where((pub) =>
+              !_postulaciones.any((p) => p['postId'] == pub['id']))
+          .toList(),
+    );
 
     return RefreshIndicator(
       onRefresh: _loadAllData,
@@ -341,8 +431,12 @@ class _JobsScreen2State extends State<JobsScreen2> {
               : disponibles.isEmpty
                   ? _emptyState(
                       Icons.search_off_outlined,
-                      'Sin trabajos disponibles',
-                      'No hay solicitudes publicadas en este momento. Vuelve más tarde.',
+                      _filter.isActive
+                          ? 'Sin resultados'
+                          : 'Sin trabajos disponibles',
+                      _filter.isActive
+                          ? 'Ningún trabajo coincide con los filtros aplicados. Prueba ajustándolos.'
+                          : 'No hay solicitudes publicadas en este momento. Vuelve más tarde.',
                     )
                   : JobList(
                       publicaciones: disponibles,

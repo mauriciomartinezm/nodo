@@ -12,6 +12,7 @@ class ApiConstants {
 
   static String get createPost => "$baseUrl/createPost";
   static String get getPosts => "$baseUrl/getPosts";
+  static String getPostsForWorker(String workerId) => "$baseUrl/getPostsForWorker/$workerId";
   static String getPostsByUserId(String id) => "$baseUrl/getPostsByUserId/$id";
   static String updatePost(String id) => "$baseUrl/updatePost/$id";
   static String deletePost(String id) => "$baseUrl/deletePost/$id";

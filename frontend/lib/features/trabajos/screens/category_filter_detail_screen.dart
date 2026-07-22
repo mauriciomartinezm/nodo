@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/constants/api_constants.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 
 class CategoryFilterDetailScreen extends StatefulWidget {
-  const CategoryFilterDetailScreen({super.key});
+  final List<String> initialSelected;
+  const CategoryFilterDetailScreen({super.key, this.initialSelected = const []});
 
   @override
-  State<CategoryFilterDetailScreen> createState() => _CategoryFilterDetailScreenState();
+  State<CategoryFilterDetailScreen> createState() =>
+      _CategoryFilterDetailScreenState();
 }
 
-class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen> {
-  List<Map<String, dynamic>> categorias = [];// Lista para almacenar las categorías obtenidas
-  // Usamos Map<String, dynamic> para manejar categorías con id y nombre_cat
-  Set<String> categoriasSeleccionadas = {};// Conjunto para almacenar las categorías seleccionadas por su id
+class _CategoryFilterDetailScreenState
+    extends State<CategoryFilterDetailScreen> {
+  List<Map<String, dynamic>> categorias = [];
+  Set<String> categoriasSeleccionadas = {};
   bool _isLoading = true;
   String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
+    categoriasSeleccionadas = Set.from(widget.initialSelected);
     _fetchCategorias();
   }
 
@@ -30,7 +34,6 @@ class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen>
         Uri.parse(ApiConstants.getSpecificCategories),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -51,109 +54,125 @@ class _CategoryFilterDetailScreenState extends State<CategoryFilterDetailScreen>
     }
   }
 
-  bool get todoSeleccionado => categoriasSeleccionadas.length == categorias.length;
+  bool get todoSeleccionado =>
+      categorias.isNotEmpty &&
+      categoriasSeleccionadas.length == categorias.length;
 
-  void toggleTodo(bool? val) {
-    setState(() {
-      if (val == true) {
-        categoriasSeleccionadas = Set.from(categorias.map((cat) => cat['id'] as String));
-      } else {
-        categoriasSeleccionadas.clear();
-      }
-    });
-  }
+  void toggleTodo(bool? val) => setState(() {
+        if (val == true) {
+          categoriasSeleccionadas =
+              Set.from(categorias.map((c) => c['id'].toString()));
+        } else {
+          categoriasSeleccionadas.clear();
+        }
+      });
 
-  void toggleCategoria(String categoriaId, bool? val) {
-    setState(() {
-      if (val == true) {
-        categoriasSeleccionadas.add(categoriaId);
-      } else {
-        categoriasSeleccionadas.remove(categoriaId);
-      }
-    });
-  }
+  void toggleCategoria(String id, bool? val) => setState(() {
+        if (val == true) {
+          categoriasSeleccionadas.add(id);
+        } else {
+          categoriasSeleccionadas.remove(id);
+        }
+      });
 
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
       initialChildSize: 0.55,
-      maxChildSize: 0.8,
+      maxChildSize: 0.85,
       minChildSize: 0.3,
       expand: false,
       builder: (context, scrollController) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: const BoxDecoration(
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          child: Material(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF003366),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              Text('Tipo de trabajo', style: AppTypography.title.copyWith(color: const Color(0xFF003366))),
-              
-              if (_isLoading)
-                const Center(child: CircularProgressIndicator())
-              else if (_errorMessage.isNotEmpty)
-                Center(child: Text(_errorMessage))
-              else ...[
-                CheckboxListTile(
-                  controlAffinity: ListTileControlAffinity.leading,
-                  title: const Text('Todo', style: TextStyle(color: Color(0xFF003366))),
-                  value: todoSeleccionado,
-                  onChanged: toggleTodo,
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: categorias.length,
-                    itemBuilder: (_, i) {
-                      final cat = categorias[i];
-                      return CheckboxListTile(
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: Text(cat['name'], style: const TextStyle(color: Color(0xFF003366))),
-                        value: categoriasSeleccionadas.contains(cat['id']),
-                        onChanged: (val) => toggleCategoria(cat['id'], val),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Selecciona los tipos de trabajo que deseas filtrar',
-                  style: AppTypography.label.copyWith(color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context, categoriasSeleccionadas.toList());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF003366),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: EdgeInsets.only(bottom: 16.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.blue.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
                   ),
-                ),
-              ],
-            ],
+                  Text('Tipo de trabajo',
+                      style: AppTypography.title
+                          .copyWith(color: AppColors.blue)),
+                  SizedBox(height: 12.h),
+                  if (_isLoading)
+                    const Expanded(
+                        child: Center(child: CircularProgressIndicator()))
+                  else if (_errorMessage.isNotEmpty)
+                    Expanded(
+                        child: Center(
+                            child: Text(_errorMessage,
+                                style: AppTypography.body.copyWith(
+                                    color: AppColors.slateGrey))))
+                  else ...[
+                    CheckboxListTile(
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: AppColors.orange,
+                      title: Text('Todas',
+                          style: AppTypography.body
+                              .copyWith(color: AppColors.blue)),
+                      value: todoSeleccionado,
+                      onChanged: toggleTodo,
+                    ),
+                    Divider(
+                        height: 1,
+                        color: AppColors.slateGrey.withValues(alpha: 0.15)),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: categorias.length,
+                        itemBuilder: (_, i) {
+                          final cat = categorias[i];
+                          final id = cat['id'].toString();
+                          return CheckboxListTile(
+                            controlAffinity: ListTileControlAffinity.leading,
+                            activeColor: AppColors.orange,
+                            title: Text(cat['name'],
+                                style: AppTypography.body
+                                    .copyWith(color: AppColors.blue)),
+                            value: categoriasSeleccionadas.contains(id),
+                            onChanged: (val) => toggleCategoria(id, val),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48.h,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(
+                            context, categoriasSeleccionadas.toList()),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.blue,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Text(
+                          categoriasSeleccionadas.isEmpty
+                              ? 'Aceptar'
+                              : 'Aplicar (${categoriasSeleccionadas.length})',
+                          style:
+                              AppTypography.label.copyWith(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         );
       },

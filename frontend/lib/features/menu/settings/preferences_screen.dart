@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:nodo/core/services/user_service.dart';
 import 'package:nodo/core/theme/app_theme.dart';
+import 'package:nodo/models/location.dart';
+import 'package:nodo/shared/providers/location_provider.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 import 'widgets/settings_sub_header.dart';
 
 class PreferencesScreen extends StatefulWidget {
@@ -11,13 +16,20 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
+  final _userService = UserService();
   String idioma = 'Español';
   String? ubicacion;
+  bool _isSaving = false;
 
-  static const _municipios = [
-    'Apartadó', 'Turbo', 'Carepa', 'Chigorodó', 'Mutatá',
-    'San Pedro de Urabá', 'Necoclí', 'Arboletes', 'Murindó', 'Vigía del Fuerte',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    final user = context.read<UserProvider>().user;
+    if (user?.ubicacion is String) {
+      ubicacion = user!.ubicacion as String;
+    }
+    context.read<LocationProvider>().cargarUbicaciones();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +53,16 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     color: const Color(0xFF00897B),
                     title: 'Idioma',
                     value: idioma,
-                    onTap: _editLanguage,
+                    onTap: _isSaving ? null : _editLanguage,
                   ),
                   _tile(
                     icon: Icons.location_on_outlined,
                     color: AppColors.blue,
                     title: 'Ubicación preferida',
-                    value: ubicacion ?? 'Sin seleccionar',
-                    onTap: _editUbicacion,
+                    value: _isSaving
+                        ? 'Guardando...'
+                        : (ubicacion ?? 'Sin seleccionar'),
+                    onTap: _isSaving ? null : _editUbicacion,
                   ),
                 ]),
               ],
@@ -96,7 +110,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     required Color color,
     required String title,
     required String value,
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
   }) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
@@ -179,61 +193,106 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
   }
 
-  void _editUbicacion() {
+  void _editUbicacion() async {
+    final locations = context.read<LocationProvider>().locations;
     String? temp = ubicacion;
-    showDialog(
+
+    final selected = await showDialog<String>(
       context: context,
-      builder: (_) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Ubicación preferida',
-            style: AppTypography.title.copyWith(color: AppColors.blue)),
-        content: StatefulBuilder(
-          builder: (_, setD) => DropdownButtonFormField<String>(
-            value: _municipios.contains(temp) ? temp : null,
-            hint: Text('Selecciona un municipio',
-                style: AppTypography.body.copyWith(color: AppColors.slateGrey)),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    const BorderSide(color: AppColors.blue, width: 1.5),
-              ),
-            ),
-            items: _municipios
-                .map((m) => DropdownMenuItem(
-                    value: m,
-                    child: Text(m,
-                        style: AppTypography.body
-                            .copyWith(color: AppColors.blue))))
-                .toList(),
-            onChanged: (val) => setD(() => temp = val),
+      builder: (_) => _UbicacionDialog(locations: locations, current: temp),
+    );
+
+    if (selected == null || selected == ubicacion) return;
+
+    setState(() => _isSaving = true);
+    try {
+      final userProvider = context.read<UserProvider>();
+      final user = userProvider.user!;
+      await _userService.updateUser(user.id, {'location': selected});
+      final updatedUser = await _userService.getUser(user.id);
+      userProvider.updateUsuario(updatedUser);
+      if (mounted) setState(() => ubicacion = selected);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ubicación actualizada correctamente')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al actualizar la ubicación: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+}
+
+class _UbicacionDialog extends StatefulWidget {
+  final List<Location> locations;
+  final String? current;
+
+  const _UbicacionDialog({required this.locations, this.current});
+
+  @override
+  State<_UbicacionDialog> createState() => _UbicacionDialogState();
+}
+
+class _UbicacionDialogState extends State<_UbicacionDialog> {
+  String? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.current;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text('Ubicación preferida',
+          style: AppTypography.title.copyWith(color: AppColors.blue)),
+      content: DropdownButtonFormField<String>(
+        value: widget.locations.any((l) => l.name == _selected)
+            ? _selected
+            : null,
+        hint: Text('Selecciona un municipio',
+            style: AppTypography.body.copyWith(color: AppColors.slateGrey)),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.blue, width: 1.5),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar',
-                style:
-                    AppTypography.label.copyWith(color: AppColors.slateGrey)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.blue,
-              foregroundColor: AppColors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () {
-              if (temp != null) setState(() => ubicacion = temp);
-              Navigator.pop(context);
-            },
-            child: Text('Guardar', style: AppTypography.label),
-          ),
-        ],
+        items: widget.locations
+            .map((l) => DropdownMenuItem(
+                value: l.name,
+                child: Text(l.name,
+                    style: AppTypography.body.copyWith(color: AppColors.blue))))
+            .toList(),
+        onChanged: (val) => setState(() => _selected = val),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancelar',
+              style: AppTypography.label.copyWith(color: AppColors.slateGrey)),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.blue,
+            foregroundColor: AppColors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+          onPressed:
+              _selected != null ? () => Navigator.pop(context, _selected) : null,
+          child: Text('Guardar', style: AppTypography.label),
+        ),
+      ],
     );
   }
 }

@@ -96,6 +96,19 @@ class JobService {
     }
   }
 
+  static Future<List<dynamic>> fetchPostsForWorker(String workerId) async {
+    debugPrint("💬 Haciendo fetch a publicaciones para trabajador $workerId");
+    final response = await http.get(
+      Uri.parse(ApiConstants.getPostsForWorker(workerId)),
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Error al cargar publicaciones: ${response.statusCode}');
+    }
+  }
+
   static Future<Map<String, String>> fetchClientNames(
       List posts) async {
     debugPrint("💬 Haciendo fetch a usuarios");
@@ -112,8 +125,6 @@ class JobService {
       debugPrint(response.body);
       if (response.statusCode == 200) {
         final clientData = json.decode(response.body);
-        debugPrint("Client Data");
-        debugPrint(clientData);
         names[clientId] = clientData['firstName'];
       } else {
         names[clientId] = 'Cliente $clientId';
