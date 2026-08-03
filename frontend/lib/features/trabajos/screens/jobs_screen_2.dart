@@ -25,13 +25,12 @@ class _JobsScreen2State extends State<JobsScreen2> {
   bool _isLoadingPostulaciones = true;
   String _errorMessagePostulaciones = '';
   int _selectedTab = 0;
-  int _misTrabajoChip = 0; // 0 = En curso, 1 = Completados
   JobFilter _filter = const JobFilter();
 
   static const _tabs = [
-    (label: 'Disponibles', icon: Icons.search_rounded),
-    (label: 'Postulaciones', icon: Icons.send_outlined),
-    (label: 'Mis trabajos', icon: Icons.construction_outlined),
+    (label: 'Explorar',  icon: Icons.search_rounded),
+    (label: 'Activos',   icon: Icons.bolt_rounded),
+    (label: 'Historial', icon: Icons.history_rounded),
   ];
 
   @override
@@ -50,8 +49,7 @@ class _JobsScreen2State extends State<JobsScreen2> {
         Provider.of<UserProvider>(context, listen: false).user?.id;
     if (currentId == null) return;
     try {
-      final publicaciones =
-          await JobService.fetchPostsForWorker(currentId);
+      final publicaciones = await JobService.fetchPostsForWorker(currentId);
       final nombres = await JobService.fetchClientNames(publicaciones);
       if (!mounted) return;
       setState(() {
@@ -69,8 +67,8 @@ class _JobsScreen2State extends State<JobsScreen2> {
   }
 
   Future<void> _loadPostulaciones() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final currentId = userProvider.user?.id;
+    final currentId =
+        Provider.of<UserProvider>(context, listen: false).user?.id;
     if (currentId == null) return;
     try {
       final postulaciones =
@@ -101,23 +99,21 @@ class _JobsScreen2State extends State<JobsScreen2> {
     }
   }
 
+  // ── Filtros ───────────────────────────────────────────────────────────────
+
   List<dynamic> _applyFilter(List<dynamic> posts) {
     if (!_filter.isActive) return posts;
     return posts.where((pub) {
-      // Categoría
       if (_filter.categoryIds.isNotEmpty) {
         final cats = (pub['categories'] as List?) ?? [];
-        final ids = cats
-            .map((c) => c['specificCategoryId'].toString())
-            .toSet();
+        final ids =
+            cats.map((c) => c['specificCategoryId'].toString()).toSet();
         if (!_filter.categoryIds.any((id) => ids.contains(id))) return false;
       }
-      // Ubicación
       if (_filter.location != null) {
         final loc = (pub['location'] ?? '').toString().toLowerCase();
         if (!loc.contains(_filter.location!.toLowerCase())) return false;
       }
-      // Precio
       final budget = (pub['budget'] as num?)?.toDouble() ?? 0;
       if (_filter.minPrice != null && budget < _filter.minPrice!) return false;
       if (_filter.maxPrice != null &&
@@ -125,7 +121,6 @@ class _JobsScreen2State extends State<JobsScreen2> {
           budget > _filter.maxPrice!) {
         return false;
       }
-      // Tiempo de publicación
       if (_filter.timeFilter != null) {
         final postDate = DateTime.tryParse(pub['postDate'] ?? '');
         if (postDate != null) {
@@ -143,13 +138,12 @@ class _JobsScreen2State extends State<JobsScreen2> {
           }
         }
       }
-      // Fecha límite
       if (_filter.dateRange != null) {
         final deadline = DateTime.tryParse(pub['deadline'] ?? '');
         if (deadline == null) return false;
         if (deadline.isBefore(_filter.dateRange!.start)) return false;
         if (deadline.isAfter(
-            _filter.dateRange!.end.add(const Duration(days: 1)))) {
+              _filter.dateRange!.end.add(const Duration(days: 1)))) {
           return false;
         }
       }
@@ -160,11 +154,17 @@ class _JobsScreen2State extends State<JobsScreen2> {
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  void _mostrarDetalleTrabajo(dynamic publicacion, String nombreCliente,
-      Map<String, dynamic>? postulacion, bool desdePostulaciones) {
-    final categories = (publicacion['categories'] as List?) ?? [];
+  // ── Navegación ────────────────────────────────────────────────────────────
+
+  void _mostrarDetalleTrabajo(
+    dynamic pub,
+    String nombreCliente,
+    Map<String, dynamic>? postulacion,
+    bool desdePostulaciones,
+  ) {
+    final categories = (pub['categories'] as List?) ?? [];
     final firstCategoryId = categories.isNotEmpty
-        ? categories[0]['specificCategoryId'].toString()
+        ? (categories[0]['specificCategoryId']?.toString() ?? '')
         : '';
 
     Navigator.push(
@@ -172,16 +172,16 @@ class _JobsScreen2State extends State<JobsScreen2> {
       MaterialPageRoute(
         builder: (context) => JobDetailScreen(
           job: {
-            "id": publicacion['id'],
-            "title": publicacion['title'],
-            "description": publicacion['description'],
-            "price": "\$${publicacion['budget']}",
-            "location": "${publicacion['location']}",
+            "id": pub['id'],
+            "title": pub['title'],
+            "description": pub['description'],
+            "price": "\$${pub['budget']}",
+            "location": "${pub['location']}",
             "user": "Nombre del cliente: $nombreCliente",
             "time":
-                "${JobService.formatTimeAgo(publicacion['postDate'])} · ${publicacion['status']}",
+                "${JobService.formatTimeAgo(pub['postDate'] ?? '')} · ${pub['status'] ?? ''}",
             "image": JobService.getIconForCategory(firstCategoryId),
-            "images": _parseImages(publicacion['photos']),
+            "images": _parseImages(pub['photos']),
           },
           postulacion: postulacion,
           desdePostulaciones: desdePostulaciones,
@@ -189,17 +189,6 @@ class _JobsScreen2State extends State<JobsScreen2> {
         ),
       ),
     );
-  }
-
-  void _mostrarDetalleDesdePostulacion(dynamic publicacion, String _) {
-    final idCliente = publicacion['clientId'];
-    final postulacion = _postulaciones.firstWhere(
-      (p) => p['postId'] == publicacion['id'],
-      orElse: () => null,
-    );
-    final nombreCliente =
-        _nombresClientes[idCliente.toString()] ?? 'Cliente';
-    _mostrarDetalleTrabajo(publicacion, nombreCliente, postulacion, true);
   }
 
   List<String> _parseImages(dynamic photos) {
@@ -216,23 +205,30 @@ class _JobsScreen2State extends State<JobsScreen2> {
     return [];
   }
 
+  // ── Build ─────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     final disponiblesRaw = _publicaciones
         .where((pub) => !_postulaciones.any((p) => p['postId'] == pub['id']))
         .toList();
     final disponiblesCount = _applyFilter(disponiblesRaw).length;
-    final postulacionesCount =
-        _postulaciones.where((p) => p['status'] != 'accepted').length;
-    final misTrabajosCount = _postulaciones.where((p) =>
-        p['status'] == 'accepted' &&
-        p['service']?['status'] != 'completed' &&
-        p['service']?['status'] != 'cancelled').length;
-    final counts = [disponiblesCount, postulacionesCount, misTrabajosCount];
+
+    final activosCount = _postulaciones.where((p) {
+      if (p['status'] == 'pending') return true;
+      if (p['status'] == 'accepted' &&
+          p['service']?['status'] != 'completed' &&
+          p['service']?['status'] != 'cancelled') {
+        return true;
+      }
+      return false;
+    }).length;
+
+    final counts = [disponiblesCount, activosCount, 0];
 
     return Scaffold(
-      backgroundColor: Color.alphaBlend(
-          AppColors.blue.withValues(alpha: 0.03), Colors.white),
+      backgroundColor:
+          Color.alphaBlend(AppColors.blue.withValues(alpha: 0.03), Colors.white),
       body: Column(
         children: [
           _buildHeader(context),
@@ -278,14 +274,12 @@ class _JobsScreen2State extends State<JobsScreen2> {
                 icon: Icon(Icons.filter_alt_outlined,
                     color: AppColors.white, size: 22.r),
                 onPressed: () async {
-                  final result =
-                      await showModalBottomSheet<JobFilter>(
+                  final result = await showModalBottomSheet<JobFilter>(
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
-                    builder: (_) => CategoryFilterScreen(
-                      initialFilter: _filter,
-                    ),
+                    builder: (_) =>
+                        CategoryFilterScreen(initialFilter: _filter),
                   );
                   if (result != null && mounted) {
                     setState(() => _filter = result);
@@ -423,18 +417,20 @@ class _JobsScreen2State extends State<JobsScreen2> {
     return IndexedStack(
       index: _selectedTab,
       children: [
-        _buildJobList(),
-        _buildPostulacionesList(),
-        _buildMisTrabajosList(),
+        _buildExplorarList(),
+        _buildActivosList(),
+        _buildHistorialList(),
       ],
     );
   }
 
-  Widget _buildJobList() {
+  // ── Tab: Explorar ─────────────────────────────────────────────────────────
+
+  Widget _buildExplorarList() {
     final disponibles = _applyFilter(
       _publicaciones
-          .where((pub) =>
-              !_postulaciones.any((p) => p['postId'] == pub['id']))
+          .where(
+              (pub) => !_postulaciones.any((p) => p['postId'] == pub['id']))
           .toList(),
     );
 
@@ -452,8 +448,8 @@ class _JobsScreen2State extends State<JobsScreen2> {
                           ? 'Sin resultados'
                           : 'Sin trabajos disponibles',
                       _filter.isActive
-                          ? 'Ningún trabajo coincide con los filtros aplicados. Prueba ajustándolos.'
-                          : 'No hay solicitudes publicadas en este momento. Vuelve más tarde.',
+                          ? 'Ningún trabajo coincide con los filtros. Prueba ajustándolos.'
+                          : 'No hay solicitudes publicadas en este momento.',
                     )
                   : JobList(
                       publicaciones: disponibles,
@@ -464,41 +460,20 @@ class _JobsScreen2State extends State<JobsScreen2> {
     );
   }
 
-  Widget _buildPostulacionesList() {
+  // ── Tab: Activos ──────────────────────────────────────────────────────────
+
+  Widget _buildActivosList() {
     final pendientes = _postulaciones
-        .where((p) => p['status'] != 'accepted')
-        .map((p) {
-          final pub = _publicaciones.firstWhere(
-              (pub) => pub['id'] == p['postId'],
-              orElse: () => null);
-          if (pub != null) pub['estado_postulacion'] = p['status'];
-          return pub;
-        })
-        .where((pub) => pub != null)
+        .where((p) => p['status'] == 'pending')
         .toList();
 
-    return RefreshIndicator(
-      onRefresh: _loadPostulaciones,
-      color: AppColors.orange,
-      child: _isLoadingPostulaciones
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessagePostulaciones.isNotEmpty
-              ? _errorState(_errorMessagePostulaciones)
-              : pendientes.isEmpty
-                  ? _emptyState(
-                      Icons.send_outlined,
-                      'Aún no te has postulado',
-                      'Explora los trabajos disponibles y postúlate para comenzar.',
-                    )
-                  : JobList(
-                      publicaciones: pendientes,
-                      nombresClientes: _nombresClientes,
-                      onVerDetalles: _mostrarDetalleDesdePostulacion,
-                    ),
-    );
-  }
+    final enCurso = _postulaciones
+        .where((p) =>
+            p['status'] == 'accepted' &&
+            p['service']?['status'] != 'completed' &&
+            p['service']?['status'] != 'cancelled')
+        .toList();
 
-  Widget _buildMisTrabajosList() {
     return RefreshIndicator(
       onRefresh: _loadAllData,
       color: AppColors.orange,
@@ -506,162 +481,217 @@ class _JobsScreen2State extends State<JobsScreen2> {
           ? const Center(child: CircularProgressIndicator())
           : _errorMessagePostulaciones.isNotEmpty
               ? _errorState(_errorMessagePostulaciones)
-              : Column(
-                  children: [
-                    _buildMisTrabajoChips(),
-                    Expanded(
-                      child: _misTrabajoChip == 0
-                          ? _buildEnCursoList()
-                          : _buildCompletadosList(),
+              : (pendientes.isEmpty && enCurso.isEmpty)
+                  ? _emptyState(
+                      Icons.bolt_outlined,
+                      'Sin actividad',
+                      'Tus postulaciones y trabajos activos aparecerán aquí.',
+                    )
+                  : ListView(
+                      padding: EdgeInsets.all(16.r),
+                      children: [
+                        if (pendientes.isNotEmpty) ...[
+                          _buildSectionLabel('Esperando respuesta'),
+                          ...pendientes.map(
+                              (p) => _buildStatusRow(p, _RowTipo.pending)),
+                        ],
+                        if (enCurso.isNotEmpty) ...[
+                          _buildSectionLabel('En progreso'),
+                          ...enCurso.map(
+                              (p) => _buildStatusRow(p, _RowTipo.inProgress)),
+                        ],
+                      ],
                     ),
-                  ],
-                ),
     );
   }
 
-  Widget _buildMisTrabajoChips() {
-    const chips = ['En curso', 'Completados'];
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-      child: Row(
-        children: List.generate(chips.length, (i) {
-          final selected = _misTrabajoChip == i;
-          return Padding(
-            padding: EdgeInsets.only(right: i == 0 ? 8.w : 0),
-            child: GestureDetector(
-              onTap: () => setState(() => _misTrabajoChip = i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                padding:
-                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 7.h),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? AppColors.blue
-                      : AppColors.blue.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  chips[i],
-                  style: AppTypography.caption.copyWith(
-                    color: selected
-                        ? AppColors.white
-                        : AppColors.blue.withValues(alpha: 0.7),
-                    fontFamily: selected ? 'GothamMedium' : 'GothamBook',
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
+  // ── Tab: Historial ────────────────────────────────────────────────────────
 
-  Widget _buildEnCursoList() {
-    final enCurso = _postulaciones
-        .where((p) =>
-            p['status'] == 'accepted' &&
-            p['service']?['status'] != 'completed' &&
-            p['service']?['status'] != 'cancelled')
-        .map((p) {
-          final pub = _publicaciones.firstWhere(
-            (pub) => pub['id'] == p['postId'],
-            orElse: () => p['post'],
-          );
-          return pub;
-        })
-        .where((pub) => pub != null)
-        .toList();
-
-    if (enCurso.isEmpty) {
-      return _emptyState(
-        Icons.construction_outlined,
-        'Sin trabajos en curso',
-        'Cuando un cliente te acepte, el trabajo aparecerá aquí.',
-      );
-    }
-
-    return JobList(
-      publicaciones: enCurso,
-      nombresClientes: _nombresClientes,
-      onVerDetalles: (pub, _) {
-        final postulacion = _postulaciones.firstWhere(
-          (p) => p['postId'] == pub['id'] && p['status'] == 'accepted',
-          orElse: () => null,
-        );
-        final clientId = pub['clientId']?.toString() ?? '';
-        final nombre = _nombresClientes[clientId] ?? 'Cliente';
-        _mostrarDetalleTrabajo(pub, nombre, postulacion, true);
-      },
-    );
-  }
-
-  Widget _buildCompletadosList() {
+  Widget _buildHistorialList() {
     final completados = _postulaciones
         .where((p) =>
             p['status'] == 'accepted' &&
             p['service']?['status'] == 'completed')
         .toList();
 
-    if (completados.isEmpty) {
-      return _emptyState(
-        Icons.check_circle_outline_rounded,
-        'Sin trabajos completados',
-        'Los trabajos finalizados aparecerán aquí.',
-      );
-    }
-
-    final items = completados
-        .map((p) => p['post'] as Map?)
-        .where((pub) => pub != null)
+    final rechazados = _postulaciones
+        .where((p) =>
+            p['status'] == 'rejected' || p['status'] == 'withdrawn')
         .toList();
 
-    return JobList(
-      publicaciones: items,
-      nombresClientes: _nombresClientes,
-      onVerDetalles: (pub, _) {
-        final clientId = pub['clientId']?.toString() ?? '';
-        final nombre = _nombresClientes[clientId] ?? 'Cliente';
-        _mostrarDetalleDesdeCompletado(pub, nombre);
-      },
+    return RefreshIndicator(
+      onRefresh: _loadAllData,
+      color: AppColors.orange,
+      child: _isLoadingPostulaciones
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessagePostulaciones.isNotEmpty
+              ? _errorState(_errorMessagePostulaciones)
+              : (completados.isEmpty && rechazados.isEmpty)
+                  ? _emptyState(
+                      Icons.history_rounded,
+                      'Sin historial',
+                      'Los trabajos completados y rechazados aparecerán aquí.',
+                    )
+                  : ListView(
+                      padding: EdgeInsets.all(16.r),
+                      children: [
+                        if (completados.isNotEmpty) ...[
+                          _buildSectionLabel('Completados'),
+                          ...completados.map(
+                              (p) => _buildStatusRow(p, _RowTipo.completed)),
+                        ],
+                        if (rechazados.isNotEmpty) ...[
+                          _buildSectionLabel('Rechazados'),
+                          ...rechazados.map(
+                              (p) => _buildStatusRow(p, _RowTipo.rejected)),
+                        ],
+                      ],
+                    ),
     );
   }
 
-  void _mostrarDetalleDesdeCompletado(
-      dynamic publicacion, String nombreCliente) {
-    final categories = (publicacion['categories'] as List?) ?? [];
-    final firstCategoryId = categories.isNotEmpty
-        ? (categories[0]['specificCategoryId']?.toString() ?? '')
-        : '';
+  // ── Status row ────────────────────────────────────────────────────────────
 
-    final postulacion = _postulaciones.firstWhere(
-      (p) => p['postId'] == publicacion['id'] && p['status'] == 'accepted',
-      orElse: () => null,
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => JobDetailScreen(
-          job: {
-            "id": publicacion['id'],
-            "title": publicacion['title'],
-            "description": publicacion['description'],
-            "price": "\$${publicacion['budget']}",
-            "location": "${publicacion['location']}",
-            "user": "Nombre del cliente: $nombreCliente",
-            "time":
-                "${JobService.formatTimeAgo(publicacion['postDate'] ?? '')} · ${publicacion['status'] ?? ''}",
-            "image": JobService.getIconForCategory(firstCategoryId),
-            "images": _parseImages(publicacion['photos']),
-          },
-          postulacion: postulacion,
-          desdePostulaciones: true,
-          onPostulacionCambiada: _loadAllData,
+  Widget _buildSectionLabel(String label) {
+    return Padding(
+      padding: EdgeInsets.only(top: 4.h, bottom: 8.h),
+      child: Text(
+        label,
+        style: AppTypography.caption.copyWith(
+          color: AppColors.slateGrey,
+          fontFamily: 'GothamMedium',
         ),
       ),
     );
   }
+
+  Widget _buildStatusRow(dynamic p, _RowTipo tipo) {
+    final pub = _publicaciones.firstWhere(
+      (pub) => pub['id'] == p['postId'],
+      orElse: () => p['post'],
+    );
+    if (pub == null) return const SizedBox.shrink();
+
+    final clientId = pub['clientId']?.toString() ?? '';
+    final nombre = _nombresClientes[clientId] ?? 'Cliente';
+    final titulo = (pub['title'] ?? 'Sin título') as String;
+    final tiempo = JobService.formatTimeAgo(pub['postDate'] ?? '');
+
+    final IconData rowIcon;
+    final Color iconBg;
+    final Color iconColor;
+    final String pillLabel;
+    final Color pillBg;
+    final Color pillText;
+
+    switch (tipo) {
+      case _RowTipo.pending:
+        rowIcon = Icons.send_outlined;
+        iconBg = AppColors.orange.withValues(alpha: 0.10);
+        iconColor = AppColors.orange;
+        pillLabel = 'Pendiente';
+        pillBg = AppColors.orange.withValues(alpha: 0.11);
+        pillText = AppColors.orange;
+        break;
+      case _RowTipo.inProgress:
+        rowIcon = Icons.construction_outlined;
+        iconBg = AppColors.blue.withValues(alpha: 0.08);
+        iconColor = AppColors.blue;
+        pillLabel = 'En curso';
+        pillBg = AppColors.blue.withValues(alpha: 0.09);
+        pillText = AppColors.blue;
+        break;
+      case _RowTipo.completed:
+        rowIcon = Icons.check_circle_outline_rounded;
+        iconBg = AppColors.success.withValues(alpha: 0.09);
+        iconColor = AppColors.success;
+        pillLabel = 'Completado';
+        pillBg = AppColors.success.withValues(alpha: 0.10);
+        pillText = AppColors.success;
+        break;
+      case _RowTipo.rejected:
+        rowIcon = Icons.cancel_outlined;
+        iconBg = AppColors.error.withValues(alpha: 0.08);
+        iconColor = AppColors.error;
+        pillLabel = 'Rechazado';
+        pillBg = AppColors.error.withValues(alpha: 0.08);
+        pillText = AppColors.error;
+        break;
+    }
+
+    return GestureDetector(
+      onTap: () => _mostrarDetalleTrabajo(
+        pub,
+        nombre,
+        p as Map<String, dynamic>?,
+        true,
+      ),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 8.h),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border:
+              Border.all(color: AppColors.blue.withValues(alpha: 0.08)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40.r,
+              height: 40.r,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(rowIcon, size: 18.sp, color: iconColor),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titulo,
+                    style: AppTypography.body.copyWith(color: AppColors.blue),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    '$nombre · $tiempo',
+                    style: AppTypography.caption
+                        .copyWith(color: AppColors.slateGrey),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Container(
+              padding:
+                  EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+              decoration: BoxDecoration(
+                color: pillBg,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                pillLabel,
+                style: AppTypography.caption.copyWith(
+                  color: pillText,
+                  fontFamily: 'GothamMedium',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Estados vacíos / error ────────────────────────────────────────────────
 
   Widget _emptyState(IconData icon, String title, String description) {
     return ListView(
@@ -685,8 +715,8 @@ class _JobsScreen2State extends State<JobsScreen2> {
                 ),
                 SizedBox(height: 20.h),
                 Text(title,
-                    style: AppTypography.subtitle
-                        .copyWith(color: AppColors.blue.withValues(alpha: 0.7)),
+                    style: AppTypography.subtitle.copyWith(
+                        color: AppColors.blue.withValues(alpha: 0.7)),
                     textAlign: TextAlign.center),
                 SizedBox(height: 10.h),
                 Text(description,
@@ -715,8 +745,8 @@ class _JobsScreen2State extends State<JobsScreen2> {
                     size: 48.r, color: AppColors.slateGrey),
                 SizedBox(height: 12.h),
                 Text(message,
-                    style: AppTypography.body
-                        .copyWith(color: AppColors.slateGrey),
+                    style:
+                        AppTypography.body.copyWith(color: AppColors.slateGrey),
                     textAlign: TextAlign.center),
               ],
             ),
@@ -726,3 +756,5 @@ class _JobsScreen2State extends State<JobsScreen2> {
     );
   }
 }
+
+enum _RowTipo { pending, inProgress, completed, rejected }
