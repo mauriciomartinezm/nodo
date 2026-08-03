@@ -29,7 +29,11 @@ export async function saveNotification(userId, type, title, message, data) {
   });
 
   if (user?.fcmToken) {
-    await sendNotificationToUser(user.fcmToken, title, message, data, userId);
+    try {
+      await sendNotificationToUser(user.fcmToken, title, message, data, userId);
+    } catch (err) {
+      console.error("Firebase notification failed, continuing:", err.message);
+    }
   }
 
   return notification;

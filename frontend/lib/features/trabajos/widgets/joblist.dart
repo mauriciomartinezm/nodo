@@ -72,7 +72,14 @@ class _JobCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final photos = publicacion['photos'];
     final List<String> imagenes = photos is List && photos.isNotEmpty
-        ? photos.map<String>((e) => e.toString()).toList()
+        ? photos
+            .map<String>((e) {
+              if (e is String) return e;
+              if (e is Map) return (e['url'] as String?) ?? '';
+              return '';
+            })
+            .where((url) => url.isNotEmpty)
+            .toList()
         : [];
 
     final String titulo = publicacion['title'] ?? 'Sin título';

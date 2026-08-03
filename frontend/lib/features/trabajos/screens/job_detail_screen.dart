@@ -1,4 +1,6 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nodo/core/theme/app_theme.dart';
 import 'package:nodo/features/chat/screens/chat_1.dart';
 import 'package:nodo/features/trabajos/logic/job_service.dart';
@@ -8,7 +10,6 @@ import 'package:provider/provider.dart';
 
 class JobDetailScreen extends StatefulWidget {
   final Map<String, dynamic> job;
-  final ScrollController scrollController;
   final bool desdePostulaciones;
   final Map<String, dynamic>? postulacion;
   final VoidCallback? onPostulacionCambiada;
@@ -17,7 +18,6 @@ class JobDetailScreen extends StatefulWidget {
     super.key,
     required this.job,
     this.postulacion,
-    required this.scrollController,
     this.desdePostulaciones = false,
     this.onPostulacionCambiada,
   });
@@ -27,220 +27,128 @@ class JobDetailScreen extends StatefulWidget {
 }
 
 class _JobDetailScreenState extends State<JobDetailScreen> {
-  int currentPage = 0;
+  int _currentIndex = 0;
+  late List<String> _images;
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
+
   bool _workerHasConfirmed = false;
   bool _clientHasConfirmed = false;
 
   @override
   void initState() {
     super.initState();
+    final raw = widget.job['images'];
+    final all =
+        raw is List ? List<String>.from(raw) : [raw?.toString() ?? ''];
+    _images = all.where((u) => u.isNotEmpty).toList();
+
     final service = widget.postulacion?['service'] as Map<String, dynamic>?;
-    _workerHasConfirmed = service?['workerCompletionRequest'] as bool? ?? false;
-    _clientHasConfirmed = service?['clientCompletionRequest'] as bool? ?? false;
+    _workerHasConfirmed =
+        service?['workerCompletionRequest'] as bool? ?? false;
+    _clientHasConfirmed =
+        service?['clientCompletionRequest'] as bool? ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
-    final images = widget.job["images"] is List
-        ? List<String>.from(widget.job["images"])
-        : [widget.job["images"]?.toString() ?? ''];
-
     final String clienteNombre =
-        widget.job["user"]?.toString() ?? "Cliente desconocido";
-    final String nombreSolo = clienteNombre.contains(":")
-        ? clienteNombre.split(":").last.trim()
+        widget.job['user']?.toString() ?? 'Cliente desconocido';
+    final String nombreSolo = clienteNombre.contains(':')
+        ? clienteNombre.split(':').last.trim()
         : clienteNombre;
 
-    final String titulo = widget.job["title"] ?? "Sin título";
-    final String descripcion = widget.job["description"] ?? "Sin descripción";
-    final String ubicacion = widget.job["location"] ?? "Sin ubicación";
-    final String presupuesto = widget.job["price"] ?? "0";
-    final String fechaLimite = widget.job["time"] ?? "";
+    final String titulo = widget.job['title'] ?? 'Sin título';
+    final String descripcion =
+        widget.job['description'] ?? 'Sin descripción';
+    final String ubicacion = widget.job['location'] ?? '';
+    final String presupuesto = widget.job['price'] ?? '';
+    final String fechaLimite = widget.job['time'] ?? '';
     final String estadoPostulacion =
         widget.postulacion?['status']?.toString() ?? '';
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor:
+          Color.alphaBlend(AppColors.blue.withValues(alpha: 0.03), Colors.white),
+      appBar: AppBar(
         backgroundColor: AppColors.white,
-        body: Column(
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.blue),
+        title: Text(
+          'Detalle de servicio',
+          style: AppTypography.title.copyWith(color: AppColors.orange),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 40,
-              height: 5,
-              margin: const EdgeInsets.only(top: 12, bottom: 12),
-              decoration: BoxDecoration(
-                color: AppColors.slateGrey,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                controller: widget.scrollController,
-                padding: EdgeInsets.zero,
-                children: [
-                  Stack(
-                    children: [
-                      SizedBox(
-                        height: 200,
-                        child: PageView.builder(
-                          itemCount: images.length,
-                          onPageChanged: (index) {
-                            setState(() => currentPage = index);
-                          },
-                          itemBuilder: (context, index) {
-                            return Image.network(
-                              images[index],
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset(
-                                'assets/images/diomedes_joven.jpg',
-                                fit: BoxFit.cover,
-                              ),
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        top: 12,
-                        right: 12,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            final jobId = widget.job["id"];
-                            if (jobId != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ReportScreen(jobId: jobId),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text("No se puede reportar: ID nulo.")),
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.flag, size: 16),
-                          label: const Text("Reportar"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.orange,
-                            foregroundColor: AppColors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
-                            textStyle: AppTypography.label,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            elevation: 2,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (images.length > 1)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          images.length,
-                          (index) => Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: currentPage == index
-                                  ? AppColors.blue
-                                  : Colors.grey[400],
-                            ),
-                          ),
-                        ),
-                      ),
+            _buildImageCarousel(),
+            Padding(
+              padding: EdgeInsets.all(16.r),
+              child: Container(
+                padding: EdgeInsets.all(18.r),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.blue.withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
                     ),
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(titulo, style: AppTypography.title),
-                        const SizedBox(height: 8),
-                        Text(
-                          descripcion,
-                          style: AppTypography.body.copyWith(height: 1.4),
+                        Expanded(
+                          child: Text(
+                            titulo,
+                            style: AppTypography.title
+                                .copyWith(color: AppColors.blue),
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(ubicacion,
-                            style: AppTypography.body
-                                .copyWith(color: Colors.grey[700])),
-                        Text(
-                          fechaLimite,
-                          style: AppTypography.label
-                              .copyWith(color: Colors.redAccent),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(presupuesto, style: AppTypography.title),
-                        const Divider(height: 32),
-                        Text(
-                          "Información del cliente",
-                          style: AppTypography.body,
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            const CircleAvatar(
-                              radius: 20,
-                              child: Padding(
-                                padding: EdgeInsets.all(10.0),
-                                child: Image(
-                                  image: AssetImage(
-                                      'assets/icons/iconNodoBlue.png'),
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              clienteNombre,
-                              style: AppTypography.body,
-                            ),
-                          ],
-                        ),
-                        // Completion status panel for accepted jobs
-                        if (estadoPostulacion == 'accepted') ...[
-                          const SizedBox(height: 16),
-                          _buildCompletionStatusPanel(nombreSolo),
+                        if (estadoPostulacion.isNotEmpty) ...[
+                          SizedBox(width: 8.w),
+                          _buildStatusChip(estadoPostulacion),
                         ],
-                        const SizedBox(height: 24),
                       ],
                     ),
-                  ),
-                ],
+                    SizedBox(height: 12.h),
+                    Text(
+                      descripcion,
+                      style: AppTypography.body.copyWith(
+                          color: AppColors.blue.withValues(alpha: 0.85),
+                          height: 1.45),
+                    ),
+                    SizedBox(height: 16.h),
+                    Divider(
+                        color: AppColors.slateGrey.withValues(alpha: 0.3)),
+                    SizedBox(height: 8.h),
+                    if (ubicacion.isNotEmpty)
+                      _buildInfoRow(
+                          Icons.location_on_outlined, 'Ubicación', ubicacion),
+                    if (fechaLimite.isNotEmpty)
+                      _buildInfoRow(
+                          Icons.event_outlined, 'Fecha límite', fechaLimite),
+                    if (presupuesto.isNotEmpty)
+                      _buildInfoRow(
+                          Icons.attach_money, 'Presupuesto', presupuesto),
+                    _buildInfoRow(
+                        Icons.person_outline, 'Cliente', clienteNombre),
+                    if (estadoPostulacion == 'accepted') ...[
+                      SizedBox(height: 16.h),
+                      _buildCompletionStatusPanel(nombreSolo),
+                    ],
+                    SizedBox(height: 20.h),
+                    _buildActionButtons(estadoPostulacion, nombreSolo),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: _buildBottomButtons(
-                  estadoPostulacion, nombreSolo),
             ),
           ],
         ),
@@ -248,15 +156,143 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     );
   }
 
+  // ── Image carousel ────────────────────────────────────────────────────────
+
+  Widget _buildImageCarousel() {
+    if (_images.isEmpty) {
+      return Container(
+        height: 220.h,
+        color: AppColors.blue.withValues(alpha: 0.06),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.image_not_supported_outlined,
+                size: 36.sp, color: AppColors.blue.withValues(alpha: 0.4)),
+            SizedBox(height: 8.h),
+            Text(
+              'Sin imágenes',
+              style: AppTypography.body.copyWith(color: AppColors.blue),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        CarouselSlider(
+          carouselController: _carouselController,
+          items: _images.map((url) {
+            return Image.network(
+              url,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              errorBuilder: (_, __, ___) => Container(
+                color: AppColors.blue.withValues(alpha: 0.06),
+                alignment: Alignment.center,
+                child: Icon(Icons.broken_image_outlined,
+                    size: 36.sp,
+                    color: AppColors.blue.withValues(alpha: 0.35)),
+              ),
+            );
+          }).toList(),
+          options: CarouselOptions(
+            height: 220.h,
+            viewportFraction: 1,
+            enlargeCenterPage: false,
+            enableInfiniteScroll: _images.length > 1,
+            onPageChanged: (index, _) =>
+                setState(() => _currentIndex = index),
+          ),
+        ),
+        if (_images.length > 1)
+          Positioned(
+            bottom: 12.h,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _images.asMap().entries.map((entry) {
+                final isActive = _currentIndex == entry.key;
+                return GestureDetector(
+                  onTap: () =>
+                      _carouselController.animateToPage(entry.key),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: isActive ? 9.w : 7.w,
+                    height: isActive ? 9.w : 7.w,
+                    margin: EdgeInsets.symmetric(horizontal: 3.w),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isActive ? AppColors.orange : AppColors.white,
+                      border:
+                          Border.all(color: AppColors.white, width: 1),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ── Info row ──────────────────────────────────────────────────────────────
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 6.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18.sp, color: AppColors.orange),
+          SizedBox(width: 10.w),
+          Text(
+            '$label: ',
+            style: AppTypography.body.copyWith(color: AppColors.blue),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTypography.body.copyWith(color: AppColors.blue),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Status chip ───────────────────────────────────────────────────────────
+
+  Widget _buildStatusChip(String status) {
+    final (label, color) = switch (status) {
+      'accepted' => ('Aceptado', AppColors.success),
+      'rejected' => ('Rechazado', AppColors.error),
+      'pending' => ('Pendiente', AppColors.orange),
+      _ => (status, AppColors.slateGrey),
+    };
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: AppTypography.caption.copyWith(color: color),
+      ),
+    );
+  }
+
+  // ── Completion status panel ───────────────────────────────────────────────
+
   Widget _buildCompletionStatusPanel(String clienteName) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
         color: AppColors.blue.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.blue.withValues(alpha: 0.15),
-        ),
+        border: Border.all(color: AppColors.blue.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,30 +301,32 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             'Estado de finalización',
             style: AppTypography.label.copyWith(color: AppColors.blue),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           _buildConfirmationRow(
             icon: Icons.construction_outlined,
             label: 'Tú',
             confirmed: _workerHasConfirmed,
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6.h),
           _buildConfirmationRow(
             icon: Icons.person_outline,
             label: clienteName,
             confirmed: _clientHasConfirmed,
           ),
           if (_workerHasConfirmed && !_clientHasConfirmed) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             Text(
               'Esperando confirmación del cliente…',
-              style: AppTypography.caption.copyWith(color: AppColors.slateGrey),
+              style:
+                  AppTypography.caption.copyWith(color: AppColors.slateGrey),
             ),
           ],
           if (!_workerHasConfirmed && _clientHasConfirmed) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             Text(
               'El cliente ya confirmó. Confirma tu parte para cerrar el trabajo.',
-              style: AppTypography.caption.copyWith(color: AppColors.orange),
+              style:
+                  AppTypography.caption.copyWith(color: AppColors.orange),
             ),
           ],
         ],
@@ -303,8 +341,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.blue.withValues(alpha: 0.6)),
-        const SizedBox(width: 8),
+        Icon(icon, size: 16.sp, color: AppColors.blue.withValues(alpha: 0.6)),
+        SizedBox(width: 8.w),
         Expanded(
           child: Text(
             label,
@@ -314,10 +352,10 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
         ),
         Icon(
           confirmed ? Icons.check_circle : Icons.radio_button_unchecked,
-          size: 18,
+          size: 18.sp,
           color: confirmed ? AppColors.success : AppColors.slateGrey,
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: 4.w),
         Text(
           confirmed ? 'Confirmado' : 'Pendiente',
           style: AppTypography.caption.copyWith(
@@ -328,244 +366,232 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     );
   }
 
-  Widget _buildBottomButtons(String estadoPostulacion, String nombreSolo) {
-    final buttons = <Widget>[];
+  // ── Action buttons ────────────────────────────────────────────────────────
 
-    // Apply button (only when not from postulaciones and job not finished)
-    if (!widget.desdePostulaciones && estadoPostulacion != 'finished') {
-      buttons.add(
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () async {
-              try {
-                final userProvider =
-                    Provider.of<UserProvider>(context, listen: false);
-                if (userProvider.user == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content:
-                            Text('Debes iniciar sesión para postularte')),
-                  );
-                  return;
-                }
-                final trabajadorId = userProvider.user!.id;
-                final publicacionId = widget.job['id'];
-                await JobService.apply(publicacionId, trabajadorId);
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Postulación enviada correctamente')),
-                );
-                Navigator.of(context).pop();
-                widget.onPostulacionCambiada?.call();
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content:
-                          Text('Error al postularse: ${e.toString()}')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.blue,
-              foregroundColor: AppColors.white,
-            ),
-            child: const Text("Postularme"),
-          ),
-        ),
-      );
-      buttons.add(const SizedBox(width: 8));
-    }
-
-    // Chat button — only when there is an application linking both parties
-    if (widget.desdePostulaciones && estadoPostulacion != 'finished') {
-      buttons.add(
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () {
-              final currentUserId =
-                  Provider.of<UserProvider>(context, listen: false).user?.id ??
-                      '';
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatScreen(
-                    applicationId: widget.postulacion!['id'] as String,
-                    currentUserId: currentUserId,
-                    otherPersonName: nombreSolo,
-                  ),
-                ),
-              );
-            },
-            icon: const Icon(Icons.chat_bubble_outline, size: 18),
-            label: Text(
-              "Hablar con $nombreSolo",
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.blue,
-              foregroundColor: AppColors.white,
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Accept job button (pending application)
-    if (widget.desdePostulaciones && estadoPostulacion == 'pending') {
-      if (buttons.isNotEmpty) buttons.add(const SizedBox(width: 8));
-      buttons.add(
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () async {
-              try {
-                final userProvider =
-                    Provider.of<UserProvider>(context, listen: false);
-                if (userProvider.user == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text(
-                            'Debes iniciar sesión para aceptar la propuesta')),
-                  );
-                  return;
-                }
-                await JobService.acceptApplication(
-                    widget.postulacion?['id'], 'accepted');
-                if (!mounted) return;
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content:
-                          Text('¡Has aceptado el trabajo exitosamente!')),
-                );
-                widget.onPostulacionCambiada?.call();
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                          'Error al aceptar postulación: ${e.toString()}')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text("Aceptar trabajo"),
-          ),
-        ),
-      );
-    }
-
-    // Accepted job actions
-    if (widget.desdePostulaciones && estadoPostulacion == 'accepted') {
-      if (buttons.isNotEmpty) buttons.add(const SizedBox(width: 8));
-
-      if (!_workerHasConfirmed) {
-        buttons.add(
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () async {
+  Widget _buildActionButtons(String estadoPostulacion, String nombreSolo) {
+    // Postularse
+    if (!widget.desdePostulaciones) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: _actionButton(
+              Icons.send_outlined,
+              'Postularme',
+              AppColors.blue,
+              AppColors.blue.withValues(alpha: 0.1),
+              () async {
                 try {
-                  final result = await JobService.markAsFinished(
-                      widget.postulacion?['id']);
-                  if (!mounted) return;
-
-                  final completed = result['completed'] as bool? ?? false;
-
-                  if (completed) {
-                    Navigator.of(context).pop();
+                  final userProvider =
+                      Provider.of<UserProvider>(context, listen: false);
+                  if (userProvider.user == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text(
-                              '¡Trabajo finalizado con éxito! Ambos confirmaron.')),
+                          content:
+                              Text('Debes iniciar sesión para postularte')),
                     );
-                    widget.onPostulacionCambiada?.call();
-                  } else {
-                    setState(() => _workerHasConfirmed = true);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text(
-                              'Confirmación enviada. Esperando que el cliente confirme también.')),
-                    );
+                    return;
                   }
+                  await JobService.apply(
+                      widget.job['id'], userProvider.user!.id);
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Postulación enviada correctamente')),
+                  );
+                  Navigator.of(context).pop();
+                  widget.onPostulacionCambiada?.call();
                 } catch (e) {
                   if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            'Error al confirmar: ${e.toString()}')),
+                    SnackBar(content: Text('Error al postularse: $e')),
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade700,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text("Trabajo terminado"),
             ),
           ),
+          SizedBox(height: 10.h),
+          SizedBox(
+            width: double.infinity,
+            child: _actionButton(
+              Icons.flag_outlined,
+              'Reportar publicación',
+              AppColors.error,
+              AppColors.error.withValues(alpha: 0.1),
+              () {
+                final jobId = widget.job['id'];
+                if (jobId != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ReportScreen(jobId: jobId)),
+                  );
+                }
+              },
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Trabajo aceptado
+    if (estadoPostulacion == 'accepted') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: _actionButton(
+              Icons.chat_bubble_outline_rounded,
+              'Hablar con $nombreSolo',
+              AppColors.blue,
+              AppColors.blue.withValues(alpha: 0.1),
+              () => _openChat(nombreSolo),
+            ),
+          ),
+          if (!_workerHasConfirmed) ...[
+            SizedBox(height: 10.h),
+            SizedBox(
+              width: double.infinity,
+              child: _actionButton(
+                Icons.check_circle_outline_rounded,
+                'Marcar como terminado',
+                AppColors.success,
+                AppColors.success.withValues(alpha: 0.1),
+                _markAsFinished,
+              ),
+            ),
+          ],
+          SizedBox(height: 10.h),
+          SizedBox(
+            width: double.infinity,
+            child: _actionButton(
+              Icons.cancel_outlined,
+              'Cancelar trabajo',
+              AppColors.error,
+              AppColors.error.withValues(alpha: 0.1),
+              _cancelJob,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Postulación pendiente
+    if (estadoPostulacion == 'pending') {
+      return SizedBox(
+        width: double.infinity,
+        child: _actionButton(
+          Icons.chat_bubble_outline,
+          'Hablar con $nombreSolo',
+          AppColors.blue,
+          AppColors.blue.withValues(alpha: 0.1),
+          () => _openChat(nombreSolo),
+        ),
+      );
+    }
+
+    // Rechazada / retirada
+    if (estadoPostulacion.isNotEmpty && estadoPostulacion != 'finished') {
+      return SizedBox(
+        width: double.infinity,
+        child: _actionButton(
+          Icons.delete_outline,
+          'Eliminar postulación',
+          AppColors.error,
+          AppColors.error.withValues(alpha: 0.1),
+          () async {
+            await JobService.deleteApplication(widget.postulacion?['id']);
+            if (!mounted) return;
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Postulación eliminada correctamente')),
+            );
+            widget.onPostulacionCambiada?.call();
+          },
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _actionButton(
+    IconData icon,
+    String text,
+    Color textColor,
+    Color bgColor,
+    VoidCallback onPressed,
+  ) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18.sp, color: textColor),
+      label: Text(text, style: AppTypography.body.copyWith(color: textColor)),
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: bgColor,
+        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 14.w),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  void _openChat(String nombreSolo) {
+    final userId =
+        Provider.of<UserProvider>(context, listen: false).user?.id ?? '';
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChatScreen(
+          applicationId: widget.postulacion!['id'] as String,
+          currentUserId: userId,
+          otherPersonName: nombreSolo,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _markAsFinished() async {
+    try {
+      final result =
+          await JobService.markAsFinished(widget.postulacion?['id']);
+      if (!mounted) return;
+      final completed = result['completed'] as bool? ?? false;
+      if (completed) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('¡Trabajo finalizado con éxito! Ambos confirmaron.')),
+        );
+        widget.onPostulacionCambiada?.call();
+      } else {
+        setState(() => _workerHasConfirmed = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'Confirmación enviada. Esperando que el cliente confirme también.')),
         );
       }
-
-      buttons.add(const SizedBox(width: 8));
-      buttons.add(
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () async {
-              await JobService.cancelJob(widget.postulacion?['id']);
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Trabajo cancelado')),
-              );
-              Navigator.of(context).pop();
-              widget.onPostulacionCambiada?.call();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text("Cancelar trabajo"),
-          ),
-        ),
-      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error al confirmar: $e')));
     }
+  }
 
-    // Delete application (for rejected/withdrawn states)
-    if (widget.desdePostulaciones &&
-        estadoPostulacion != 'accepted' &&
-        estadoPostulacion != 'finished' &&
-        estadoPostulacion != 'pending') {
-      buttons.add(
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () async {
-              await JobService.deleteApplication(
-                  widget.postulacion?['id']);
-              if (!mounted) return;
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content:
-                        Text('Postulación eliminada correctamente')),
-              );
-              widget.onPostulacionCambiada?.call();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
-            ),
-            child: const Text("Eliminar Postulacion"),
-          ),
-        ),
-      );
-    }
-
-    if (buttons.isEmpty) return const SizedBox.shrink();
-
-    return Row(children: buttons);
+  Future<void> _cancelJob() async {
+    await JobService.cancelJob(widget.postulacion?['id']);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Trabajo cancelado')),
+    );
+    Navigator.of(context).pop();
+    widget.onPostulacionCambiada?.call();
   }
 }

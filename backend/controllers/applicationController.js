@@ -79,7 +79,16 @@ export const getApplicationsByUserId = async (req, res) => {
   try {
     const applications = await prisma.application.findMany({
       where: { workerId: req.params.id },
-      include: { service: true },
+      include: {
+        service: true,
+        post: {
+          include: {
+            photos: { orderBy: { sortOrder: 'asc' } },
+            client: { select: { firstName: true } },
+            categories: { include: { specificCategory: { select: { name: true } } } },
+          },
+        },
+      },
     });
 
     if (applications.length === 0) {

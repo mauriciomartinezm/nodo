@@ -25,6 +25,7 @@ class _JobsScreen2State extends State<JobsScreen2> {
   bool _isLoadingPostulaciones = true;
   String _errorMessagePostulaciones = '';
   int _selectedTab = 0;
+  int _misTrabajoChip = 0; // 0 = En curso, 1 = Completados
   JobFilter _filter = const JobFilter();
 
   static const _tabs = [
@@ -75,8 +76,20 @@ class _JobsScreen2State extends State<JobsScreen2> {
       final postulaciones =
           await JobService.fetchApplicationsByUser(currentId);
       if (!mounted) return;
+      final extraNames = <String, String>{};
+      for (final p in postulaciones) {
+        final post = p['post'] as Map?;
+        if (post != null) {
+          final clientId = post['clientId']?.toString();
+          final firstName = post['client']?['firstName'] as String?;
+          if (clientId != null && firstName != null) {
+            extraNames[clientId] = firstName;
+          }
+        }
+      }
       setState(() {
         _postulaciones = postulaciones;
+        _nombresClientes = {...extraNames, ..._nombresClientes};
         _isLoadingPostulaciones = false;
       });
     } catch (e) {
@@ -154,16 +167,10 @@ class _JobsScreen2State extends State<JobsScreen2> {
         ? categories[0]['specificCategoryId'].toString()
         : '';
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
-        minChildSize: 0.4,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (_, scrollController) => JobDetailScreen(
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => JobDetailScreen(
           job: {
             "id": publicacion['id'],
             "title": publicacion['title'],
@@ -177,7 +184,6 @@ class _JobsScreen2State extends State<JobsScreen2> {
             "images": _parseImages(publicacion['photos']),
           },
           postulacion: postulacion,
-          scrollController: scrollController,
           desdePostulaciones: desdePostulaciones,
           onPostulacionCambiada: _loadAllData,
         ),
@@ -198,9 +204,16 @@ class _JobsScreen2State extends State<JobsScreen2> {
 
   List<String> _parseImages(dynamic photos) {
     if (photos is List && photos.isNotEmpty) {
-      return photos.map((url) => url.toString()).toList();
+      return photos
+          .map<String>((e) {
+            if (e is String) return e;
+            if (e is Map) return (e['url'] as String?) ?? '';
+            return '';
+          })
+          .where((url) => url.isNotEmpty)
+          .toList();
     }
-    return ['assets/images/diomedes_joven.jpg'];
+    return [];
   }
 
   @override
@@ -211,8 +224,10 @@ class _JobsScreen2State extends State<JobsScreen2> {
     final disponiblesCount = _applyFilter(disponiblesRaw).length;
     final postulacionesCount =
         _postulaciones.where((p) => p['status'] != 'accepted').length;
-    final misTrabajosCount =
-        _postulaciones.where((p) => p['status'] == 'accepted').length;
+    final misTrabajosCount = _postulaciones.where((p) =>
+        p['status'] == 'accepted' &&
+        p['service']?['status'] != 'completed' &&
+        p['service']?['status'] != 'cancelled').length;
     final counts = [disponiblesCount, postulacionesCount, misTrabajosCount];
 
     return Scaffold(
@@ -353,7 +368,7 @@ class _JobsScreen2State extends State<JobsScreen2> {
                               ? AppColors.white
                               : AppColors.blue.withValues(alpha: 0.5),
                         ),
-                        if (count > 0)
+                        if (count > 0 && i != 0)
                           Positioned(
                             top: -4,
                             right: -8,
@@ -484,14 +499,6 @@ class _JobsScreen2State extends State<JobsScreen2> {
   }
 
   Widget _buildMisTrabajosList() {
-    final trabajos = _postulaciones
-        .where((p) => p['status'] == 'accepted')
-        .map((p) => _publicaciones.firstWhere(
-            (pub) => pub['id'] == p['postId'],
-            orElse: () => null))
-        .where((pub) => pub != null)
-        .toList();
-
     return RefreshIndicator(
       onRefresh: _loadAllData,
       color: AppColors.orange,
@@ -499,17 +506,160 @@ class _JobsScreen2State extends State<JobsScreen2> {
           ? const Center(child: CircularProgressIndicator())
           : _errorMessagePostulaciones.isNotEmpty
               ? _errorState(_errorMessagePostulaciones)
-              : trabajos.isEmpty
-                  ? _emptyState(
-                      Icons.construction_outlined,
-                      'Sin trabajos asignados',
-                      'Cuando un cliente te acepte, el trabajo aparecerá aquí.',
-                    )
-                  : JobList(
-                      publicaciones: trabajos,
-                      nombresClientes: _nombresClientes,
-                      onVerDetalles: _mostrarDetalleDesdePostulacion,
+              : Column(
+                  children: [
+                    _buildMisTrabajoChips(),
+                    Expanded(
+                      child: _misTrabajoChip == 0
+                          ? _buildEnCursoList()
+                          : _buildCompletadosList(),
                     ),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildMisTrabajoChips() {
+    const chips = ['En curso', 'Completados'];
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      child: Row(
+        children: List.generate(chips.length, (i) {
+          final selected = _misTrabajoChip == i;
+          return Padding(
+            padding: EdgeInsets.only(right: i == 0 ? 8.w : 0),
+            child: GestureDetector(
+              onTap: () => setState(() => _misTrabajoChip = i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 7.h),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? AppColors.blue
+                      : AppColors.blue.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  chips[i],
+                  style: AppTypography.caption.copyWith(
+                    color: selected
+                        ? AppColors.white
+                        : AppColors.blue.withValues(alpha: 0.7),
+                    fontFamily: selected ? 'GothamMedium' : 'GothamBook',
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildEnCursoList() {
+    final enCurso = _postulaciones
+        .where((p) =>
+            p['status'] == 'accepted' &&
+            p['service']?['status'] != 'completed' &&
+            p['service']?['status'] != 'cancelled')
+        .map((p) {
+          final pub = _publicaciones.firstWhere(
+            (pub) => pub['id'] == p['postId'],
+            orElse: () => p['post'],
+          );
+          return pub;
+        })
+        .where((pub) => pub != null)
+        .toList();
+
+    if (enCurso.isEmpty) {
+      return _emptyState(
+        Icons.construction_outlined,
+        'Sin trabajos en curso',
+        'Cuando un cliente te acepte, el trabajo aparecerá aquí.',
+      );
+    }
+
+    return JobList(
+      publicaciones: enCurso,
+      nombresClientes: _nombresClientes,
+      onVerDetalles: (pub, _) {
+        final postulacion = _postulaciones.firstWhere(
+          (p) => p['postId'] == pub['id'] && p['status'] == 'accepted',
+          orElse: () => null,
+        );
+        final clientId = pub['clientId']?.toString() ?? '';
+        final nombre = _nombresClientes[clientId] ?? 'Cliente';
+        _mostrarDetalleTrabajo(pub, nombre, postulacion, true);
+      },
+    );
+  }
+
+  Widget _buildCompletadosList() {
+    final completados = _postulaciones
+        .where((p) =>
+            p['status'] == 'accepted' &&
+            p['service']?['status'] == 'completed')
+        .toList();
+
+    if (completados.isEmpty) {
+      return _emptyState(
+        Icons.check_circle_outline_rounded,
+        'Sin trabajos completados',
+        'Los trabajos finalizados aparecerán aquí.',
+      );
+    }
+
+    final items = completados
+        .map((p) => p['post'] as Map?)
+        .where((pub) => pub != null)
+        .toList();
+
+    return JobList(
+      publicaciones: items,
+      nombresClientes: _nombresClientes,
+      onVerDetalles: (pub, _) {
+        final clientId = pub['clientId']?.toString() ?? '';
+        final nombre = _nombresClientes[clientId] ?? 'Cliente';
+        _mostrarDetalleDesdeCompletado(pub, nombre);
+      },
+    );
+  }
+
+  void _mostrarDetalleDesdeCompletado(
+      dynamic publicacion, String nombreCliente) {
+    final categories = (publicacion['categories'] as List?) ?? [];
+    final firstCategoryId = categories.isNotEmpty
+        ? (categories[0]['specificCategoryId']?.toString() ?? '')
+        : '';
+
+    final postulacion = _postulaciones.firstWhere(
+      (p) => p['postId'] == publicacion['id'] && p['status'] == 'accepted',
+      orElse: () => null,
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => JobDetailScreen(
+          job: {
+            "id": publicacion['id'],
+            "title": publicacion['title'],
+            "description": publicacion['description'],
+            "price": "\$${publicacion['budget']}",
+            "location": "${publicacion['location']}",
+            "user": "Nombre del cliente: $nombreCliente",
+            "time":
+                "${JobService.formatTimeAgo(publicacion['postDate'] ?? '')} · ${publicacion['status'] ?? ''}",
+            "image": JobService.getIconForCategory(firstCategoryId),
+            "images": _parseImages(publicacion['photos']),
+          },
+          postulacion: postulacion,
+          desdePostulaciones: true,
+          onPostulacionCambiada: _loadAllData,
+        ),
+      ),
     );
   }
 
