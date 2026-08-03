@@ -36,13 +36,16 @@ class PostsService {
     return response.statusCode == 200;
   }
 
-  Future<bool> finishJob(String postId) async {
+  Future<Map<String, dynamic>> finishJob(String postId) async {
     final response = await http.put(
       Uri.parse(ApiConstants.finishJob),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'postId': postId}),
     );
-    return response.statusCode == 200;
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Error al finalizar el trabajo (${response.statusCode})');
   }
 
   Future<bool> updatePost(

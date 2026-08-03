@@ -67,19 +67,15 @@ class PostsController extends ChangeNotifier {
     }
   }
 
-  Future<bool> finishJob(String postId) async {
+  Future<Map<String, dynamic>?> finishJob(String postId) async {
     try {
       _setLoading(true);
-      final success = await _service.finishJob(postId);
-      if (success) {
-        await loadPosts(); // Recarga la lista si todo va bien
-      } else {
-        _errorMessage = 'No se pudo finalizar el trabajo o la postulación.';
-      }
-      return success;
+      final result = await _service.finishJob(postId);
+      await loadPosts();
+      return result;
     } catch (e) {
       _errorMessage = 'Error al finalizar trabajo: ${e.toString()}';
-      return false;
+      return null;
     } finally {
       _setLoading(false);
     }

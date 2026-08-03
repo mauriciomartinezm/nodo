@@ -79,6 +79,7 @@ export const getApplicationsByUserId = async (req, res) => {
   try {
     const applications = await prisma.application.findMany({
       where: { workerId: req.params.id },
+      include: { service: true },
     });
 
     if (applications.length === 0) {
@@ -104,6 +105,7 @@ export const getApplicationsByPostId = async (req, res) => {
             workerCategories: { include: { generalCategory: true } },
           },
         },
+        service: true,
       },
     });
 

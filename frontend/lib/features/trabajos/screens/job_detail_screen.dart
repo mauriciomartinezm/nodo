@@ -27,14 +27,16 @@ class JobDetailScreen extends StatefulWidget {
 }
 
 class _JobDetailScreenState extends State<JobDetailScreen> {
-  String selectedAction = 'postularme';
   int currentPage = 0;
+  bool _workerHasConfirmed = false;
+  bool _clientHasConfirmed = false;
 
-  //@override
   @override
   void initState() {
     super.initState();
-    debugPrint("DEBUG JOB => ${widget.job}");
+    final service = widget.postulacion?['service'] as Map<String, dynamic>?;
+    _workerHasConfirmed = service?['workerCompletionRequest'] as bool? ?? false;
+    _clientHasConfirmed = service?['clientCompletionRequest'] as bool? ?? false;
   }
 
   @override
@@ -55,13 +57,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     final String presupuesto = widget.job["price"] ?? "0";
     final String fechaLimite = widget.job["time"] ?? "";
     final String estadoPostulacion =
-        widget.postulacion?['status'].toString() ?? '';
-    debugPrint("Estado de la postulacion: ");
-    debugPrint(estadoPostulacion);
-    // final int? jobId = widget.job["id"];
-    //   if (jobId == null) {
-    //     return const Center(child: Text('Error: Trabajo sin ID'));
-    //   }
+        widget.postulacion?['status']?.toString() ?? '';
+
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Scaffold(
@@ -89,13 +86,10 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                         child: PageView.builder(
                           itemCount: images.length,
                           onPageChanged: (index) {
-                            setState(() {
-                              currentPage = index;
-                            });
+                            setState(() => currentPage = index);
                           },
                           itemBuilder: (context, index) {
                             return Image.network(
-                              // Cambia a Image.network
                               images[index],
                               fit: BoxFit.cover,
                               width: double.infinity,
@@ -133,7 +127,6 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  //builder: (context) => ReportScreen(jobId: int.parse(jobId)),
                                   builder: (context) =>
                                       ReportScreen(jobId: jobId),
                                 ),
@@ -176,7 +169,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: currentPage == index
-                                  ? const Color(0xFF003366)
+                                  ? AppColors.blue
                                   : Colors.grey[400],
                             ),
                           ),
@@ -189,10 +182,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          titulo,
-                          style: AppTypography.title,
-                        ),
+                        Text(titulo, style: AppTypography.title),
                         const SizedBox(height: 8),
                         Text(
                           descripcion,
@@ -208,10 +198,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               .copyWith(color: Colors.redAccent),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          presupuesto,
-                          style: AppTypography.title,
-                        ),
+                        Text(presupuesto, style: AppTypography.title),
                         const Divider(height: 32),
                         Text(
                           "Información del cliente",
@@ -238,6 +225,11 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             ),
                           ],
                         ),
+                        // Completion status panel for accepted jobs
+                        if (estadoPostulacion == 'accepted') ...[
+                          const SizedBox(height: 16),
+                          _buildCompletionStatusPanel(nombreSolo),
+                        ],
                         const SizedBox(height: 24),
                       ],
                     ),
@@ -247,219 +239,352 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  if (!widget.desdePostulaciones)
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            final userProvider = Provider.of<UserProvider>(
-                                context,
-                                listen: false);
-                            // Verificamos que el usuario esté logueado
-                            if (userProvider.user == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'Debes iniciar sesión para postularte')),
-                              );
-                              return;
-                            }
-                            // Asumiendo que tienes el ID del trabajador disponible (podría ser de tu sistema de autenticación)
-                            final trabajadorId = userProvider.user!.id;
-                            final publicacionId = widget.job['id'];
-
-                            await JobService.apply(
-                                publicacionId, trabajadorId);
-
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Postulación enviada correctamente')),
-                            );
-                            // ✅ Cierra el modal
-                            Navigator.of(context).pop();
-                            // ✅ Notifica al padre para recargar
-                            widget.onPostulacionCambiada?.call();
-                            // Opcional: Actualizar el estado si es necesario
-                            setState(() {});
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Error al postularse: ${e.toString()}')),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: selectedAction == 'postularme'
-                              ? const Color(0xFF003366)
-                              : Colors.grey[300],
-                          foregroundColor: selectedAction == 'postularme'
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                        child: const Text("Postularme"),
-                      ),
-                    ),
-                  const SizedBox(width: 8),
-                  if (estadoPostulacion != 'finished')
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() => selectedAction = 'hablar');
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ChatScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: selectedAction == 'hablar'
-                              ? const Color(0xFF003366)
-                              : Colors.grey[300],
-                          foregroundColor: selectedAction == 'hablar'
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                        child: Text(
-                          "Hablar con $nombreSolo",
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                    ),
-                  if (widget.desdePostulaciones &&
-                      estadoPostulacion == 'pending')
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            final userProvider = Provider.of<UserProvider>(
-                                context,
-                                listen: false);
-                            if (userProvider.user == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'Debes iniciar sesión para aceptar la propuesta')),
-                              );
-                              return;
-                            }
-
-                            await JobService.acceptApplication(
-                                widget.postulacion?['id'], 'accepted');
-
-                            if (!context.mounted) return;
-                            Navigator.of(context).pop(); // Cierra el modal
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      '¡Has aceptado el trabajo exitosamente!')),
-                            );
-                            widget.onPostulacionCambiada
-                                ?.call(); // Refrescar datos
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Error al aceptar postulación: ${e.toString()}')),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text("Aceptar trabajo"),
-                      ),
-                    ),
-                  if (widget.desdePostulaciones)
-                    if (estadoPostulacion == 'accepted') ...[
-                      //lo mismo que 'en proceso' de publicacion
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            // Aquí deberías llamar a un método que marque el trabajo como terminado
-                            await JobService.markAsFinished(
-                                widget.postulacion?['id']);
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('Notificacion enviada al usuario')),
-                            );
-                            Navigator.of(context).pop();
-                            widget.onPostulacionCambiada?.call();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade700,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: const Text("Trabajo terminado"),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            // Aquí deberías llamar a un método que cancele el trabajo
-                            await JobService.cancelJob(
-                                widget.postulacion?['id']);
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Trabajo cancelado')),
-                            );
-                            Navigator.of(context).pop();
-                            widget.onPostulacionCambiada?.call();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: const Text("Cancelar trabajo"),
-                        ),
-                      ),
-                    ] else if (estadoPostulacion != 'finished')
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await JobService.deleteApplication(
-                                widget.postulacion?['id']);
-                            if (!context.mounted) return;
-                            Navigator.of(context).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'Postulación eliminada correctamente')),
-                            );
-                            widget.onPostulacionCambiada?.call();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                selectedAction == 'Eliminar postulacion'
-                                    ? const Color(0xFF003366)
-                                    : Colors.grey[300],
-                            foregroundColor:
-                                selectedAction == 'Eliminar postulacion'
-                                    ? Colors.white
-                                    : Colors.black,
-                          ),
-                          child: const Text("Eliminar Postulacion"),
-                        ),
-                      ),
-                ],
-              ),
+              child: _buildBottomButtons(
+                  estadoPostulacion, nombreSolo),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildCompletionStatusPanel(String clienteName) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.blue.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.blue.withValues(alpha: 0.15),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Estado de finalización',
+            style: AppTypography.label.copyWith(color: AppColors.blue),
+          ),
+          const SizedBox(height: 10),
+          _buildConfirmationRow(
+            icon: Icons.construction_outlined,
+            label: 'Tú',
+            confirmed: _workerHasConfirmed,
+          ),
+          const SizedBox(height: 6),
+          _buildConfirmationRow(
+            icon: Icons.person_outline,
+            label: clienteName,
+            confirmed: _clientHasConfirmed,
+          ),
+          if (_workerHasConfirmed && !_clientHasConfirmed) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Esperando confirmación del cliente…',
+              style: AppTypography.caption.copyWith(color: AppColors.slateGrey),
+            ),
+          ],
+          if (!_workerHasConfirmed && _clientHasConfirmed) ...[
+            const SizedBox(height: 10),
+            Text(
+              'El cliente ya confirmó. Confirma tu parte para cerrar el trabajo.',
+              style: AppTypography.caption.copyWith(color: AppColors.orange),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfirmationRow({
+    required IconData icon,
+    required String label,
+    required bool confirmed,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.blue.withValues(alpha: 0.6)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            label,
+            style: AppTypography.body.copyWith(color: AppColors.blue),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Icon(
+          confirmed ? Icons.check_circle : Icons.radio_button_unchecked,
+          size: 18,
+          color: confirmed ? AppColors.success : AppColors.slateGrey,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          confirmed ? 'Confirmado' : 'Pendiente',
+          style: AppTypography.caption.copyWith(
+            color: confirmed ? AppColors.success : AppColors.slateGrey,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomButtons(String estadoPostulacion, String nombreSolo) {
+    final buttons = <Widget>[];
+
+    // Apply button (only when not from postulaciones and job not finished)
+    if (!widget.desdePostulaciones && estadoPostulacion != 'finished') {
+      buttons.add(
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () async {
+              try {
+                final userProvider =
+                    Provider.of<UserProvider>(context, listen: false);
+                if (userProvider.user == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content:
+                            Text('Debes iniciar sesión para postularte')),
+                  );
+                  return;
+                }
+                final trabajadorId = userProvider.user!.id;
+                final publicacionId = widget.job['id'];
+                await JobService.apply(publicacionId, trabajadorId);
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Postulación enviada correctamente')),
+                );
+                Navigator.of(context).pop();
+                widget.onPostulacionCambiada?.call();
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content:
+                          Text('Error al postularse: ${e.toString()}')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.blue,
+              foregroundColor: AppColors.white,
+            ),
+            child: const Text("Postularme"),
+          ),
+        ),
+      );
+      buttons.add(const SizedBox(width: 8));
+    }
+
+    // Chat button — shown when there's a relationship (from postulaciones)
+    if (widget.desdePostulaciones && estadoPostulacion != 'finished') {
+      buttons.add(
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChatScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.chat_bubble_outline, size: 18),
+            label: Text(
+              "Hablar con $nombreSolo",
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.blue,
+              foregroundColor: AppColors.white,
+            ),
+          ),
+        ),
+      );
+    } else if (!widget.desdePostulaciones && estadoPostulacion != 'finished') {
+      // Chat button for non-applied workers viewing the job
+      buttons.add(
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChatScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.chat_bubble_outline, size: 18),
+            label: Text(
+              "Hablar con $nombreSolo",
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[300],
+              foregroundColor: Colors.black,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Accept job button (pending application)
+    if (widget.desdePostulaciones && estadoPostulacion == 'pending') {
+      if (buttons.isNotEmpty) buttons.add(const SizedBox(width: 8));
+      buttons.add(
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () async {
+              try {
+                final userProvider =
+                    Provider.of<UserProvider>(context, listen: false);
+                if (userProvider.user == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text(
+                            'Debes iniciar sesión para aceptar la propuesta')),
+                  );
+                  return;
+                }
+                await JobService.acceptApplication(
+                    widget.postulacion?['id'], 'accepted');
+                if (!mounted) return;
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content:
+                          Text('¡Has aceptado el trabajo exitosamente!')),
+                );
+                widget.onPostulacionCambiada?.call();
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          'Error al aceptar postulación: ${e.toString()}')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text("Aceptar trabajo"),
+          ),
+        ),
+      );
+    }
+
+    // Accepted job actions
+    if (widget.desdePostulaciones && estadoPostulacion == 'accepted') {
+      if (buttons.isNotEmpty) buttons.add(const SizedBox(width: 8));
+
+      if (!_workerHasConfirmed) {
+        buttons.add(
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () async {
+                try {
+                  final result = await JobService.markAsFinished(
+                      widget.postulacion?['id']);
+                  if (!mounted) return;
+
+                  final completed = result['completed'] as bool? ?? false;
+
+                  if (completed) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              '¡Trabajo finalizado con éxito! Ambos confirmaron.')),
+                    );
+                    widget.onPostulacionCambiada?.call();
+                  } else {
+                    setState(() => _workerHasConfirmed = true);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              'Confirmación enviada. Esperando que el cliente confirme también.')),
+                    );
+                  }
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            'Error al confirmar: ${e.toString()}')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade700,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text("Trabajo terminado"),
+            ),
+          ),
+        );
+      }
+
+      buttons.add(const SizedBox(width: 8));
+      buttons.add(
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () async {
+              await JobService.cancelJob(widget.postulacion?['id']);
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Trabajo cancelado')),
+              );
+              Navigator.of(context).pop();
+              widget.onPostulacionCambiada?.call();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text("Cancelar trabajo"),
+          ),
+        ),
+      );
+    }
+
+    // Delete application (for rejected/withdrawn states)
+    if (widget.desdePostulaciones &&
+        estadoPostulacion != 'accepted' &&
+        estadoPostulacion != 'finished' &&
+        estadoPostulacion != 'pending') {
+      buttons.add(
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () async {
+              await JobService.deleteApplication(
+                  widget.postulacion?['id']);
+              if (!mounted) return;
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content:
+                        Text('Postulación eliminada correctamente')),
+              );
+              widget.onPostulacionCambiada?.call();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[300],
+              foregroundColor: Colors.black,
+            ),
+            child: const Text("Eliminar Postulacion"),
+          ),
+        ),
+      );
+    }
+
+    if (buttons.isEmpty) return const SizedBox.shrink();
+
+    return Row(children: buttons);
   }
 }

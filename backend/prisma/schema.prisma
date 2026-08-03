@@ -287,6 +287,8 @@ model Service {
   startDate     DateTime?     @map("start_date")
   endDate       DateTime?     @map("end_date")
   status        ServiceStatus @default(in_progress)
+  workerCompletionRequest Boolean @default(false) @map("worker_completion_request")
+  clientCompletionRequest Boolean @default(false) @map("client_completion_request")
 
   application      Application       @relation(fields: [applicationId], references: [id])
   transaction      Transaction?      @relation(fields: [transactionId], references: [id])

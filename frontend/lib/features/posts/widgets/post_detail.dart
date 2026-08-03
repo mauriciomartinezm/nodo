@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:nodo/features/chat/screens/chat_1.dart';
 import 'package:nodo/features/create_post/logic/create_post_service.dart';
 import 'package:nodo/features/edit_post/logic/edit_post_controller.dart';
 import 'package:nodo/features/edit_post/screens/edit_post_screen.dart';
+import 'package:nodo/features/posts/logic/applications_service.dart';
+import 'package:nodo/features/posts/models/job_application.dart';
 import 'package:nodo/features/posts/screens/applications_screen.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:nodo/features/posts/logic/posts_controller.dart';
@@ -33,10 +36,37 @@ class _PostDetailState extends State<PostDetail> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
 
+  JobApplication? _acceptedApplication;
+  bool _loadingApplication = false;
+  bool _clientHasConfirmed = false;
+  bool _workerHasConfirmed = false;
+
   @override
   void initState() {
     super.initState();
     imageList = parsePostImages(widget.publicacion['photos']);
+    if (widget.publicacion['status'] == 'in_progress') {
+      _loadAcceptedApplication();
+    }
+  }
+
+  Future<void> _loadAcceptedApplication() async {
+    setState(() => _loadingApplication = true);
+    try {
+      final apps = await ApplicationsService()
+          .getApplicationsByPostId(widget.publicacion['id']);
+      final accepted = apps.where((a) => a.status == 'accepted').firstOrNull;
+      if (mounted) {
+        setState(() {
+          _acceptedApplication = accepted;
+          _clientHasConfirmed = accepted?.clientCompletionRequest ?? false;
+          _workerHasConfirmed = accepted?.workerCompletionRequest ?? false;
+          _loadingApplication = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingApplication = false);
+    }
   }
 
   @override
@@ -93,11 +123,12 @@ class _PostDetailState extends State<PostDetail> {
                     SizedBox(height: 12.h),
                     Text(
                       widget.publicacion['description'] ?? 'Sin descripción',
-                      style: AppTypography.body
-                          .copyWith(color: AppColors.blue.withValues(alpha: 0.85)),
+                      style: AppTypography.body.copyWith(
+                          color: AppColors.blue.withValues(alpha: 0.85)),
                     ),
                     SizedBox(height: 16.h),
-                    Divider(color: AppColors.slateGrey.withValues(alpha: 0.3)),
+                    Divider(
+                        color: AppColors.slateGrey.withValues(alpha: 0.3)),
                     SizedBox(height: 8.h),
                     _buildInfoRow(
                       Icons.calendar_today_outlined,
@@ -215,9 +246,7 @@ class _PostDetailState extends State<PostDetail> {
           SizedBox(width: 10.w),
           Text(
             '$label: ',
-            style: AppTypography.body.copyWith(
-              color: AppColors.blue
-            ),
+            style: AppTypography.body.copyWith(color: AppColors.blue),
           ),
           Expanded(
             child: Text(
@@ -240,17 +269,20 @@ class _PostDetailState extends State<PostDetail> {
       ),
       child: Text(
         translatePostStatus(status),
-        style: AppTypography.caption.copyWith(
-          color: color,
-        ),
+        style: AppTypography.caption.copyWith(color: color),
       ),
     );
   }
 
   Widget _buildActionButtons() {
     final estado = widget.publicacion['status'];
+
+    if (estado == 'in_progress') {
+      return _buildInProgressActions();
+    }
+
     final buttons = <Widget>[
-      if (estado != 'in_progress' && estado != 'finished')
+      if (estado != 'finished')
         _buildActionButton(
           Icons.edit_outlined,
           'Editar',
@@ -273,7 +305,7 @@ class _PostDetailState extends State<PostDetail> {
             );
           },
         ),
-      if (estado != 'in_progress' && estado != 'finished')
+      if (estado != 'finished')
         _buildActionButton(
           Icons.person_outline,
           'Postulaciones',
@@ -290,15 +322,7 @@ class _PostDetailState extends State<PostDetail> {
             );
           },
         ),
-      if (estado == 'in_progress')
-        _buildActionButton(
-          Icons.check_circle_outline,
-          'Completado',
-          AppColors.success,
-          AppColors.success.withValues(alpha: 0.12),
-          () => _confirmarFinalizacion(widget.publicacion['id']),
-        ),
-      if (estado != 'in_progress' && estado != 'finished')
+      if (estado != 'finished')
         _buildActionButton(
           Icons.delete_outline,
           'Eliminar',
@@ -312,10 +336,134 @@ class _PostDetailState extends State<PostDetail> {
 
     if (buttons.isEmpty) return const SizedBox.shrink();
 
-    return Wrap(
-      spacing: 10.w,
-      runSpacing: 10.h,
-      children: buttons,
+    return Wrap(spacing: 10.w, runSpacing: 10.h, children: buttons);
+  }
+
+  Widget _buildInProgressActions() {
+    if (_loadingApplication) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final workerName = _acceptedApplication?.workerName ?? 'el trabajador';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Completion status panel
+        _buildCompletionStatusPanel(workerName),
+        SizedBox(height: 12.h),
+        // Chat button
+        SizedBox(
+          width: double.infinity,
+          child: _buildActionButton(
+            Icons.chat_bubble_outline,
+            'Chat con $workerName',
+            AppColors.blue,
+            AppColors.blue.withValues(alpha: 0.1),
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ChatScreen()),
+              );
+            },
+          ),
+        ),
+        SizedBox(height: 12.h),
+
+        // Boton de cinfirmacion
+        if (!_clientHasConfirmed)
+          SizedBox(
+            width: double.infinity,
+            child: _buildActionButton(
+              Icons.check_circle_outline,
+              'Confirmar finalización',
+              AppColors.success,
+              AppColors.success.withValues(alpha: 0.12),
+              () => _confirmarFinalizacion(widget.publicacion['id']),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCompletionStatusPanel(String workerName) {
+    return Container(
+      padding: EdgeInsets.all(14.r),
+      decoration: BoxDecoration(
+        color: AppColors.blue.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.blue.withValues(alpha: 0.15),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Estado de finalización',
+            style: AppTypography.label.copyWith(color: AppColors.blue),
+          ),
+          SizedBox(height: 10.h),
+          _buildConfirmationRow(
+            icon: Icons.person_outline,
+            label: 'Tú',
+            confirmed: _clientHasConfirmed,
+          ),
+          SizedBox(height: 6.h),
+          _buildConfirmationRow(
+            icon: Icons.construction_outlined,
+            label: workerName,
+            confirmed: _workerHasConfirmed,
+          ),
+          if (_clientHasConfirmed && !_workerHasConfirmed) ...[
+            SizedBox(height: 10.h),
+            Text(
+              'Esperando confirmación del trabajador…',
+              style: AppTypography.caption
+                  .copyWith(color: AppColors.slateGrey),
+            ),
+          ],
+          if (!_clientHasConfirmed && _workerHasConfirmed) ...[
+            SizedBox(height: 10.h),
+            Text(
+              'El trabajador ya confirmó. Confirma tu parte para cerrar el trabajo.',
+              style: AppTypography.caption.copyWith(color: AppColors.orange),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfirmationRow({
+    required IconData icon,
+    required String label,
+    required bool confirmed,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16.sp, color: AppColors.blue.withValues(alpha: 0.6)),
+        SizedBox(width: 8.w),
+        Expanded(
+          child: Text(
+            label,
+            style: AppTypography.body.copyWith(color: AppColors.blue),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Icon(
+          confirmed ? Icons.check_circle : Icons.radio_button_unchecked,
+          size: 18.sp,
+          color: confirmed ? AppColors.success : AppColors.slateGrey,
+        ),
+        SizedBox(width: 4.w),
+        Text(
+          confirmed ? 'Confirmado' : 'Pendiente',
+          style: AppTypography.caption.copyWith(
+            color: confirmed ? AppColors.success : AppColors.slateGrey,
+          ),
+        ),
+      ],
     );
   }
 
@@ -348,9 +496,9 @@ class _PostDetailState extends State<PostDetail> {
     final confirmado = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar'),
+        title: const Text('Confirmar finalización'),
         content: const Text(
-            '¿Estás seguro de marcar esta publicación como finalizada?'),
+            'Al confirmar, el trabajo se cerrará cuando el trabajador también lo confirme. ¿Estás de acuerdo?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -364,28 +512,46 @@ class _PostDetailState extends State<PostDetail> {
       ),
     );
 
-    if (confirmado == true) {
-      try {
-        final success = await widget.postsController
-            .finishJob(idPublicacion.toString());
+    if (confirmado != true) return;
 
-        if (success) {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Trabajo marcado como finalizado.')),
-          );
-        }
+    try {
+      final result =
+          await widget.postsController.finishJob(idPublicacion.toString());
 
+      if (!mounted) return;
+
+      if (result == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al confirmar la finalización.')),
+        );
+        return;
+      }
+
+      final completed = result['completed'] as bool? ?? false;
+
+      if (completed) {
         setState(() {
           widget.publicacion['status'] = 'finished';
         });
-      } catch (e) {
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al actualizar: ${e.toString()}')),
+          const SnackBar(
+              content: Text('¡Trabajo finalizado con éxito! Ambos confirmaron.')),
+        );
+      } else {
+        setState(() {
+          _clientHasConfirmed = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'Confirmación enviada. Esperando que el trabajador confirme también.')),
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al confirmar: ${e.toString()}')),
+      );
     }
   }
-
 }

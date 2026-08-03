@@ -11,6 +11,8 @@ class JobApplication {
   final String? workerPhoto;
   final String? workerDescription;
   final String workerCategory;
+  final bool workerCompletionRequest;
+  final bool clientCompletionRequest;
 
   JobApplication({
     required this.id,
@@ -23,6 +25,8 @@ class JobApplication {
     required this.workerCategory,
     this.workerPhoto,
     this.workerDescription,
+    this.workerCompletionRequest = false,
+    this.clientCompletionRequest = false,
   });
 
   factory JobApplication.fromJson(Map<String, dynamic> json) {
@@ -35,6 +39,7 @@ class JobApplication {
             .where((name) => name != null)
             .join(', ')
         : 'Sin rubro';
+    final service = json['service'] as Map<String, dynamic>?;
 
     return JobApplication(
       id: json['id'],
@@ -47,6 +52,8 @@ class JobApplication {
       workerPhoto: user?['profilePhoto'],
       workerDescription: worker?['description'],
       workerCategory: categoryName,
+      workerCompletionRequest: service?['workerCompletionRequest'] as bool? ?? false,
+      clientCompletionRequest: service?['clientCompletionRequest'] as bool? ?? false,
     );
   }
 }

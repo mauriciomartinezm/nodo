@@ -190,20 +190,17 @@ class JobService {
     }
   }
 
-  static Future<void> markAsFinished(String applicationId) async {
-    debugPrint("❕❕❕❕Finalizando trabajo");
-
+  static Future<Map<String, dynamic>> markAsFinished(String applicationId) async {
     final url = Uri.parse(ApiConstants.finishJob);
-
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'applicationId': applicationId,
-      }),
+      body: jsonEncode({'applicationId': applicationId}),
     );
-    debugPrint("STATUS CODE: ");
-    debugPrint(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Error al marcar trabajo como terminado (${response.statusCode})');
   }
 
   static Future<void> cancelJob(String? applicationId) async {

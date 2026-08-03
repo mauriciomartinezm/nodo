@@ -109,7 +109,9 @@ class _JobsScreen2State extends State<JobsScreen2> {
       if (_filter.minPrice != null && budget < _filter.minPrice!) return false;
       if (_filter.maxPrice != null &&
           _filter.maxPrice! > 0 &&
-          budget > _filter.maxPrice!) return false;
+          budget > _filter.maxPrice!) {
+        return false;
+      }
       // Tiempo de publicación
       if (_filter.timeFilter != null) {
         final postDate = DateTime.tryParse(pub['postDate'] ?? '');
