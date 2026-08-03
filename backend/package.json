@@ -15,7 +15,8 @@
     "pg": "^8.16.0",
     "prisma": "^7.8.0",
     "redis": "^5.5.5",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "ws": "^8.21.1"
   },
   "scripts": {
     "start": "node -r dotenv/config server.js",

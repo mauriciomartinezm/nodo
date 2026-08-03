@@ -3,6 +3,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class ApiConstants {
   static String get baseUrl => dotenv.env['API_BASE_URL']!;
 
+  /// Converts the HTTP base URL to its WebSocket equivalent.
+  /// e.g. http://10.0.2.2:3001/api → ws://10.0.2.2:3001
+  static String get _wsBase => baseUrl
+      .replaceFirst('https://', 'wss://')
+      .replaceFirst('http://', 'ws://')
+      .replaceAll(RegExp(r'/api/?$'), '');
+
+  static String chatWsUrl(String conversationId) =>
+      '$_wsBase/chat?conversationId=$conversationId';
+
   static String get login => "$baseUrl/login";
   static String get createUser => "$baseUrl/createUser";
   static String updateUser(String id) => "$baseUrl/updateUser/$id";
@@ -47,6 +57,12 @@ class ApiConstants {
   static String get deleteToken => "$baseUrl/deleteToken";
 
   static String get resetPassword => "$baseUrl/resetPassword";
+
+  static String getOrCreateConversation(String applicationId) =>
+      "$baseUrl/getOrCreateConversation/$applicationId";
+  static String getMessages(String conversationId) =>
+      "$baseUrl/getMessages/$conversationId";
+  static String get sendMessage => "$baseUrl/sendMessage";
 
   static String get createReport => "$baseUrl/createReport";
 

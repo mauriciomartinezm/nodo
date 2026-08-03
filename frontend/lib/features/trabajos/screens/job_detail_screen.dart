@@ -378,16 +378,23 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
       buttons.add(const SizedBox(width: 8));
     }
 
-    // Chat button — shown when there's a relationship (from postulaciones)
+    // Chat button — only when there is an application linking both parties
     if (widget.desdePostulaciones && estadoPostulacion != 'finished') {
       buttons.add(
         Expanded(
           child: ElevatedButton.icon(
             onPressed: () {
+              final currentUserId =
+                  Provider.of<UserProvider>(context, listen: false).user?.id ??
+                      '';
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ChatScreen(),
+                  builder: (context) => ChatScreen(
+                    applicationId: widget.postulacion!['id'] as String,
+                    currentUserId: currentUserId,
+                    otherPersonName: nombreSolo,
+                  ),
                 ),
               );
             },
@@ -400,32 +407,6 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.blue,
               foregroundColor: AppColors.white,
-            ),
-          ),
-        ),
-      );
-    } else if (!widget.desdePostulaciones && estadoPostulacion != 'finished') {
-      // Chat button for non-applied workers viewing the job
-      buttons.add(
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ChatScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.chat_bubble_outline, size: 18),
-            label: Text(
-              "Hablar con $nombreSolo",
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
             ),
           ),
         ),

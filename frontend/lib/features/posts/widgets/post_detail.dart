@@ -12,6 +12,7 @@ import '../../../core/theme/app_theme.dart';
 import 'package:nodo/features/posts/logic/posts_controller.dart';
 import 'package:nodo/features/posts/utils/post_format_utils.dart';
 import 'package:nodo/features/posts/utils/post_status.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class PostDetail extends StatefulWidget {
@@ -361,9 +362,18 @@ class _PostDetailState extends State<PostDetail> {
             AppColors.blue,
             AppColors.blue.withValues(alpha: 0.1),
             () {
+              final currentUserId =
+                  Provider.of<UserProvider>(context, listen: false).user?.id ??
+                      '';
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ChatScreen()),
+                MaterialPageRoute(
+                  builder: (_) => ChatScreen(
+                    applicationId: _acceptedApplication!.id,
+                    currentUserId: currentUserId,
+                    otherPersonName: workerName,
+                  ),
+                ),
               );
             },
           ),

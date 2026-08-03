@@ -5,6 +5,7 @@ import 'package:nodo/features/chat/screens/chat_1.dart';
 import 'package:nodo/features/posts/logic/applications_controller.dart';
 import 'package:nodo/features/posts/logic/applications_service.dart';
 import 'package:nodo/features/posts/models/job_application.dart';
+import 'package:nodo/shared/providers/user_provider.dart';
 
 class ApplicationsScreen extends StatelessWidget {
   final String postId;
@@ -22,10 +23,18 @@ class ApplicationsScreen extends StatelessWidget {
 class _ApplicationsView extends StatelessWidget {
   const _ApplicationsView();
 
-  void _goToChat(BuildContext context) {
+  void _goToChat(BuildContext context, JobApplication application) {
+    final currentUserId =
+        Provider.of<UserProvider>(context, listen: false).user?.id ?? '';
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ChatScreen()),
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(
+          applicationId: application.id,
+          currentUserId: currentUserId,
+          otherPersonName: application.workerName,
+        ),
+      ),
     );
   }
 
@@ -69,7 +78,7 @@ class _ApplicationsView extends StatelessWidget {
         _showInfoDialog(context, application);
         return;
       case 'chat':
-        _goToChat(context);
+        _goToChat(context, application);
         return;
       case 'aceptar':
       case 'rechazar':

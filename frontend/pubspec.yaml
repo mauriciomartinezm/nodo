@@ -58,6 +58,7 @@ dependencies:
   path: ^1.9.1
   flutter_image_compress: ^2.4.0
   flutter_dotenv: ^5.2.1
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:
